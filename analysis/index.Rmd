@@ -7,4 +7,9 @@ output:
 ---
 
 Welcome to Bingru's research journal.  
-Please use this [link](first-analysis.html) to check the results
+
+Please use the following link
+
+##**[Analysis](first-analysis.html)** 
+
+to check the latest results

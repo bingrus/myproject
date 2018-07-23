@@ -1,5 +1,5 @@
 ---
-title: "presentation 2"
+title: "Analysis on the enrichment of the target sets for each regulator"
 author: "Bingru Sun"
 date: "23/07/2018"
 output: html_document
@@ -15,8 +15,10 @@ library(grid)
 ```
 
 ## -log10(p-value) barcodeplot of regulator target sets
-
-
+* One target set per regulator
+* Perfrom Roast gene set analysis for the target set of each regulator comparing mutated cell line to non-mutated cell line
+* barcode plot plots on -log10 of the p-value for each set 
+* Down and Up regulation is colored by the -log10(0.05),-log10(0.95) cut-off
 
 ```{r cars,echo=FALSE}
 result.nona<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/new_roastresult.csv',row.names = 1)
@@ -25,9 +27,16 @@ regulator.20<-as.character(regulator.20.table$x)
 index.vector<-row.names(result.nona) %in% regulator.20
 barcodeplot(-log10(result.nona$Up),index = index.vector,quantiles = c(-log10(0.05
 ),-log10(0.95)))
+
+```
+
+## Regulators that have significance in up regulation (upper table) and down regulator (lower table) of its targets in the roast gene set test when mutated
+```{r table,echo = FALSE}
 result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),]
 result.nona[regulator.20,][which(result.nona[regulator.20,]$Up>0.95),]
 ```
+
+
 ```{r regulator,include = FALSE}
 mydata<-getGEO(filename='/Users/ll/Desktop/work/data/GSE36133_series_matrix.txt')
 mutation_o<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
@@ -152,10 +161,21 @@ a<-barcodeplot(fit2$coeff[,1],index = index.vector,quantiles = c(1,-1))
 return(a+title(gene))
 }
 ```
-
-```{r plot,fig.width=10, fig.height=20}
+  
+## Barcodeplot of logFC of targets of which the regulator is significant in up regulation in the roast gene set analysis after mutation
+  *colored by logFC cut-off of -1 and 1
+```{r plot,fig.width=10, fig.height=20,echo=FALSE}
 par(mfrow=c(5,2))
 for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),])){
+  plotbarcode(gene)
+}
+```
+ 
+##Barcodeplot of logFC of targest of which the regulator is significant in down regulation in the roast gene set analysis after mutation
+   *colored by logFC cut-off of -1 and 1
+```{r plot2,fig.width=10, fig.height=10,echo = FALSE}
+par(mfrow=c(3,1))
+for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20,]$Down<0.05),])){
   plotbarcode(gene)
 }
 ```
