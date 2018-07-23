@@ -1,0 +1,163 @@
+---
+title: "presentation 2"
+author: "Bingru Sun"
+date: "23/07/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(limma)
+library(org.Hs.eg.db)
+library(annotate)
+library(GEOquery)
+library(grid)
+```
+
+## -log10(p-value) barcodeplot of regulator target sets
+
+
+
+```{r cars,echo=FALSE}
+result.nona<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/new_roastresult.csv',row.names = 1)
+regulator.20.table<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/regulator_atleast_20cl.csv',row.names = 1)
+regulator.20<-as.character(regulator.20.table$x)
+index.vector<-row.names(result.nona) %in% regulator.20
+barcodeplot(-log10(result.nona$Up),index = index.vector,quantiles = c(-log10(0.05
+),-log10(0.95)))
+result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),]
+result.nona[regulator.20,][which(result.nona[regulator.20,]$Up>0.95),]
+```
+```{r regulator,include = FALSE}
+mydata<-getGEO(filename='/Users/ll/Desktop/work/data/GSE36133_series_matrix.txt')
+mutation_o<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
+mutation<-mutation_o
+mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
+mutation_s<-mutation_s[which(mutation_s$isDeleterious == 'TRUE'),]
+mutation_s_w<-mutation_s
+mutation_s_w<-data.frame(mutation_s$Hugo_Symbol,mutation_s$Tumor_Sample_Barcode)
+genelist<-as.character(unique(mutation_s_w[,1]))
+rs<-function(x){
+  c<-as.character(mutation_s_w[which(mutation_s_w$mutation_s.Hugo_Symbol==x),2])
+  return(c)
+  }
+a<-lapply(genelist,rs)
+names(a)<-genelist
+mutatedcelllines<-a
+b<-lapply(mutatedcelllines,length)
+mutatedcelllines_num<-as.data.frame(b)
+mutatedcelllines_num<-t(mutatedcelllines_num)
+colnames(mutatedcelllines_num)<-c('freq')
+
+regulator<-read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/regulator classification.txt')
+regulator<-regulator[,1]
+regulator<-as.character(regulator)
+regulator<-unique(regulator)
+
+reg <- read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/Regulatory network.txt')
+regulator <- unique(reg[,1])
+target <- unique(reg[,2])
+reg_m<-matrix(nrow=length(regulator),ncol=length(target))
+colnames(reg_m)<-target
+row.names(reg_m)<-regulator
+reg_m_n<-reg_m
+for (i in 1:length(reg[,1])){
+  
+  reg_m_n[reg[i,1],reg[i,2]] = 1
+}
+
+info<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_sample_info_file_2012-10-18.txt')
+celllines<-unique(info$CCLE.name)
+celllines<-as.character(celllines)
+```
+```{r info,include=FALSE}
+sample.info <- read.csv('/Users/ll/Desktop/work/data/CCLE/sample_info.csv')
+cl.sample<-c()
+n<-1
+k <- 1
+t <- c()
+sample.title<-as.character(sample.info$Title)
+for (i in sample.title){
+a<- as.character(info$CCLE.name[info$Cell.line.primary.name == i])
+if(length(a) == 0){
+  cl.sample[n]<-i
+} 
+else{
+cl.sample[n]<- a}
+  n <-n + 1
+  }
+sample.accession<-sample.info$Accession
+sample.info.correct<-rbind(as.character(sample.accession),cl.sample)
+sample.info.correct<-t(sample.info.correct)
+
+cl<-rep(0,length(cl.sample))
+regulator<-as.character(regulator)
+regulators.cl<-regulator[which(regulator %in% names(mutatedcelllines))]
+n <- length(cl.sample)
+cl[n+1] <- 'cl'
+for (i in regulators.cl){
+cl.matrix <- cl.sample %in% mutatedcelllines[[i]]
+cl.matrix[n+1] <- i 
+cl<-rbind(cl.matrix,cl)
+}
+row.names(cl)<-as.vector(cl[,ncol(cl)])
+cl.o<-cl
+cl<-cl[,-ncol(cl)]
+colnames(cl)<-cl.sample
+cl<-cl[-which(row.names(cl) == 'cl'),]
+gene.nomutate<-c()
+i<-1
+pd<-pData(mydata)
+toremove<-as.character(pd$`primary site:ch1`)
+toremove<-toremove == 'haematopoietic_and_lymphoid_tissue'
+cl<-cl[,-which(toremove == TRUE)]
+for (gene in regulators.cl){
+  if (sum(as.numeric(as.logical(cl[gene,]))) == 0){
+    gene.nomutate[i]<-gene
+    i<-i+1
+  }
+}
+regulators.cl.mutate<-regulators.cl[-which(regulators.cl %in% gene.nomutate)]
+```
+
+```{r barcodeplot,include=FALSE}
+plotbarcode<-function(gene){
+n<-ncol(cl)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(as.logical(cl[gene,]))
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('mutated','non_mutated')
+fit <- lmFit(exprs(mydata)[,-which(toremove == TRUE)], cl.design)
+contrasts <- makeContrasts(mutated - non_mutated, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+anno <- fData(mydata)
+ent<-as.character(anno$ORF)
+genename<-getSYMBOL(ent,data='org.Hs.eg')
+anno <- cbind(anno,genename)
+fit2$genes <- anno
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+target<-colnames(reg_m_n)
+mylist<-target[as.logical(reg_m_n[gene,])]
+result.test<-testResults[which(testResults$genename %in% mylist),]
+result.test$Description <- rep(gene,nrow(result.test))
+index.vector = fit2$genes$genename %in% mylist
+sum(index.vector)
+a<-barcodeplot(fit2$coeff[,1],index = index.vector,quantiles = c(1,-1))
+return(a+title(gene))
+}
+```
+
+```{r plot,fig.width=10, fig.height=20}
+par(mfrow=c(5,2))
+for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),])){
+  plotbarcode(gene)
+}
+```
+
+
