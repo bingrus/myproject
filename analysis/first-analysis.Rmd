@@ -153,6 +153,7 @@ testResults <- topTable(fit2, number=nrow(fit2))
 testResults <- testResults[complete.cases(testResults),]
 target<-colnames(reg_m_n)
 mylist<-target[as.logical(reg_m_n[gene,])]
+mylist<-mylist[!is.na(mylist)]
 result.test<-testResults[which(testResults$genename %in% mylist),]
 result.test$Description <- rep(gene,nrow(result.test))
 index.vector = fit2$genes$genename %in% mylist
