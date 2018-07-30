@@ -346,7 +346,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/71f653670bf6f22892e00a7a5d08a8d413495d96" target="_blank">71f6536</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/9887a502be5370c97846705f8d395ebade6e2df3" target="_blank">9887a50</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -381,6 +381,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/9887a502be5370c97846705f8d395ebade6e2df3/analysis/first-analysis.Rmd" target="_blank">9887a50</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-07-30
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/first-analysis.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/75722510fae882d35a8d4338cd50b90cd89b85d3/docs/first-analysis.html" target="_blank">7572251</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-07-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -865,6 +899,9 @@ bingrus
 </div>
 <div id="atg5-and-maml2-ssgsea" class="section level2">
 <h2>ATG5 and MAML2 ssgsea</h2>
+<ul>
+<li>plot 3 types (not-mutated-CNV,notmutated-notCNV,mutated)</li>
+</ul>
 <p><img src="figure/first-analysis.Rmd/ssgsea-1.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of ssgsea-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
@@ -951,6 +988,32 @@ GSM887608  0.2601871  mutate           ovary         SNU-119</code></pre>
 <li>Convert to z-score and run ssgsea</li>
 <li>For mixed gene sets, test for absolute value</li>
 <li>Find IC50 for the inhibitor of the selected gene-cell line pair</li>
+</ul>
+</div>
+<div id="meeting-summary" class="section level2">
+<h2>Meeting Summary</h2>
+<ul>
+<li>Need to look more closely at the target sets
+<ul>
+<li>roast — did fry</li>
+<li>abs(logFC)
+<ul>
+<li>ssgsea</li>
+</ul></li>
+<li>ssgsea
+<ul>
+<li>wilcox test between mcl-notmcl</li>
+</ul></li>
+</ul></li>
+<li>global analysis
+<ul>
+<li>DGE for all mcl-notmcl (which gene or gene set)</li>
+<li>ssgsea for more precise pathway or process</li>
+</ul></li>
+<li>IC50
+<ul>
+<li>comparison between mcl-notmcl</li>
+</ul></li>
 </ul>
 </div>
 <div id="session-information" class="section level2">
