@@ -239,6 +239,8 @@ for (gene in toplot){
 ```
 
 ##ATG5 and MAML2 ssgsea 
+ 
+  * plot 3 types (not-mutated-CNV,notmutated-notCNV,mutated)
 
 ```{r ssgsea,echo = FALSE}
 load("~/Desktop/work/analysis/analysis_on_expression/ssgsea_nohemo.Rdata")
@@ -286,3 +288,17 @@ atg5_mutate
 * Convert to z-score and run ssgsea 
 * For mixed gene sets, test for absolute value
 * Find IC50 for the inhibitor of the selected gene-cell line pair
+
+##Meeting Summary
+* Need to look more closely at the target sets
+    - roast --- did fry
+    - abs(logFC) 
+        - ssgsea
+    - ssgsea 
+        - wilcox test between mcl-notmcl
+* global analysis
+    - DGE for all mcl-notmcl (which gene or gene set)
+    - ssgsea for more precise pathway or process
+
+* IC50
+    - comparison between mcl-notmcl
