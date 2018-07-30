@@ -255,6 +255,7 @@ par(mfrow=c(2,1))
 plotgene('MAML2')
 plotgene('ATG5')
 ```
+
 ###Mutated cell line information for ATG5 and MAML2
 
 ```{r extractcl,echo = FALSE}
@@ -280,3 +281,8 @@ atg5_mutate$primary.site<-atg5.mutate.info$`primary site:ch1`
 atg5_mutate$title<-atg5.mutate.info$title
 atg5_mutate
 ```
+##Result Discussion
+* The resolution of the test p-value (fry(faster and more precise) mroast): 1) the roast has less resolution of the p-value as it is depended on the number of rotations 2) p-value changes from run to run
+* Convert to z-score and run ssgsea 
+* For mixed gene sets, test for absolute value
+* Find IC50 for the inhibitor of the selected gene-cell line pair
