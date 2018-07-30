@@ -346,7 +346,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/a5ba0c88b62b06d9893adf100cece800755587f6" target="_blank">a5ba0c8</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/2f42e9e42ede410336b29c395a497834ab8ad320" target="_blank">2f42e9e</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -381,6 +381,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/2f42e9e42ede410336b29c395a497834ab8ad320/analysis/first-analysis.Rmd" target="_blank">2f42e9e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-07-30
+</td>
+<td style="text-align:left;">
+fry result
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/442ede89546204216446a53b5f92d91dfab23dbc/docs/first-analysis.html" target="_blank">442ede8</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-07-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -795,8 +829,45 @@ bingrus
 <p>Observing the barcodeplots, I did not find significant trend in the logFC for the selected genes. Therefore, I turn to use a competitive gene set test.</p>
 </div>
 </div>
-<div id="camera-analysis" class="section level2">
-<h2>Camera Analysis</h2>
+<div id="roast-with-fry" class="section level2">
+<h2>Roast with fry</h2>
+<pre><code>[1] 49</code></pre>
+<pre><code>       NGenes Direction       PValue PValue.Mixed
+CREBBP    100        Up   0.03305583            1
+PIK3CA    396        Up   0.02984725    0.9940274
+CUX1      391        Up  0.004727074    0.2950322
+AHR       430        Up 0.0007619592    0.8224946
+EP300      73        Up  0.001089873            1
+EGF       271        Up   0.01418622    0.9953728
+ZEB1     1223        Up  0.007814694    0.3450715
+IRF8      209        Up    0.0389464            1
+ZBTB14    365        Up   0.04666588    0.9883665
+MYCN      235        Up   0.01464574    0.9989928
+FOXM1     234        Up  0.004505025    0.9999777
+GATA3     200        Up    0.0140192    0.9999972
+IRF2      121        Up   0.04631061            1
+TFCP2     391        Up  0.008063538    0.9965628
+STAT5B    327        Up  0.005797468    0.3377285
+SREBF1   1976        Up   0.01514092    0.3642378
+MAZ      1878        Up   0.01469983   0.06085112
+CDX2      222        Up    0.0187715    0.9991497
+EGR2      163        Up    0.0208556            1</code></pre>
+<pre><code>     NGenes Direction     PValue PValue.Mixed
+TP53    656        Up  0.1143966 2.765509e-05
+SOX9    400        Up 0.07514594   0.04028429
+RB1     253        Up  0.3481704 1.321314e-16
+TCF3   3580        Up 0.09080691   0.00434379</code></pre>
+<ul>
+<li>at least 5 mutated cell lines and 20 regulators</li>
+</ul>
+<div id="mix" class="section level3">
+<h3>Mix</h3>
+<p><img src="figure/first-analysis.Rmd/fryplot0-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="directional" class="section level3">
+<h3>Directional</h3>
+<p><img src="figure/first-analysis.Rmd/fryplot-1.png" width="960" style="display: block; margin: auto;" /><img src="figure/first-analysis.Rmd/fryplot-2.png" width="960" style="display: block; margin: auto;" /> ##Camera Analysis</p>
+</div>
 <div id="regulators-that-have-significance-in-the-camera-gene-set-test-when-mutated" class="section level3">
 <h3>Regulators that have significance in the CAMERA gene set test when mutated</h3>
 <pre><code>          NGenes Direction       PValue
@@ -1073,10 +1144,11 @@ attached base packages:
  [8] datasets  methods   base     
 
 other attached packages:
- [1] bindrcpp_0.2.2       ggplot2_3.0.0        GEOquery_2.48.0     
- [4] annotate_1.58.0      XML_3.98-1.11        org.Hs.eg.db_3.6.0  
- [7] AnnotationDbi_1.42.1 IRanges_2.14.10      S4Vectors_0.18.3    
-[10] Biobase_2.40.0       BiocGenerics_0.26.0  limma_3.36.2        
+ [1] statmod_1.4.30       bindrcpp_0.2.2       ggplot2_3.0.0       
+ [4] GEOquery_2.48.0      annotate_1.58.0      XML_3.98-1.11       
+ [7] org.Hs.eg.db_3.6.0   AnnotationDbi_1.42.1 IRanges_2.14.10     
+[10] S4Vectors_0.18.3     Biobase_2.40.0       BiocGenerics_0.26.0 
+[13] limma_3.36.2        
 
 loaded via a namespace (and not attached):
  [1] tidyselect_0.2.4  purrr_0.2.5       colorspace_1.3-2 
