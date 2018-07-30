@@ -187,6 +187,56 @@ for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20
   
   Observing the barcodeplots, I did not find significant trend in the logFC for the selected genes. Therefore, I turn to use a competitive gene set test.
 
+##Roast with fry
+
+```{r fry,echo = FALSE}
+library(statmod)
+fry.targetset<-function(x){
+gene<-x
+idx <- target.matrix[,gene]
+n<-ncol(cl)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(as.logical(cl[gene,]))
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('mutated','non_mutated')
+r1 <- fry(exprs(mydata)[,-which(toremove == TRUE)], idx, cl.design,contrast=makeContrasts(mutated - non_mutated, levels=cl.design),adjust.method = 'BH')
+r1$Direction <- as.character(r1$Direction)
+return(r1)}
+#result.fry<-sapply(tofry,fry.targetset)
+#result.fry<-t(as.data.frame(result.fry))
+#result.fry.nona<-na.omit(result.fry)
+#result.fry.nona<-as.data.frame(result.fry.nona)
+load('/Users/ll/Desktop/work/analysis/analysis_on_expression/fryresult.Rdata')
+result.fry.nona.p<-result.fry.nona[which(result.fry.nona$PValue<0.05),]
+nrow(result.fry.nona.p)
+result.fry.nona.p.20<-result.fry.nona.p[which(result.fry.nona.p$NGenes>20),]
+result.fry.nona.pmix<-result.fry.nona[which(result.fry.nona$PValue.Mixed<0.05),]
+result.fry.nona.pmix.20<-result.fry.nona.pmix[which(result.fry.nona.pmix$NGenes>20),]
+#save(result.fry.nona,file = 'fryresult.Rdata')
+result.fry.nona.p.20
+result.fry.nona.pmix.20
+```
+
+* at least 5 mutated cell lines and 20 regulators
+
+###Mix
+```{r fryplot0,fig.width=10, fig.height=10,echo = FALSE}
+par(mfrow=c(2,2))
+for (gene in row.names(result.fry.nona.pmix.20)){
+  plotbarcode(gene)
+}
+```
+
+###Directional
+```{r fryplot, fig.width=10, fig.height=10,echo = FALSE}
+par(mfrow=c(5,2))
+for (gene in row.names(result.fry.nona.p.20)){
+  plotbarcode(gene)
+}
+```
 ##Camera Analysis
 
 ###Regulators that have significance in the CAMERA gene set test when mutated
