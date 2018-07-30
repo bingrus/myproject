@@ -302,3 +302,6 @@ atg5_mutate
 
 * IC50
     - comparison between mcl-notmcl
+
+* For thesis
+    - what are the null hypothesis of roast or camera
