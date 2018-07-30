@@ -12,9 +12,11 @@ library(org.Hs.eg.db)
 library(annotate)
 library(GEOquery)
 library(grid)
+library(ggplot2)
 ```
+##ROAST Analysis
 
-## -log10(p-value) barcodeplot of regulator target sets
+### -log10(p-value) barcodeplot of regulator target sets
 * One target set per regulator
 * Perfrom Roast gene set analysis for the target set of each regulator comparing mutated cell line to non-mutated cell line
 * barcode plot plots on -log10 of the p-value for each set 
@@ -30,7 +32,7 @@ barcodeplot(-log10(result.nona$Up),index = index.vector,quantiles = c(-log10(0.0
 
 ```
 
-## Regulators that have significance in up regulation (upper table) and down regulator (lower table) of its targets in the roast gene set test when mutated
+### Regulators that have significance in up regulation (upper table) and down regulator (lower table) of its targets in the roast gene set test when mutated
 ```{r table,echo = FALSE}
 result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),]
 result.nona[regulator.20,][which(result.nona[regulator.20,]$Up>0.95),]
@@ -163,7 +165,7 @@ return(a+title(gene))
 }
 ```
   
-## Barcodeplot of logFC of targets of which the regulator is significant in up regulation in the roast gene set analysis after mutation
+### Barcodeplot of logFC of targets of which the regulator is significant in up regulation in the roast gene set analysis after mutation
   *colored by logFC cut-off of -1 and 1
 ```{r plot,fig.width=10, fig.height=20,echo=FALSE}
 par(mfrow=c(5,2))
@@ -172,7 +174,7 @@ for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20
 }
 ```
  
-##Barcodeplot of logFC of targest of which the regulator is significant in down regulation in the roast gene set analysis after mutation
+###Barcodeplot of logFC of targest of which the regulator is significant in down regulation in the roast gene set analysis after mutation
    *colored by logFC cut-off of -1 and 1
 ```{r plot2,fig.width=10, fig.height=10,echo = FALSE}
 par(mfrow=c(3,1))
@@ -181,4 +183,100 @@ for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20
 }
 ```
 
+###Discussion
+  
+  Observing the barcodeplots, I did not find significant trend in the logFC for the selected genes. Therefore, I turn to use a competitive gene set test.
 
+##Camera Analysis
+
+###Regulators that have significance in the CAMERA gene set test when mutated
+
+```{r camera,echo = FALSE}
+load("~/Desktop/work/analysis/analysis_on_expression/cameraresult.Rdata")
+result.camera.nona.p
+```
+
+###Barcodeplot of logFC of targest of which the regulator is significant in the CAMERA gene set analysis after mutation
+*selected regulators that have at least 1 target and 5 mutated cell lines 
+
+```{r result,fig.width=10, fig.height=20,echo=FALSE}
+mtcl_regulator_o<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/mtcl_regulator.csv',row.names = 1)
+mtcl_regulator <- mtcl_regulator_o$x
+names(mtcl_regulator) <- row.names(mtcl_regulator_o)
+gene.n1<-row.names(result.camera.nona.p[result.camera.nona.p$NGenes>1,])
+regulator.5<-names(mtcl_regulator[mtcl_regulator>5])
+toplot<-intersect(gene.n1,regulator.5)
+par(mfrow=c(5,2))
+for (gene in toplot){
+  plotbarcode(gene)
+}
+```
+
+###Barcodeplot of logFC of targest of which the regulator is significant in the CAMERA gene set analysis after mutation and selected in the CNV analysis
+
+* from above selected genes, only 2 overlaps with the previous CNV analysis
+  + wilcox test p value significant comparing mutated cell lines and not mutated cell lines (no multiple comparison adjustment)
+  + ratio of cnv changes is over 0.5 from nonmutated cell lines to mutated cell lines
+  
+```{r cnv,fig.width=10, fig.height=15,echo=FALSE,include = FALSE}
+cnv_genes_o<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/cnv_genes.csv',row.names = 1)
+cnv.genes<-as.character(cnv_genes_o$x)
+toplot<-intersect(cnv.genes,gene.n1)
+par(mfrow=c(3,2))
+for (gene in toplot){
+  plotbarcode(gene)
+}
+```
+
+
+```{r cnv2,fig.width=10, fig.height=15,echo=FALSE}
+load("~/Desktop/work/analysis/analysis_on_expression/sig_genes.Rdata")
+toplot<-intersect(sig.genes,gene.n1)
+par(mfrow=c(3,2))
+for (gene in toplot){
+  plotbarcode(gene)
+}
+```
+
+##ATG5 and MAML2 ssgsea 
+
+```{r ssgsea,echo = FALSE}
+load("~/Desktop/work/analysis/analysis_on_expression/ssgsea_nohemo.Rdata")
+plotgene<-function(x){
+gene.cl<-cl[x,]
+gene.score<-regsva[x,]
+gene.cl[which(gene.cl == 'TRUE')]<-'mutate'
+gene.cl[which(gene.cl == 'FALSE')]<-'notmutate'
+gene.df<-data.frame(gene.score,gene.cl)
+colnames(gene.df)<-c('score','condition')
+Scatterplot<-ggplot(gene.df,aes(condition,score,color = condition))+geom_point(position = 'jitter')+scale_colour_manual(values = c('darkorange','darkorchid4'))
+return(Scatterplot+geom_boxplot(alpha = 0,colour = 'black')+ggtitle(x))}
+par(mfrow=c(2,1))
+plotgene('MAML2')
+plotgene('ATG5')
+```
+###Mutated cell line information for ATG5 and MAML2
+
+```{r extractcl,echo = FALSE}
+extract_cl<-function(x){
+gene.cl<-cl[x,]
+gene.score<-regsva[x,]
+gene.cl[which(gene.cl == 'TRUE')]<-'mutate'
+gene.cl[which(gene.cl == 'FALSE')]<-'notmutate'
+gene.df<-data.frame(gene.score,gene.cl)
+return(gene.df)}
+maml2<-extract_cl('MAML2')
+maml2_mutate<-maml2[which(maml2$gene.cl == 'mutate'),]
+maml2_mutate_min<-maml2_mutate[which.min(maml2_mutate$gene.score),]
+maml2.mutate.info<-pd[row.names(maml2_mutate),]
+maml2_mutate$primary.site<-maml2.mutate.info$`primary site:ch1`
+maml2_mutate$title<-maml2.mutate.info$title
+maml2_mutate
+atg5<-extract_cl('ATG5')
+atg5_mutate<-atg5[which(atg5$gene.cl == 'mutate'),]
+atg5_mutate_min<-atg5_mutate[which.max(atg5_mutate$gene.score),]
+atg5.mutate.info<-pd[row.names(atg5_mutate),]
+atg5_mutate$primary.site<-atg5.mutate.info$`primary site:ch1`
+atg5_mutate$title<-atg5.mutate.info$title
+atg5_mutate
+```
