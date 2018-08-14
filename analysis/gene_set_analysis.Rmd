@@ -1,0 +1,326 @@
+---
+title: "gene set analysis"
+author: "bingrus"
+date: "2018-08-14"
+output: workflowr::wflow_html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(htmlwidgets)
+library(limma)
+library(org.Hs.eg.db)
+library(annotate)
+library(GEOquery)
+library(grid)
+library(ggplot2)
+library(reshape)
+library(GSVA)
+library(GSEABase)
+library(GO.db)
+library(gplots)
+library(heatmaply)
+```
+
+```{r regulator,include = FALSE}
+mydata<-getGEO(filename='/Users/ll/Desktop/work/data/GSE36133_series_matrix.txt')
+mutation_o<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
+mutation<-mutation_o
+mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
+mutation_s<-mutation_s[which(mutation_s$isDeleterious == 'TRUE'),]
+mutation_s_w<-mutation_s
+mutation_s_w<-data.frame(mutation_s$Hugo_Symbol,mutation_s$Tumor_Sample_Barcode)
+genelist<-as.character(unique(mutation_s_w[,1]))
+rs<-function(x){
+  c<-as.character(mutation_s_w[which(mutation_s_w$mutation_s.Hugo_Symbol==x),2])
+  return(c)
+  }
+a<-lapply(genelist,rs)
+names(a)<-genelist
+mutatedcelllines<-a
+b<-lapply(mutatedcelllines,length)
+mutatedcelllines_num<-as.data.frame(b)
+mutatedcelllines_num<-t(mutatedcelllines_num)
+colnames(mutatedcelllines_num)<-c('freq')
+
+regulator<-read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/regulator classification.txt')
+regulator<-regulator[,1]
+regulator<-as.character(regulator)
+regulator<-unique(regulator)
+
+reg <- read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/Regulatory network.txt')
+regulator <- unique(reg[,1])
+target <- unique(reg[,2])
+reg_m<-matrix(nrow=length(regulator),ncol=length(target))
+colnames(reg_m)<-target
+row.names(reg_m)<-regulator
+reg_m_n<-reg_m
+for (i in 1:length(reg[,1])){
+  
+  reg_m_n[reg[i,1],reg[i,2]] = 1
+}
+
+#count targets for each regulator
+reg_m_n[is.na(reg_m_n)]<-0
+reg_tar<-apply(reg_m_n,1,sum)
+
+info<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_sample_info_file_2012-10-18.txt')
+celllines<-unique(info$CCLE.name)
+celllines<-as.character(celllines)
+```
+
+```{r info,include=FALSE}
+sample.info <- read.csv('/Users/ll/Desktop/work/data/CCLE/sample_info.csv')
+cl.sample<-c()
+n<-1
+k <- 1
+t <- c()
+sample.title<-as.character(sample.info$Title)
+for (i in sample.title){
+a<- as.character(info$CCLE.name[info$Cell.line.primary.name == i])
+if(length(a) == 0){
+  cl.sample[n]<-i
+} 
+else{
+cl.sample[n]<- a}
+  n <-n + 1
+  }
+sample.accession<-sample.info$Accession
+sample.info.correct<-rbind(as.character(sample.accession),cl.sample)
+sample.info.correct<-t(sample.info.correct)
+
+cl<-rep(0,length(cl.sample))
+regulator<-as.character(regulator)
+regulators.cl<-regulator[which(regulator %in% names(mutatedcelllines))]
+n <- length(cl.sample)
+cl[n+1] <- 'cl'
+for (i in regulators.cl){
+cl.matrix <- cl.sample %in% mutatedcelllines[[i]]
+cl.matrix[n+1] <- i 
+cl<-rbind(cl.matrix,cl)
+}
+row.names(cl)<-as.vector(cl[,ncol(cl)])
+cl.o<-cl
+cl<-cl[,-ncol(cl)]
+colnames(cl)<-cl.sample
+cl<-cl[-which(row.names(cl) == 'cl'),]
+gene.nomutate<-c()
+i<-1
+pd<-pData(mydata)
+toremove<-as.character(pd$`primary site:ch1`)
+toremove<-toremove == 'haematopoietic_and_lymphoid_tissue'
+cl<-cl[,-which(toremove == TRUE)]
+for (gene in regulators.cl){
+  if (sum(as.numeric(as.logical(cl[gene,]))) == 0){
+    gene.nomutate[i]<-gene
+    i<-i+1
+  }
+}
+cl.m <- apply(cl,1,as.logical)
+reg.10 <- names(reg_tar[reg_tar>10])
+regulators.cl.mutate<-regulators.cl[-which(regulators.cl %in% gene.nomutate)]
+reg_cl <- apply(cl.m,2,sum)
+reg_5 <- names(reg_cl[reg_cl>3])
+genes.toanalyze<-intersect(reg.10,reg_5)
+genes.toanalyze<-intersect(genes.toanalyze,regulators.cl.mutate)
+```
+
+##Camera analysis on biological processes
+* select regulators for mutated in at least 3 cell lines with at least 10 targets
+* 173 regulators are selected
+* Camera gene set analysis conducted on the pairs of mutated cell lines versus non-mutated cell lines for the selected regulators
+* Plot the significance level for each competitive gene set test 
+    - Plot 1 - P-value 
+    - Positive for Up Direction; Negative for Down Direction)
+```{r getannotation,include=FALSE}
+anno <- fData(mydata)
+library(org.Hs.eg.db)
+library(annotate)
+ent<-as.character(anno$ORF)
+genename<-getSYMBOL(ent,data='org.Hs.eg')
+anno <- cbind(anno,genename)
+gene.ORF<-anno$ORF
+gene.name<-anno$genename
+```
+
+```{r idx, include = FALSE}
+slim_terms <- getOBOCollection("~/Desktop/work/analysis/analysis_on_expression/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+#gogsva<-gsva(e,pathways,method=c('ssgsea'))
+ids<-ids2indices(pathways,gene.ORF)
+```
+
+```{r camera , include = FALSE}
+camera.targetset<-function(x){
+gene<-x
+n<-ncol(cl)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(as.logical(cl[gene,]))
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('mutated','non_mutated')
+r1 <- camera(exprs(mydata)[,-which(toremove == TRUE)], ids, cl.design,contrast=makeContrasts(mutated - non_mutated, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1)}
+```
+
+```{r camera2,include=FALSE}
+#result.camera<-lapply(genes.toanalyze,camera.targetset)
+#names(result.camera)<-genes.toanalyze
+#save(result.camera,file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/goslim_camera.Rdata')
+```
+
+## Go Slim no reorder (blue for mc, red for uc)
+```{r camera to table,echo=FALSE,fig.height=80,fig.width=120}
+load('/Users/ll/Desktop/work/analysis/analysis_on_expression/goslim_camera.Rdata')
+process.name<-names(pathways)
+geneage<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt',header = TRUE,row.names = 1)
+mode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+convertgeneage<-function(x){
+  process.gene<-pathways[[x]]
+  process.age<-geneage[with(geneage,geneage$Entrez %in% process.gene),2]
+  return(mode(process.age))
+}
+processage<-sapply(c(1:69),convertgeneage)
+names(processage)<-process.name
+uc_group<-ifelse(processage<4,'uc','mc')
+uc_color<-ifelse(processage<4,'pink','blue')
+process.name.sort<-names(sort(uc_color))
+tomatch<-process.name.sort
+converttopvalue<-function(x){
+#  a<-result.camera[[x]]
+a<-result.camera[[x]]
+Pvalue<-1-a$PValue
+Direction<-a$Direction
+Pvalue[ifelse(Direction == 'Down',TRUE,FALSE)]<--Pvalue[ifelse(Direction == 'Down',TRUE,FALSE)]
+position <- match(tomatch,row.names(a))
+Pvalue.new<-Pvalue[position]
+names(Pvalue.new)<-tomatch
+return(Pvalue.new)
+}
+camera.matrix<-sapply(c(1:length(result.camera)),converttopvalue)
+colnames(camera.matrix)<-names(result.camera)
+toheatmap<-data.matrix(camera.matrix)
+my_palette <- colorRampPalette(c("blue", "white", "red"))(n = 4)
+heatmap.2(toheatmap,main = 'Camera gene test result (no reorder)',Rowv = FALSE,dendrogram="col",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = sort(uc_color),density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
+#tiff(file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/figures/Camera gene test result (no reorder).tiff')
+
+#heatmap.2(mat_data,
+#  cellnote = mat_data,  # same data set for cell labels
+#  main = "Correlation", # heat map title
+#  notecol="black",      # change font color of cell labels to black
+#  density.info="none",  # turns off density plot inside color legend
+#  trace="none",         # turns off trace lines inside the heat map
+#  margins =c(12,9),     # widens margins around plot
+#  col=my_palette,       # use on color palette defined earlier
+#  breaks=col_breaks,    # enable color transition at specified limits
+#  dendrogram="row",     # only draw a row dendrogram
+#  Colv="NA")   
+#converttopvalue(1)
+```
+
+```{r interactive 0,echo = FALSE,dpi=300,include = FALSE}
+heatmaply(toheatmap,main = 'Camera gene test result (no reorder)',Rowv = FALSE,dendrogram="col",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = sort(uc_color),density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,cexRow = 0.7,cexCol = 0.3,colorbar_xanchor = 'left',colorbar_yanchor = 'bottom',margins = c(2,210,30,2))
+```
+
+```{r age,include = FALSE}
+heatmap.order<-heatmap.2(toheatmap,main = 'Camera gene test result (ordered)',Rowv = TRUE,breaks = c(-1,-0.99,-0.95,0,0.95,0.99,1),col="heat.colors",trace="none")
+```
+
+## Go Slim reordered (blue for mc, red for uc)
+```{r plot,echo = FALSE,fig.width= 120, fig.height= 80}
+neworder<-heatmap.order$rowInd
+process.name.2<-process.name.sort[rev(neworder)]
+#process.name.2
+uc_color.2<-uc_color[process.name.2]
+uc_group.2<-uc_group[process.name.2]
+toheatmap.2<-toheatmap[process.name.2,]
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+heatmap.2(toheatmap.2,main = 'Camera gene test result (ordered) for Goslim set',Rowv = FALSE,dendrogram = 'col',breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = uc_color.2,density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
+#tiff(file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/figures/Camera gene test result (reorder).tiff')
+```
+    
+## The interactive plot (zoom and pan)
+
+```{r interactive,echo = FALSE,dpi = 200}
+heatmaply(toheatmap.2,main = 'Camera gene test result (ordered) for Goslim set',Rowv = FALSE,dendrogram = 'col',breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",row_side_colors = uc_group.2,density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.3,cexRow = 0.9,cexCol = 0.6,colorbar_xanchor = 'left',colorbar_yanchor = 'bottom',margins = c(2,210,30,2))
+```
+
+        
+##Hallmark of genes
+
+```{r hallmark, include=FALSE}
+h.all<-getGmt('~/Desktop/work/analysis/analysis_on_expression/gset/h.all.v6.2.symbols.gmt')
+h.all.id<-geneIds(h.all)
+ids<-ids2indices(h.all.id,gene.name)
+#result.camera<-lapply(genes.toanalyze,camera.targetset)
+#names(result.camera)<-genes.toanalyze
+#save(result.camera,file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/hallmark_camera.Rdata')
+```
+
+```{r heatmap2,echo = FALSE,fig.width= 120, fig.height= 80}
+load('/Users/ll/Desktop/work/analysis/analysis_on_expression/hallmark_camera.Rdata')
+hallmark.name<-names(h.all)
+tomatch <- hallmark.name
+camera.matrix<-sapply(c(1:length(result.camera)),converttopvalue)
+colnames(camera.matrix)<-names(result.camera)
+toheatmap.3<-data.matrix(camera.matrix)
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+heatmap.2(toheatmap.3,main = 'Camera gene test result (reorder) for common cancer hallmark set',Rowv = TRUE,dendrogram="both",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",density.info = 'density',key.title = '1 - P-value for \n camera gene set test result',keysize = 0.6,margins = c(3,19),cexRow = 1.5,cexCol = 1.2)
+#tiff(file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/figures/Camera gene test result (reorder) hallmark.tiff')
+
+```
+
+## The interactive plot (zoom and pan)
+
+```{r interactive 2, echo = FALSE,dpi = 150}
+heatmaply(toheatmap.3,main = 'Camera gene test result (reorder) for common cancer hallmark set',Rowv = TRUE,dendrogram="row",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",density.info = 'density',key.title = '1 - P-value for \n camera gene set test result',keysize = 0.6,cexRow = 0.7,cexCol = 0.6,margins = c(2,210,30,2),colorbar_xanchor = 'left',colorbar_yanchor = 'bottom')
+```
+
+## Plans
+  * Interpret the plots (general, specific)
+  * IC50 differential drug response
+  * ssgsea correlation of gene set and regulators
+
+```{r barcodeplot,echo=FALSE,fig.height=10,fig.width= 6,include=FALSE}
+#plotfig<-function(x){
+#a<-result.camera[[x]]
+#index.vector <- as.logical(rep(1,nrow(a)))
+#P.value<-a$PValue
+#axis(side =1, at = seq(1, 69, by = 1), labels = row.names(a),las=2)
+#par(mar=c(3,3,3,25))
+#colorlist = c("black","red")
+#axiscolor = colorlist[as.numeric(P.value > 0.05) + 1 ]
+#labs = row.names(a)
+#plot.title <- names(result.camera)[x]
+#plt<-stripchart(P.value,vertical = TRUE,main = plot.title, col.main="red")+
+#axis(side = 4, at = seq(0,1,by = 1/68)[-which(P.value<0.05)],labels = labs[-which(P.value<0.05)],las = 2,cex.axis=1)+axis(side = 4, at = seq(0,1,by = 1/68)[which(P.value<0.05)],labels = labs[which(P.value<0.05)],las = 2,cex.axis=1,col.axis = 'red')
+#mtext(text=labs, side=2,at=1:length(labs),col=axiscolor,adj=.5)
+#text(labels=labs, col=axiscolor, x=rep(.45,length(labs)), y=1:length(labs), srt = 0, pos = 2, xpd = TRUE)
+#return(plt)
+#}
+#plotfig((2))
+```
+
+```{r plot2,,fig.height=100,fig.width= 12,echo = FALSE,include=FALSE}
+#par(mfrow=c(5,2))
+#sapply(c(1:10),plotfig)
+```
+
+
