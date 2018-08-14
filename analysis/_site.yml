@@ -7,6 +7,10 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
+    - text: 'Roast Analysis'
+      href: first-analysis.html
+    - text: 'Camera Analysis'
+      href: gene_set_analysis.html
     - text: "License"
       href: license.html
   right:
