@@ -1,0 +1,215 @@
+---
+title: "Correlation Analysis"
+output:
+  html_document: 
+    self_contained: no
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(htmlwidgets)
+library(limma)
+library(org.Hs.eg.db)
+library(annotate)
+library(GEOquery)
+library(grid)
+library(ggplot2)
+library(reshape)
+library(GSVA)
+library(GSEABase)
+library(GO.db)
+library(gplots)
+library(heatmaply)
+library(knitr)
+```
+
+```{r input, eval=FALSE, include=FALSE}
+ressgsea_nohemo <- read.csv("~/Desktop/work/analysis/analysis_on_expression/ressgsea_nohemo.csv",row.names = 1)
+mydata<-getGEO(filename='/Users/ll/Desktop/work/data/GSE36133_series_matrix.txt')
+gene.expression<-exprs(mydata)
+mutation_o<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
+mutation<-mutation_o
+mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
+mutation_s<-mutation_s[which(mutation_s$isDeleterious == 'TRUE'),]
+mutation_s_w<-mutation_s
+mutation_s_w<-data.frame(mutation_s$Hugo_Symbol,mutation_s$Tumor_Sample_Barcode)
+genelist<-as.character(unique(mutation_s_w[,1]))
+rs<-function(x){
+  c<-as.character(mutation_s_w[which(mutation_s_w$mutation_s.Hugo_Symbol==x),2])
+  return(c)
+  }
+a<-lapply(genelist,rs)
+names(a)<-genelist
+mutatedcelllines<-a
+b<-lapply(mutatedcelllines,length)
+mutatedcelllines_num<-as.data.frame(b)
+mutatedcelllines_num<-t(mutatedcelllines_num)
+colnames(mutatedcelllines_num)<-c('freq')
+
+regulator<-read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/regulator classification.txt')
+regulator<-regulator[,1]
+regulator<-as.character(regulator)
+regulator<-unique(regulator)
+
+reg <- read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/Regulatory network.txt')
+regulator <- unique(reg[,1])
+target <- unique(reg[,2])
+reg_m<-matrix(nrow=length(regulator),ncol=length(target))
+colnames(reg_m)<-target
+row.names(reg_m)<-regulator
+reg_m_n<-reg_m
+for (i in 1:length(reg[,1])){
+  
+  reg_m_n[reg[i,1],reg[i,2]] = 1
+}
+
+#count targets for each regulator
+reg_m_n[is.na(reg_m_n)]<-0
+reg_tar<-apply(reg_m_n,1,sum)
+
+info<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_sample_info_file_2012-10-18.txt')
+celllines<-unique(info$CCLE.name)
+celllines<-as.character(celllines)
+
+sample.info <- read.csv('/Users/ll/Desktop/work/data/CCLE/sample_info.csv')
+cl.sample<-c()
+n<-1
+k <- 1
+t <- c()
+sample.title<-as.character(sample.info$Title)
+for (i in sample.title){
+a<- as.character(info$CCLE.name[info$Cell.line.primary.name == i])
+if(length(a) == 0){
+  cl.sample[n]<-i
+} 
+else{
+cl.sample[n]<- a}
+  n <-n + 1
+  }
+sample.accession<-sample.info$Accession
+sample.info.correct<-rbind(as.character(sample.accession),cl.sample)
+sample.info.correct<-t(sample.info.correct)
+
+cl<-rep(0,length(cl.sample))
+regulator<-as.character(regulator)
+regulators.cl<-regulator[which(regulator %in% names(mutatedcelllines))]
+n <- length(cl.sample)
+cl[n+1] <- 'cl'
+for (i in regulators.cl){
+cl.matrix <- cl.sample %in% mutatedcelllines[[i]]
+cl.matrix[n+1] <- i 
+cl<-rbind(cl.matrix,cl)
+}
+row.names(cl)<-as.vector(cl[,ncol(cl)])
+cl.o<-cl
+cl<-cl[,-ncol(cl)]
+colnames(cl)<-cl.sample
+cl<-cl[-which(row.names(cl) == 'cl'),]
+gene.nomutate<-c()
+i<-1
+pd<-pData(mydata)
+toremove<-as.character(pd$`primary site:ch1`)
+toremove<-toremove == 'haematopoietic_and_lymphoid_tissue'
+cl<-cl[,-which(toremove == TRUE)]
+for (gene in regulators.cl){
+  if (sum(as.numeric(as.logical(cl[gene,]))) == 0){
+    gene.nomutate[i]<-gene
+    i<-i+1
+  }
+}
+cl.m <- apply(cl,1,as.logical)
+reg.10 <- names(reg_tar[reg_tar>10])
+regulators.cl.mutate<-regulators.cl[-which(regulators.cl %in% gene.nomutate)]
+reg_cl <- apply(cl.m,2,sum)
+reg_5 <- names(reg_cl[reg_cl>3])
+genes.toanalyze<-intersect(reg.10,reg_5)
+genes.toanalyze<-intersect(genes.toanalyze,regulators.cl.mutate)
+#regulator.expression<-gene.expression[genes.toanalyze,]
+anno <- fData(mydata)
+ent<-as.character(anno$ORF)
+genename<-getSYMBOL(ent,data='org.Hs.eg')
+anno <- cbind(anno,genename)
+gene.expression<-as.data.frame(gene.expression)
+gene.expression$gene.name<-genename
+gene.expression.com<-gene.expression[complete.cases(gene.expression),]
+row.names(gene.expression.com)<-gene.expression.com$gene.name
+reg.expression<-gene.expression.com[genes.toanalyze,]
+reg.expression$gene.name<-NULL
+reg.expression.com<-reg.expression[complete.cases(reg.expression),]
+reg.exp.com.nohemo<-reg.expression.com[,-which(toremove == TRUE)]
+#write.csv(reg.exp.com.nohemo,'/Users/ll/Desktop/work/data/CCLE/regulator_expression.csv')
+
+```
+
+```{r cor0, fig.height = 7, fig.width= 7,echo=FALSE,warning=FALSE,include=FALSE}
+#pdf('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf',width = 12,height = 12) 
+reg.exp.com.nohemo<-read.csv('/Users/ll/Desktop/work/data/CCLE/regulator_expression.csv',row.names  = 1)
+reg.exp.cor<-cor(t(reg.exp.com.nohemo))
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+#heatmap.2(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6)
+#dev.off()
+```
+
+## correlation matrix of all regulator expression 
+
+```{r graphic,echo = FALSE}
+include_graphics('/Users/ll/Desktop/git/myproject/docs/figure/correlation_analysis.Rmd/firstheatmap.pdf')
+```
+
+```{r cor, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
+heatmaply(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6)
+```
+
+```{r cor2,fig.height = 7, fig.width= 7,echo = FALSE,warning=FALSE}
+#ressgsea.filter<-ressgsea_nohemo[row.names(reg.exp.com.nohemo),]
+#write.csv(ressgsea.filter,file = '/Users/ll/Desktop/work/data/CCLE/ressgsea_filter.csv')
+ressgsea.filter<-read.csv('/Users/ll/Desktop/work/data/CCLE/ressgsea_filter.csv',row.names = 1)
+regulator.exp.ssgsea.cor<-apply(ressgsea.filter,1,function(x){
+  ss <- x
+  result<-apply(reg.exp.com.nohemo,1,function(x){return(cor.test(x,ss,method = 'spearman')$estimate)})
+  return(result)
+    }
+  )
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+#pdf('/Users/ll/Desktop/git/myproject/docs/secondheatmap.pdf',width = 12,height = 12) 
+#heatmap.2(regulator.exp.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+#dev.off()
+```
+
+## spearman correlation of all regulator expression with ssgsea scores of target sets
+
+```{r graphic2,fig.height = 10, fig.width= 10,echo = FALSE}
+include_graphics('/Users/ll/Desktop/git/myproject/docs/figure/correlation_analysis.Rmd/secondheatmap.pdf')
+```
+
+```{r cor5,fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
+heatmaply(regulator.exp.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+```
+
+
+
+```{r cor3,fig.height = 7, fig.width= 7,echo = FALSE,warning=FALSE}
+gogsva<-read.csv(file = '/Users/ll/Desktop/work/data/CCLE/goslim_ssgsea.csv',row.names = 1)
+regulator.go.ssgsea.cor<-apply(gogsva,1,function(x){
+  ss <- x
+  result<-apply(reg.exp.com.nohemo,1,function(x){return(cor.test(x,ss,method = 'spearman')$estimate)})
+  return(result)
+    }
+  )
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+#pdf('/Users/ll/Desktop/git/myproject/docs/thirdheatmap.pdf',width = 12,height = 12) 
+#heatmap.2(regulator.go.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,srtCol = 45)
+#dev.off()
+```
+
+## Spearman correlation of all regulator expression with ssgsea scores of goslim
+
+```{r graphic3,echo = FALSE}
+include_graphics('/Users/ll/Desktop/git/myproject/docs/figure/correlation_analysis.Rmd/thirdheatmap.pdf',dpi = 70)
+
+```
+
+```{r cor4,fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
+heatmaply(regulator.go.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette)
+```
+
+
