@@ -1,0 +1,213 @@
+---
+title: "Drug response"
+output: html_notebook
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reshape)
+library(GEOquery)
+library(gplots)
+```
+
+```{r regulator,include = FALSE}
+mydata<-getGEO(filename='/Users/ll/Desktop/work/data/GSE36133_series_matrix.txt')
+mutation_o<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
+mutation<-mutation_o
+mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
+mutation_s<-mutation_s[which(mutation_s$isDeleterious == 'TRUE'),]
+mutation_s_w<-mutation_s
+mutation_s_w<-data.frame(mutation_s$Hugo_Symbol,mutation_s$Tumor_Sample_Barcode)
+genelist<-as.character(unique(mutation_s_w[,1]))
+rs<-function(x){
+  c<-as.character(mutation_s_w[which(mutation_s_w$mutation_s.Hugo_Symbol==x),2])
+  return(c)
+  }
+a<-lapply(genelist,rs)
+names(a)<-genelist
+mutatedcelllines<-a
+b<-lapply(mutatedcelllines,length)
+mutatedcelllines_num<-as.data.frame(b)
+mutatedcelllines_num<-t(mutatedcelllines_num)
+colnames(mutatedcelllines_num)<-c('freq')
+
+regulator<-read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/regulator classification.txt')
+regulator<-regulator[,1]
+regulator<-as.character(regulator)
+regulator<-unique(regulator)
+
+reg <- read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/Regulatory network.txt')
+regulator <- unique(reg[,1])
+target <- unique(reg[,2])
+reg_m<-matrix(nrow=length(regulator),ncol=length(target))
+colnames(reg_m)<-target
+row.names(reg_m)<-regulator
+reg_m_n<-reg_m
+for (i in 1:length(reg[,1])){
+  
+  reg_m_n[reg[i,1],reg[i,2]] = 1
+}
+
+#count targets for each regulator
+reg_m_n[is.na(reg_m_n)]<-0
+reg_tar<-apply(reg_m_n,1,sum)
+
+info<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_sample_info_file_2012-10-18.txt')
+celllines<-unique(info$CCLE.name)
+celllines<-as.character(celllines)
+```
+```{r info,include=FALSE}
+sample.info <- read.csv('/Users/ll/Desktop/work/data/CCLE/sample_info.csv')
+cl.sample<-c()
+n<-1
+k <- 1
+t <- c()
+sample.title<-as.character(sample.info$Title)
+for (i in sample.title){
+a<- as.character(info$CCLE.name[info$Cell.line.primary.name == i])
+if(length(a) == 0){
+  cl.sample[n]<-i
+} 
+else{
+cl.sample[n]<- a}
+  n <-n + 1
+  }
+sample.accession<-sample.info$Accession
+sample.info.correct<-rbind(as.character(sample.accession),cl.sample)
+sample.info.correct<-t(sample.info.correct)
+
+cl<-rep(0,length(cl.sample))
+regulator<-as.character(regulator)
+regulators.cl<-regulator[which(regulator %in% names(mutatedcelllines))]
+n <- length(cl.sample)
+cl[n+1] <- 'cl'
+for (i in regulators.cl){
+cl.matrix <- cl.sample %in% mutatedcelllines[[i]]
+cl.matrix[n+1] <- i 
+cl<-rbind(cl.matrix,cl)
+}
+row.names(cl)<-as.vector(cl[,ncol(cl)])
+cl.o<-cl
+cl<-cl[,-ncol(cl)]
+colnames(cl)<-cl.sample
+cl<-cl[-which(row.names(cl) == 'cl'),]
+gene.nomutate<-c()
+i<-1
+pd<-pData(mydata)
+toremove<-as.character(pd$`primary site:ch1`)
+toremove<-toremove == 'haematopoietic_and_lymphoid_tissue'
+cl_nohemo<-cl[,-which(toremove == TRUE)]
+for (gene in regulators.cl){
+  if (sum(as.numeric(as.logical(cl[gene,]))) == 0){
+    gene.nomutate[i]<-gene
+    i<-i+1
+  }
+}
+cl.m <- apply(cl,1,as.logical)
+reg.10 <- names(reg_tar[reg_tar>10])
+regulators.cl.mutate<-regulators.cl[-which(regulators.cl %in% gene.nomutate)]
+reg_cl <- apply(cl.m,2,sum)
+reg_5 <- names(reg_cl[reg_cl>3])
+genes.toanalyze<-intersect(reg.10,reg_5)
+genes.toanalyze<-intersect(genes.toanalyze,regulators.cl.mutate)
+```
+
+```{r input, include = FALSE}
+drugdata<-read.csv('~/Desktop/work/data/CCLE/CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+drugdata.cast<-cast(drugdata,formula = CCLE.Cell.Line.Name ~ Compound, value = 'IC50..uM.')
+row.names(drugdata.cast)<-drugdata.cast$CCLE.Cell.Line.Name
+drugdata.cast$CCLE.Cell.Line.Name<-NULL
+drugdata.cast<-as.data.frame(drugdata.cast)
+drugdata.cast.t<-t(drugdata.cast)
+drug.cl<-colnames(drugdata.cast.t)
+regulator.cl<-cl[,which(colnames(cl)%in%drug.cl)]
+hemocl<-colnames(cl)[toremove]
+regulator.cl.nohemo<-regulator.cl[,-which(colnames(regulator.cl)%in%hemocl)]
+regulator.cl.nohemo.filter<-regulator.cl.nohemo[genes.toanalyze,]
+```
+
+## Create Cell line sets
+
+```{r cell line set, include= FALSE}
+# create gmt for ssgsea
+#cl.list<-list()
+#cl.name<-colnames(regulator.cl.nohemo.filter)
+#for (i in (1:nrow(regulator.cl.nohemo.filter))){
+#  cl.list[[i]]<-cl.name[which(as.logical(regulator.cl.nohemo.filter[i,]))]
+#}
+#names(cl.list)<-rownames(regulator.cl.nohemo.filter)
+#lapply(cl.list, function(x) write.table(t(as.data.frame(x)), 'test.tsv'  , append= T, sep='\t' ))
+#library(stringi)
+#res <- as.data.frame(t(stri_list2matrix(cl.list)))
+#colnames(res) <- unique(unlist(sapply(cl.list, names)))
+#row.names(res)<-rownames(regulator.cl.nohemo.filter)
+#write.table(res,file = 'clset.gmt',sep = '\t')
+```
+
+```{r ssgsea, include = FALSE}
+library(GSVA)
+library(GSEABase)
+clset <- getGmt('/Users/ll/Desktop/work/analysis/analysis_on_expression/gset/clset.gmt')
+####super slow!!!
+#regsva<-gsva(e[,-which(toremove==TRUE)],regset,method=c('ssgsea'))
+```
+
+```{r wilcox, include=FALSE}
+cl.number<-apply(regulator.cl.nohemo.filter,1,function(x){return(sum(as.logical(x)))})
+tokeep<- cl.number > 0
+regulator.cl.nohemo.filter.2<-regulator.cl.nohemo.filter[tokeep,]
+cl.name<-colnames(regulator.cl.nohemo.filter.2)
+wilcox.drug<-function(x){
+  cl.logic<-regulator.cl.nohemo.filter.2[x,]
+  cl.mutate<-cl.name[as.logical(cl.logic)]
+  cl.notmutate<-cl.name[-as.logical(cl.logic)]
+  a<-sapply(c(1:nrow(drugdata.cast.t)),
+           function(x){
+               cl.mutate.drug<-drugdata.cast.t[x,cl.mutate]
+               cl.notmutate.drug<-drugdata.cast.t[x,cl.notmutate]
+               if(length(cl.mutate.drug[!is.na(cl.mutate.drug)])>=1){
+                  r<-wilcox.test(cl.mutate.drug,cl.notmutate.drug,alternative = 'less')
+                  return(r$p.value)}
+               else{
+                  return(NA)
+               }
+           }
+               )
+  names(a)<-row.names(drugdata.cast.t)
+  a.adjust<-p.adjust(a,method = 'BH')
+  return(a.adjust)
+  #return(a)
+}
+drug.cl.efficacy.wilcox <- data.frame(matrix(nrow = nrow(drugdata.cast.t),ncol = nrow(regulator.cl.nohemo.filter.2)))
+row.names(drug.cl.efficacy.wilcox)<-row.names(drugdata.cast.t)
+colnames(drug.cl.efficacy.wilcox)<- row.names(regulator.cl.nohemo.filter.2)
+for (i in c(1:nrow(regulator.cl.nohemo.filter.2))){
+  drug.cl.efficacy.wilcox[,i]<-wilcox.drug(i)}
+
+```
+
+## Heatmap for Wilcox rank sum test p-value (red for siginificant test, white is NA)
+```{r heatmap,fig.width=40,fig.height=20, echo = FALSE}
+toheatmap<-data.matrix(drug.cl.efficacy.wilcox)
+my_palette <- colorRampPalette(c("blue", "white"))(n = 2)
+heatmap.2(toheatmap,main = 'drug efficacywlicox  test',dendrogram="both",breaks = c(0,0.01,1),trace="none",density.info = 'density',key.title = 'P-value for \ndrug efficacy wlicox  test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
+```
+```{r analysis}
+#drug.cl.efficacy.wilcox[with(drug.cl.efficacy.wilcox,drug.cl.efficacy.wilcox<0.05)]
+sig.drug.pos<-which(as.matrix(drug.cl.efficacy.wilcox)<0.05, arr.ind=TRUE)
+sig.drug.df<-as.data.frame(sig.drug.pos)
+sig.drug.df$p.value<-drug.cl.efficacy.wilcox[which(as.matrix(drug.cl.efficacy.wilcox)<0.05, arr.ind=TRUE)]
+sig.drug.df$row<-row.names(drug.cl.efficacy.wilcox)[sig.drug.df$row]
+sig.drug.df$col<-colnames(drug.cl.efficacy.wilcox)[sig.drug.df$col]
+colnames(sig.drug.df)<-c('drug','regulator','pvalue.adjusted')
+sig.drug.df
+#sig.drug<-list()
+#drug.index<-unique(sig.drug.pos[,1])
+#for(i in c(1:length(drug.index))){
+#  sig.drug.col<-sig.drug.pos[which(sig.drug.pos[,1] == drug.index[i]),2]
+#  sig.drug[[i]] <-drug.cl.efficacy.wilcox[drug.index[i],sig.drug.col]
+#  if(length(sig.drug[[i]]) == 1){names(sig.drug[[i]])<-colnames(drug.cl.efficacy.wilcox[sig.drug.col])}
+#  }
+#names(sig.drug)<-row.names(drug.cl.efficacy.wilcox)[drug.index]
+```
+
+
