@@ -20,6 +20,7 @@ library(GSEABase)
 library(GO.db)
 library(gplots)
 library(heatmaply)
+library(knitr)
 ```
 
 ```{r regulator,include = FALSE}
@@ -184,7 +185,7 @@ return(r1)}
 ```
 
 ## Go Slim no reorder (blue for mc, red for uc)
-```{r camera to table,echo=FALSE,fig.height=80,fig.width=120}
+```{r camera to table,echo=FALSE,out.height=960,out.width=960}
 load('/Users/ll/Desktop/work/analysis/analysis_on_expression/goslim_camera.Rdata')
 process.name<-names(pathways)
 geneage<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt',header = TRUE,row.names = 1)
@@ -218,8 +219,10 @@ camera.matrix<-sapply(c(1:length(result.camera)),converttopvalue)
 colnames(camera.matrix)<-names(result.camera)
 toheatmap<-data.matrix(camera.matrix)
 my_palette <- colorRampPalette(c("blue", "white", "red"))(n = 4)
-heatmap.2(toheatmap,main = 'Camera gene test result (no reorder)',Rowv = FALSE,dendrogram="col",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = sort(uc_color),density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
-#tiff(file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/figures/Camera gene test result (no reorder).tiff')
+#pdf('/Users/ll/Desktop/git/myproject/docs/figure/gene_set_analysis.Rmd/firstheatmap.pdf',width = 12,height = 12)
+#heatmap.2(toheatmap,main = 'Camera gene test result (no reorder)',Rowv = FALSE,dendrogram="col",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = sort(uc_color),density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,margins = c(15,17),cexRow = 1.2,cexCol = 0.5)
+#dev.off()
+
 
 #heatmap.2(mat_data,
 #  cellnote = mat_data,  # same data set for cell labels
@@ -233,9 +236,10 @@ heatmap.2(toheatmap,main = 'Camera gene test result (no reorder)',Rowv = FALSE,d
 #  dendrogram="row",     # only draw a row dendrogram
 #  Colv="NA")   
 #converttopvalue(1)
+include_graphics('gs-hp_1.pdf')
 ```
 
-```{r interactive 0,echo = FALSE,dpi=300,include = FALSE}
+```{r interactive 0,echo = FALSE,fig.width=10,fig.height=10,include = FALSE}
 heatmaply(toheatmap,main = 'Camera gene test result (no reorder)',Rowv = FALSE,dendrogram="col",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = sort(uc_color),density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,cexRow = 0.7,cexCol = 0.3,colorbar_xanchor = 'left',colorbar_yanchor = 'bottom',margins = c(2,210,30,2))
 ```
 
@@ -244,7 +248,7 @@ heatmap.order<-heatmap.2(toheatmap,main = 'Camera gene test result (ordered)',Ro
 ```
 
 ## Go Slim reordered (blue for mc, red for uc)
-```{r plot,echo = FALSE,fig.width= 120, fig.height= 80}
+```{r plot,echo = FALSE,out.width= 960, out.height= 960}
 neworder<-heatmap.order$rowInd
 process.name.2<-process.name.sort[rev(neworder)]
 #process.name.2
@@ -252,13 +256,15 @@ uc_color.2<-uc_color[process.name.2]
 uc_group.2<-uc_group[process.name.2]
 toheatmap.2<-toheatmap[process.name.2,]
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-heatmap.2(toheatmap.2,main = 'Camera gene test result (ordered) for Goslim set',Rowv = FALSE,dendrogram = 'col',breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = uc_color.2,density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
-#tiff(file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/figures/Camera gene test result (reorder).tiff')
+#pdf('/Users/ll/Desktop/git/myproject/docs/figure/gene_set_analysis.Rmd/firstheatmap.pdf',width = 12,height = 12)
+#heatmap.2(toheatmap.2,main = 'Camera gene test result (ordered) for Goslim set',Rowv = FALSE,dendrogram = 'col',breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",RowSideColors = uc_color.2,density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.6,margins = c(5,17),cexRow = 1,cexCol = 0.45)
+#dev.off()
+include_graphics('gs-hp_2.pdf')
 ```
     
 ## The interactive plot (zoom and pan)
 
-```{r interactive,echo = FALSE,dpi = 200}
+```{r interactive,echo = FALSE,fig.width= 10, fig.height= 10}
 heatmaply(toheatmap.2,main = 'Camera gene test result (ordered) for Goslim set',Rowv = FALSE,dendrogram = 'col',breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",row_side_colors = uc_group.2,density.info = 'density',key.title = '1 - P-value for \ncamera gene set test result',keysize = 0.3,cexRow = 0.9,cexCol = 0.6,colorbar_xanchor = 'left',colorbar_yanchor = 'bottom',margins = c(2,210,30,2))
 ```
 
@@ -274,7 +280,7 @@ ids<-ids2indices(h.all.id,gene.name)
 #save(result.camera,file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/hallmark_camera.Rdata')
 ```
 
-```{r heatmap2,echo = FALSE,fig.width= 120, fig.height= 80}
+```{r heatmap2,echo = FALSE,out.width= 960, out.height= 960}
 load('/Users/ll/Desktop/work/analysis/analysis_on_expression/hallmark_camera.Rdata')
 hallmark.name<-names(h.all)
 tomatch <- hallmark.name
@@ -282,14 +288,16 @@ camera.matrix<-sapply(c(1:length(result.camera)),converttopvalue)
 colnames(camera.matrix)<-names(result.camera)
 toheatmap.3<-data.matrix(camera.matrix)
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-heatmap.2(toheatmap.3,main = 'Camera gene test result (reorder) for common cancer hallmark set',Rowv = TRUE,dendrogram="both",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",density.info = 'density',key.title = '1 - P-value for \n camera gene set test result',keysize = 0.6,margins = c(3,19),cexRow = 1.5,cexCol = 1.2)
+#pdf('/Users/ll/Desktop/git/myproject/docs/figure/gene_set_analysis.Rmd/secondheatmap.pdf',width = 12,height = 12)
+#heatmap.2(toheatmap.3,main = 'Camera gene test result (reorder) for common cancer hallmark set',Rowv = TRUE,dendrogram="both",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",density.info = 'density',key.title = '1 - P-value for \n camera gene set test result',keysize = 0.6,margins = c(3,18),cexRow = 0.9,cexCol = 0.45)
 #tiff(file = '/Users/ll/Desktop/work/analysis/analysis_on_expression/figures/Camera gene test result (reorder) hallmark.tiff')
-
+#dev.off()
+include_graphics('gs-hp_3.pdf')
 ```
 
 ## The interactive plot (zoom and pan)
 
-```{r interactive 2, echo = FALSE,dpi = 150}
+```{r interactive 2, echo = FALSE,fig.width= 10, fig.height= 10}
 heatmaply(toheatmap.3,main = 'Camera gene test result (reorder) for common cancer hallmark set',Rowv = TRUE,dendrogram="row",breaks = c(-1,-0.95,0,0.95,1),col = my_palette,trace="none",density.info = 'density',key.title = '1 - P-value for \n camera gene set test result',keysize = 0.6,cexRow = 0.7,cexCol = 0.6,margins = c(2,210,30,2),colorbar_xanchor = 'left',colorbar_yanchor = 'bottom')
 ```
 
