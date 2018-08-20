@@ -140,7 +140,7 @@ reg.exp.com.nohemo<-reg.expression.com[,-which(toremove == TRUE)]
 
 ```
 
-```{r cor0, fig.height = 7, fig.width= 7,echo=FALSE,warning=FALSE,include=FALSE}
+```{r cor0, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE,include=FALSE}
 #pdf('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf',width = 12,height = 12) 
 reg.exp.com.nohemo<-read.csv('/Users/ll/Desktop/work/data/CCLE/regulator_expression.csv',row.names  = 1)
 reg.exp.cor<-cor(t(reg.exp.com.nohemo))
@@ -151,10 +151,9 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 
 ## correlation matrix of all regulator expression 
 
-```{r graphic,echo = FALSE}
+```{r graphic,,echo = FALSE,out.width = 960,out.height=960}
 include_graphics('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf')
 ```
-
 ```{r cor, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
 heatmaply(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6)
 ```
@@ -177,7 +176,7 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 
 ## spearman correlation of all regulator expression with ssgsea scores of target sets
 
-```{r graphic2,fig.height = 10, fig.width= 10,echo = FALSE}
+```{r graphic2,out.width = 960,out.height=960,echo = FALSE}
 include_graphics('/Users/ll/Desktop/git/myproject/docs/secondheatmap.pdf')
 ```
 
@@ -203,8 +202,8 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 
 ## Spearman correlation of all regulator expression with ssgsea scores of goslim
 
-```{r graphic3,echo = FALSE}
-include_graphics('/Users/ll/Desktop/git/myproject/docs/thirdheatmap.pdf',dpi = 70)
+```{r graphic3,echo = FALSE,out.width = 960,out.height=960}
+include_graphics('/Users/ll/Desktop/git/myproject/docs/thirdheatmap.pdf')
 
 ```
 
