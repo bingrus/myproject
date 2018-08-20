@@ -1,6 +1,8 @@
 ---
 title: "Drug response"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -182,14 +184,13 @@ row.names(drug.cl.efficacy.wilcox)<-row.names(drugdata.cast.t)
 colnames(drug.cl.efficacy.wilcox)<- row.names(regulator.cl.nohemo.filter.2)
 for (i in c(1:nrow(regulator.cl.nohemo.filter.2))){
   drug.cl.efficacy.wilcox[,i]<-wilcox.drug(i)}
-
 ```
 
 ## Heatmap for Wilcox rank sum test p-value (red for siginificant test, white is NA)
 ```{r heatmap,fig.width=40,fig.height=20, echo = FALSE}
 toheatmap<-data.matrix(drug.cl.efficacy.wilcox)
 my_palette <- colorRampPalette(c("blue", "white"))(n = 2)
-heatmap.2(toheatmap,main = 'drug efficacywlicox  test',dendrogram="both",breaks = c(0,0.01,1),trace="none",density.info = 'density',key.title = 'P-value for \ndrug efficacy wlicox  test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
+heatmap.2(toheatmap,main = 'drug efficacywlicox  test',dendrogram="both",breaks = c(0,0.05,1),trace="none",density.info = 'density',key.title = 'P-value for \ndrug efficacy wlicox  test result',keysize = 0.6,margins = c(3,20),cexRow = 1.5,cexCol = 1.2)
 ```
 ```{r analysis}
 #drug.cl.efficacy.wilcox[with(drug.cl.efficacy.wilcox,drug.cl.efficacy.wilcox<0.05)]
