@@ -152,7 +152,7 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 ## correlation matrix of all regulator expression 
 
 ```{r graphic,echo = FALSE}
-include_graphics('/Users/ll/Desktop/git/myproject/docs/figure/correlation_analysis.Rmd/firstheatmap.pdf')
+include_graphics('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf')
 ```
 
 ```{r cor, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
@@ -178,7 +178,7 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 ## spearman correlation of all regulator expression with ssgsea scores of target sets
 
 ```{r graphic2,fig.height = 10, fig.width= 10,echo = FALSE}
-include_graphics('/Users/ll/Desktop/git/myproject/docs/figure/correlation_analysis.Rmd/secondheatmap.pdf')
+include_graphics('/Users/ll/Desktop/git/myproject/docs/secondheatmap.pdf')
 ```
 
 ```{r cor5,fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
@@ -204,7 +204,7 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 ## Spearman correlation of all regulator expression with ssgsea scores of goslim
 
 ```{r graphic3,echo = FALSE}
-include_graphics('/Users/ll/Desktop/git/myproject/docs/figure/correlation_analysis.Rmd/thirdheatmap.pdf',dpi = 70)
+include_graphics('/Users/ll/Desktop/git/myproject/docs/thirdheatmap.pdf',dpi = 70)
 
 ```
 
