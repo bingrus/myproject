@@ -15,3 +15,9 @@ Welcome to Bingru's research journal.
 #Camera analysis for go slim and hallmark analysis
 
 **[Link](gene_set_analysis.html)** 
+
+# Drug response
+**[Link](drugresponse.html)**
+
+# correlation of expression with ssgsea
+**[Link](correlation_analysis.html)**
