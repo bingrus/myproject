@@ -1,8 +1,7 @@
 ---
 title: "Correlation Analysis"
 output:
-  html_document: 
-    self_contained: no
+  html_document: default
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -145,20 +144,23 @@ reg.exp.com.nohemo<-reg.expression.com[,-which(toremove == TRUE)]
 reg.exp.com.nohemo<-read.csv('/Users/ll/Desktop/work/data/CCLE/regulator_expression.csv',row.names  = 1)
 reg.exp.cor<-cor(t(reg.exp.com.nohemo))
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-#heatmap.2(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6)
+#hp.1<-heatmap.2(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6)
+
 #dev.off()
 ```
 
 ## correlation matrix of all regulator expression 
 
-```{r graphic,,echo = FALSE,out.width = 960,out.height=960}
-include_graphics('docs/firstheatmap.pdf')
-```
-```{r cor, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
-heatmaply(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6)
+```{r graphic,echo = FALSE,out.width = 960,out.height=960}
+include_graphics('firstheatmap.pdf')
 ```
 
-```{r cor2,fig.height = 7, fig.width= 7,echo = FALSE,warning=FALSE}
+```{r cor, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+heatmaply(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.4,cexCol = 0.4,keysize = 0.6,row_dend_left = TRUE, plot_method = "plotly")
+```
+
+```{r cor2,fig.height = 7, fig.width= 7,echo = FALSE,warning=FALSE,include=FALSE}
 #ressgsea.filter<-ressgsea_nohemo[row.names(reg.exp.com.nohemo),]
 #write.csv(ressgsea.filter,file = '/Users/ll/Desktop/work/data/CCLE/ressgsea_filter.csv')
 ressgsea.filter<-read.csv('/Users/ll/Desktop/work/data/CCLE/ressgsea_filter.csv',row.names = 1)
@@ -170,18 +172,28 @@ regulator.exp.ssgsea.cor<-apply(ressgsea.filter,1,function(x){
   )
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 #pdf('/Users/ll/Desktop/git/myproject/docs/secondheatmap.pdf',width = 12,height = 12) 
-#heatmap.2(regulator.exp.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+hp.1<-heatmap.2(regulator.exp.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+row.name.reg.exp<-row.names(regulator.exp.ssgsea.cor)
+col.name.reg.exp<-colnames(regulator.exp.ssgsea.cor)
+regulator.exp.ssgsea.cor.new<-regulator.exp.ssgsea.cor[rev(hp.1$rowInd),]
+row.name.reg.exp.new<-row.names(regulator.exp.ssgsea.cor.new)
+position.exp<-match(row.name.reg.exp.new,col.name.reg.exp)
+regulator.exp.ssgsea.cor.new.new<-regulator.exp.ssgsea.cor.new[,rev(position.exp)]
+hp.3<-heatmap.2(regulator.exp.ssgsea.cor.new,Rowv =  FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+toheatmaply<-regulator.exp.ssgsea.cor.new[,hp.3$colInd]
+#pdf('/Users/ll/Desktop/git/myproject/analysis/heatmap.pdf',width = 12,height = 12) 
+#heatmap.2(regulator.exp.ssgsea.cor.new.new,Rowv =  FALSE,Colv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
 #dev.off()
 ```
 
 ## spearman correlation of all regulator expression with ssgsea scores of target sets
 
 ```{r graphic2,out.width = 960,out.height=960,echo = FALSE}
-include_graphics('docs/secondheatmap.pdf')
+include_graphics('secondheatmap.pdf')
 ```
 
 ```{r cor5,fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
-heatmaply(regulator.exp.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+heatmaply(toheatmaply,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),Rowv = FALSE,Colv = FALSE,col = my_palette,row_dend_left = TRUE, plot_method = "plotly")
 ```
 
 
@@ -202,13 +214,29 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 
 ## Spearman correlation of all regulator expression with ssgsea scores of goslim
 
-```{r graphic3,echo = FALSE,out.width = 960,out.height=960}
-include_graphics('docs/thirdheatmap.pdf')
-
+```{r graphic3,echo = FALSE,out.width = 960,out.height=960,include=FALSE,eval=FALSE}
+#include_graphics('thirdheatmap.pdf')
+hp.2<-heatmap.2(regulator.go.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,srtCol = 45)
 ```
 
+
+```{r graphic5,echo = FALSE,out.width = 960,out.height=960}
+include_graphics('fourthheatmap.pdf')
+```
+
+
+```{r graphic4,echo = FALSE,include=FALSE}
+regulator.go.ssgsea.cor.new<-regulator.go.ssgsea.cor[rev(hp.1$rowInd),]
+#pdf('/Users/ll/Desktop/git/myproject/analysis/fourthheatmap.pdf',width = 12,height = 12) 
+hp.4<-heatmap.2(regulator.go.ssgsea.cor.new,Rowv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,srtCol = 45)
+toheatmaply<-regulator.go.ssgsea.cor.new[,hp.4$colInd]
+#dev.off()
+```
+
+
+
 ```{r cor4,fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
-heatmaply(regulator.go.ssgsea.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette)
+heatmaply(toheatmaply,Rowv=FALSE,Colv = FALSE,row_dend_left = TRUE,plot_method = "plotly",col = my_palette)
 ```
 
 
