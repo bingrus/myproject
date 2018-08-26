@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(reshape)
 library(GEOquery)
 library(gplots)
+library("dplyr")
 ```
 
 ```{r regulator,include = FALSE}
@@ -200,6 +201,11 @@ sig.drug.df$p.value<-drug.cl.efficacy.wilcox[which(as.matrix(drug.cl.efficacy.wi
 sig.drug.df$row<-row.names(drug.cl.efficacy.wilcox)[sig.drug.df$row]
 sig.drug.df$col<-colnames(drug.cl.efficacy.wilcox)[sig.drug.df$col]
 colnames(sig.drug.df)<-c('drug','regulator','pvalue.adjusted')
+drug<-as.character(unique(drugdata$Compound))
+drug_target<-drugdata[which(drugdata$Compound %in% drug),c('Compound','Target')]
+target<-as.character(unique(drugdata$Target))
+drug_target<-distinct(drug_target)
+sig.drug.df$target <- drug_target$Target[match(sig.drug.df$drug,drug_target$Compound)]
 sig.drug.df
 #sig.drug<-list()
 #drug.index<-unique(sig.drug.pos[,1])
@@ -211,4 +217,37 @@ sig.drug.df
 #names(sig.drug)<-row.names(drug.cl.efficacy.wilcox)[drug.index]
 ```
 
+## Drug information
+Information:
+    
+    * AZD6244(Selumetinib), treatmentfor NSCLC, thyroid cancer. Mechanism: block subtype MEK1, MEK2 of the MAPK kinase, downstream of BRAF.
+    
+    * PD-0325901 MEK inhibitor
+    
+    * L-685458  Inhibitor for gamma-Secretase
+    
+    * PLX4720  Raf Inhibitor
+    
+    * LBW242 Inhibitor of Apoptosis Protein (IAP) inhibitor 
+    
+    * Nutlin-3 Inhibitor of MDM2
+    
+    * Saracatinib(AZD0530) Inhibitor of the Src family of tyrosine kinases
+    
+    * Palbociclib(PD-0332991) Inhibitor of CDK4/6
+    
+    * PHA665752  c-Met inhibitor C-Met/HGF/SF signaling
+    
+    * Sorafenib small inhibitor of several tyrosine protein kinases, such as VEGFR, PDGFR and Raf family kinases 
+    
+    * Dovitinib (TKI-258) multitargeted RTK inhibitor
+    
+    * Crizotinib (PF2341066) a novel inhibitor of anaplastic lymphoma kinase and c-Met
+    approved for treatment of some non-small cell lung carcinoma (NSCLC) in the US and some other countries, and undergoing clinical trials testing its safety and efficacy in anaplastic large cell lymphoma, neuroblastoma, and other advanced solid tumors in both adults and children.
+    
+    * Topotecan chemotherapy drug which can be used to treat ovarian cancer, small cell lung cancer and cervical cancer, topoisomerase-I inhibitor
+    
+```{r correlation heatmap}
+##
+```
 
