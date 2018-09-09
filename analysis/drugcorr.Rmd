@@ -1,0 +1,161 @@
+---
+title: "Drug correlation"
+output:
+  html_document: default
+  html_notebook: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
+library(reshape)
+library(GEOquery)
+library(gplots)
+library(dplyr)
+library(heatmaply)
+library(GSVA)
+library(GSEABase)
+library(knitr)
+library(kableExtra)
+```
+
+# drug correlation analysis with target sets
+```{r gettargetexpress,eval = FALSE}
+mydata<-getGEO(filename='../data/GSE36133_series_matrix.txt')
+pd<-pData(mydata)
+toremove<-as.character(pd$`primary site:ch1`)
+toremove<-toremove == 'haematopoietic_and_lymphoid_tissue'
+gene.expression<-exprs(mydata)
+gene.expression.nohemo<-gene.expression[,-which(toremove == TRUE)]
+gene.expression.nohemo.z <- apply(gene.expression.nohemo,2,scale)
+row.names(gene.expression.nohemo.z)<-rownames(gene.expression.nohemo)
+#gene.expression.nohemo.z<-t(gene.expression.nohemo.z)
+write.csv(gene.expression.nohemo.z,file = '../data/CCLE/geneexpression_zscore.csv')
+```
+```{r expression input,eval=FALSE}
+#gene.expression.nohemo.z<-read.csv('/Users/ll/Desktop/work/data/CCLE/geneexpression_zscore.csv',row.names = 1)
+```
+```{r ssgsea,eval=FALSE}
+mydata<-getGEO(filename='../data/GSE36133_series_matrix.txt')
+regset <- getGmt('../data/Gene_regulators/targetset.gmt.txt')
+anno <- fData(mydata)
+library(org.Hs.eg.db)
+library(annotate)
+ent<-as.character(anno$ORF)
+genename<-getSYMBOL(ent,data='org.Hs.eg')
+anno <- cbind(anno,genename)
+gene.expression.nohemo.z<-gene.expression.nohemo.z[complete.cases(anno),]
+anno<-anno[complete.cases(anno),]
+rownames(gene.expression.nohemo.z)<-anno$genename
+regsva<-gsva(data.matrix(gene.expression.nohemo.z),regset,method=c('ssgsea'))
+save(regsva,file ='../data/regsva_z_col.Rdata')
+
+```
+```{r input,echo = FALSE}
+load('/Users/ll/Desktop/git/myproject/data/regsva_z_col.Rdata')
+```
+## method
+* scale the microarrary expression data for each sample to z-score accross all genes
+* do ssgsea on the converted microarray expression data
+* compute correlation scores for ssgsea score to the drug response data (IC50)
+
+## Result 1: drug correlation analysis with targets sets 
+### pdf figure with dendogram
+```{r drugdata input}
+sample.info <- read.csv('/Users/ll/Desktop/git/myproject/data/CCLE/sample_info.csv')
+sample.accession<-sample.info$Accession
+drugdata<-read.csv('/Users/ll/Desktop/git/myproject/data/CCLE/CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+drugdata.cast<-cast(drugdata,formula = Primary.Cell.Line.Name ~ Compound, value = 'IC50..uM.')
+row.names(drugdata.cast)<-drugdata.cast$Primary.Cell.Line.Name
+drugdata.cast$Primary.Cell.Line.Name<-NULL
+drugdata.cast<-as.data.frame(drugdata.cast)
+drug.cl<-row.names(drugdata.cast)
+sample.info.cl<-as.character(sample.info$Title)
+drug.pos<-match(drug.cl,sample.info.cl)
+drug.pos<-drug.pos[!is.na(drug.pos)]
+drug.cl.accession<-as.character(sample.accession[drug.pos])
+drug.cl.tocorre<-match(drug.cl.accession,colnames(regsva))
+drug.cl.tocorre<-drug.cl.tocorre[!is.na(drug.cl.tocorre)]
+tocorre.ssgsea<-regsva[,drug.cl.tocorre]
+tocorre.col.name<-sample.info$Title[match(colnames(tocorre.ssgsea),sample.accession)]
+colnames(tocorre.ssgsea)<-tocorre.col.name
+tocorre.drug.pos<-match(colnames(tocorre.ssgsea),drug.cl)
+tocorre.drug.pos<-tocorre.drug.pos[!is.na(tocorre.drug.pos)]
+tocorre.drug<-drugdata.cast[tocorre.drug.pos,]
+```
+```{r,warning=FALSE}
+regulator.drug.ssgsea.cor<-apply(tocorre.drug,2,function(x){
+  ss <- x
+  result<-apply(tocorre.ssgsea,1,function(x){return(cor.test(x,ss,method = 'spearman')$estimate)})
+  return(result)
+    }
+  )
+```
+```{r class}
+regulator.class<- read.delim('/Users/ll/Desktop/git/myproject/data/Gene_regulators/Regulator classification.txt',row.names = 1)
+druginfo<- read.csv('/Users/ll/Desktop/git/myproject/data/CCLE/CCLE_NP24.2009_profiling_2012.02.20.csv',row.names = 1)
+geneage<-read.csv('/Users/ll/Desktop/git/myproject/data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt',header = TRUE,row.names = 1)
+```
+```{r gene}
+hp.gene<-row.names(regulator.drug.ssgsea.cor)
+toremove.gene <- hp.gene[which(regulator.class[hp.gene,1] %in% c('None',NA))]
+regulator.drug.ssgsea.cor.sub<-subset(regulator.drug.ssgsea.cor, !hp.gene %in% toremove.gene)
+```
+```{r graphics,echo = FALSE,out.width = 960,out.height=960}
+knitr::include_graphics('drugheatmap_target.pdf')
+```
+### interactive figure without dendogram (same order)
+```{r info,include = FALSE}
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+#pdf('drugheatmap_target.pdf',width = 12,height = 12) 
+hp<-heatmap.2(regulator.drug.ssgsea.cor.sub,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+#dev.off()
+new.row.name<-row.names(regulator.drug.ssgsea.cor.sub)[rev(hp$rowInd)]
+new.col.name<-colnames(regulator.drug.ssgsea.cor.sub)[hp$colInd]
+regulator.drug.ssgsea.cor.2<-regulator.drug.ssgsea.cor.sub[new.row.name,new.col.name]
+#heatmap.2(regulator.drug.ssgsea.cor.2,Rowv = FALSE, Colv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+```
+
+```{r inter,fig.width=10,fig.height=10}
+heatmaply(regulator.drug.ssgsea.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,row_dend_left = TRUE, Rowv = FALSE, Colv = FALSE,plot_method = "plotly")
+```
+```{r drug2,include=FALSE}
+drugname<-row.names(druginfo)
+drugname[21]<-'Panobinostat'
+drugname[4]<-'PF2341066'
+drugname[6]<-'ZD-6474'
+row.names(druginfo)<-drugname
+a <- druginfo['Irinotecan',3] 
+druginfo['Irinotecan',3]<- druginfo['Irinotecan',4]
+druginfo['Irinotecan',4] <- a
+```
+
+
+### interactive figure with target set class labels
+
+```{r class new,fig.width=10,fig.height=10}
+hp.class<-regulator.class[new.row.name,]
+hp.class<-as.character(hp.class)
+heatmaply(regulator.drug.ssgsea.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,row_dend_left = TRUE, Rowv = FALSE, Colv = FALSE,plot_method = "plotly",RowSideColors = hp.class)
+```
+
+### interactive figure with regulator age labels
+```{r age, echo = FALSE,fig.width=10,fig.height=10}
+hp.age <- geneage[new.row.name,2]
+uc_group<-ifelse(hp.age<4,'uc','mc')
+heatmaply(regulator.drug.ssgsea.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,RowSideColors = uc_group,Rowv = FALSE, Colv = FALSE)
+```
+
+## Result 2: the information on the cluster drugs
+```{r dendro,echo=FALSE,results='asis'}
+hp.dendrogram.col<-hp$colDendrogram
+hc <- as.hclust(hp.dendrogram.col)
+hc_cut<-cutree( hc, k=5)
+hc_cut.order<-hc_cut[order(hc_cut)]
+druginfo.2<-druginfo[names(hc_cut.order),]
+druginfo.2$group<-hc_cut.order
+druginfo.total<-druginfo.2
+kable(druginfo.total[,c(2,3,4,7)])
+```
+
+
+
+
