@@ -21,3 +21,6 @@ Welcome to Bingru's research journal.
 
 # correlation of expression with ssgsea
 **[Link](correlation_analysis.html)**
+
+# correlation of drug response with ssgsea of target sets
+**[Link](drugcorr.html)**
