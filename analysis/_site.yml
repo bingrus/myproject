@@ -11,8 +11,14 @@ navbar:
       href: first-analysis.html
     - text: 'Camera Analysis'
       href: gene_set_analysis.html
+    - text: 'Correlation analysis'
+      href: correlation_analysis.html
+    - text: 'Drug response'
+      href: drugresponse.html
     - text: "License"
       href: license.html
+    - text: 'Drug correlation'
+      href: drugcorr.html
   right:
     - icon: fa-github
       href: https://github.com/jdblischak/workflowr
