@@ -15,13 +15,14 @@ navbar:
       href: correlation_analysis.html
     - text: 'Drug response'
       href: drugresponse.html
-    - text: "License"
-      href: license.html
     - text: 'Drug correlation'
       href: drugcorr.html
+    - text: "License"
+      href: license.html
+  
   right:
     - icon: fa-github
-      href: https://github.com/jdblischak/workflowr
+      href: https://github.com/bingrus/myprojects
 output:
   workflowr::wflow_html:
     toc: true
