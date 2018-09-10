@@ -15,6 +15,8 @@ library(GSVA)
 library(GSEABase)
 library(knitr)
 library(kableExtra)
+library(org.Hs.eg.db)
+library(annotate)
 ```
 
 # drug correlation analysis with target sets
@@ -30,10 +32,9 @@ row.names(gene.expression.nohemo.z)<-rownames(gene.expression.nohemo)
 #gene.expression.nohemo.z<-t(gene.expression.nohemo.z)
 write.csv(gene.expression.nohemo.z,file = '../data/CCLE/geneexpression_zscore.csv')
 ```
-```{r expression input,eval=FALSE}
-#gene.expression.nohemo.z<-read.csv('/Users/ll/Desktop/work/data/CCLE/geneexpression_zscore.csv',row.names = 1)
-```
+
 ```{r ssgsea,eval=FALSE}
+gene.expression.nohemo.z<-read.csv('/Users/ll/Desktop/work/data/CCLE/geneexpression_zscore.csv',row.names = 1)
 mydata<-getGEO(filename='../data/GSE36133_series_matrix.txt')
 regset <- getGmt('../data/Gene_regulators/targetset.gmt.txt')
 anno <- fData(mydata)
@@ -155,6 +156,82 @@ druginfo.2$group<-hc_cut.order
 druginfo.total<-druginfo.2
 kable(druginfo.total[,c(2,3,4,7)])
 ```
+
+## Result 3: drug response correlate with goslim
+```{r goslim1,eval=FALSE}
+gene.expression.nohemo.z<-read.csv('/Users/ll/Desktop/git/myproject/data/CCLE/geneexpression_zscore.csv',row.names = 1)
+mydata<-getGEO(filename='/Users/ll/Desktop/git/myproject/data/GSE36133_series_matrix.txt')
+slim_terms <- getOBOCollection("/Users/ll/Desktop/git/myproject/data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+anno <- fData(mydata)
+library(org.Hs.eg.db)
+library(annotate)
+ent<-as.character(anno$ORF)
+genename<-getSYMBOL(ent,data='org.Hs.eg')
+anno <- cbind(anno,genename)
+gene.expression.nohemo.z<-gene.expression.nohemo.z[complete.cases(anno),]
+anno<-anno[complete.cases(anno),]
+rownames(gene.expression.nohemo.z)<-anno$ORF
+gogsva<-gsva(data.matrix(gene.expression.nohemo.z),pathways,method=c('ssgsea'))
+save(gogsva,file ='../data/gogsva_z_col.Rdata')
+```
+
+```{r goslim2}
+load(file ='/Users/ll/Desktop/git/myproject/data/gogsva_z_col.Rdata')
+tocorre.goslim<-gogsva[,drug.cl.tocorre]
+```
+```{r goslim3,warning=FALSE}
+regulator.drug.goslim.cor<-apply(tocorre.drug,2,function(x){
+  ss <- x
+  result<-apply(tocorre.goslim,1,function(x){return(cor.test(x,ss,method = 'spearman')$estimate)})
+  return(result)
+    }
+  )
+```
+```{r goslim4,include = FALSE,fig.width=12,fig.height=12}
+my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
+#pdf('drugheatmap_goslim.pdf',width = 12,height = 12) 
+hp.2<-heatmap.2(regulator.drug.goslim.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
+#dev.off()
+```
+
+```{r goslim5}
+new.row.name<-row.names(regulator.drug.goslim.cor)[rev(hp.2$rowInd)]
+new.col.name<-colnames(regulator.drug.goslim.cor)[hp.2$colInd]
+regulator.drug.goslim.cor.2<-regulator.drug.goslim.cor[new.row.name,new.col.name]
+```
+```{r graphics 2,echo = FALSE,out.width = 960,out.height=960}
+knitr::include_graphics('drugheatmap_goslim.pdf')
+```
+```{r goslim6,fig.width=10,fig.height=10}
+heatmaply(regulator.drug.goslim.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,Rowv = FALSE, Colv = FALSE)
+```
+```{r goslim7}
+hp.2.dendrogram.col<-hp.2$colDendrogram
+hc.2 <- as.hclust(hp.2.dendrogram.col)
+hc_cut.2<-cutree( hc.2, k=5)
+hc_cut.2.order<-hc_cut.2[order(hc_cut.2)]
+druginfo.3<-druginfo[names(hc_cut.2.order),]
+druginfo.3$group<-hc_cut.2.order
+druginfo.total.2<-druginfo.3
+kable(druginfo.total.2[,c(2,3,4,7)])
+```
+
+
+
+
+
+
+
+
 
 
 
