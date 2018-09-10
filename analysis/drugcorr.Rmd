@@ -208,9 +208,12 @@ new.row.name<-row.names(regulator.drug.goslim.cor)[rev(hp.2$rowInd)]
 new.col.name<-colnames(regulator.drug.goslim.cor)[hp.2$colInd]
 regulator.drug.goslim.cor.2<-regulator.drug.goslim.cor[new.row.name,new.col.name]
 ```
+
 ```{r graphics 2,echo = FALSE,out.width = 960,out.height=960}
 knitr::include_graphics('drugheatmap_goslim.pdf')
 ```
+
+###interactive plot
 ```{r goslim6,fig.width=10,fig.height=10}
 heatmaply(regulator.drug.goslim.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,Rowv = FALSE, Colv = FALSE)
 ```
