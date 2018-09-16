@@ -34,9 +34,10 @@ write.csv(gene.expression.nohemo.z,file = '../data/CCLE/geneexpression_zscore.cs
 ```
 
 ```{r ssgsea,eval=FALSE}
-gene.expression.nohemo.z<-read.csv('/Users/ll/Desktop/work/data/CCLE/geneexpression_zscore.csv',row.names = 1)
+gene.expression.nohemo.z<-read.csv('../data/CCLE/geneexpression_zscore.csv',row.names = 1)
 mydata<-getGEO(filename='../data/GSE36133_series_matrix.txt')
-regset <- getGmt('../data/Gene_regulators/targetset.gmt.txt')
+#regset <- getGmt('../data/Gene_regulators/targetset.gmt.txt')
+regset <- getGmt('../data/Gene_regulators/targetset_nodup.gmt.txt')
 anno <- fData(mydata)
 library(org.Hs.eg.db)
 library(annotate)
@@ -47,11 +48,11 @@ gene.expression.nohemo.z<-gene.expression.nohemo.z[complete.cases(anno),]
 anno<-anno[complete.cases(anno),]
 rownames(gene.expression.nohemo.z)<-anno$genename
 regsva<-gsva(data.matrix(gene.expression.nohemo.z),regset,method=c('ssgsea'))
-save(regsva,file ='../data/regsva_z_col.Rdata')
+save(regsva,file ='../data/regsva_new_z_col.Rdata')
 
 ```
 ```{r input,echo = FALSE}
-load('/Users/ll/Desktop/git/myproject/data/regsva_z_col.Rdata')
+load('/Users/ll/Desktop/git/myproject/data/regsva_new_z_col.Rdata')
 ```
 ## method
 * scale the microarrary expression data for each sample to z-score accross all genes
@@ -106,7 +107,7 @@ knitr::include_graphics('drugheatmap_target.pdf')
 ### interactive figure without dendogram (same order)
 ```{r info,include = FALSE}
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-#pdf('drugheatmap_target.pdf',width = 12,height = 12) 
+#pdf('drugheatmap_target_nodup.pdf',width = 12,height = 12) 
 hp<-heatmap.2(regulator.drug.ssgsea.cor.sub,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
 #dev.off()
 new.row.name<-row.names(regulator.drug.ssgsea.cor.sub)[rev(hp$rowInd)]
@@ -114,7 +115,9 @@ new.col.name<-colnames(regulator.drug.ssgsea.cor.sub)[hp$colInd]
 regulator.drug.ssgsea.cor.2<-regulator.drug.ssgsea.cor.sub[new.row.name,new.col.name]
 #heatmap.2(regulator.drug.ssgsea.cor.2,Rowv = FALSE, Colv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
 ```
-
+```{r graphics2,echo = FALSE,out.width = 960,out.height=960}
+knitr::include_graphics('drugheatmap_target_nodup.pdf')
+```
 ```{r inter,fig.width=10,fig.height=10}
 heatmaply(regulator.drug.ssgsea.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,row_dend_left = TRUE, Rowv = FALSE, Colv = FALSE,plot_method = "plotly")
 ```
@@ -172,8 +175,6 @@ pathways <- xx[slim_terms[,1]]
 pathways <- pathways[!is.na(names(pathways))]
 names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
 anno <- fData(mydata)
-library(org.Hs.eg.db)
-library(annotate)
 ent<-as.character(anno$ORF)
 genename<-getSYMBOL(ent,data='org.Hs.eg')
 anno <- cbind(anno,genename)
