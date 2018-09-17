@@ -101,7 +101,7 @@ hp.gene<-row.names(regulator.drug.ssgsea.cor)
 toremove.gene <- hp.gene[which(regulator.class[hp.gene,1] %in% c('None',NA))]
 regulator.drug.ssgsea.cor.sub<-subset(regulator.drug.ssgsea.cor, !hp.gene %in% toremove.gene)
 ```
-```{r graphics,echo = FALSE,out.width = 960,out.height=960}
+```{r graphics,echo = FALSE,out.width = 960,out.height=960,eval=FALSE}
 knitr::include_graphics('drugheatmap_target.pdf')
 ```
 ### interactive figure without dendogram (same order)
