@@ -12,7 +12,7 @@
 <meta name="author" content="Bingru Sun" />
 
 
-<title>Analysis on the enrichment of the target sets for each regulator</title>
+<title>Differential gene expression analysis of mutated regulators</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -289,12 +289,27 @@ div.tocify {
   <a href="about.html">About</a>
 </li>
 <li>
+  <a href="first-analysis.html">Roast Analysis</a>
+</li>
+<li>
+  <a href="gene_set_analysis.html">Camera Analysis</a>
+</li>
+<li>
+  <a href="correlation_analysis.html">Correlation analysis</a>
+</li>
+<li>
+  <a href="drugresponse.html">Drug response</a>
+</li>
+<li>
+  <a href="drugcorr.html">Drug correlation</a>
+</li>
+<li>
   <a href="license.html">License</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/jdblischak/workflowr">
+  <a href="https://github.com/bingrus/myproject">
     <span class="fa fa-github"></span>
      
   </a>
@@ -315,14 +330,14 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">Analysis on the enrichment of the target sets for each regulator</h1>
+<h1 class="title toc-ignore">Differential gene expression analysis of mutated regulators</h1>
 <h4 class="author"><em>Bingru Sun</em></h4>
-<h4 class="date"><em>23/07/2018</em></h4>
+<h4 class="date"><em>2018/11/21</em></h4>
 
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-07-30</p>
+<p><strong>Last updated:</strong> 2018-11-21</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -346,13 +361,80 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/2f42e9e42ede410336b29c395a497834ab8ad320" target="_blank">2f42e9e</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/cf863721cc515818bc0f58d837fdf6b391d4e0ad" target="_blank">cf86372</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
     Ignored:    .DS_Store
+    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
     Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    data/.DS_Store
+    Ignored:    docs/.DS_Store
+    Ignored:    docs/figure/.DS_Store
+    Ignored:    output/.DS_Store
+
+Untracked files:
+    Untracked:  analysis/ccle_drugheatmap.pdf
+    Untracked:  analysis/cnvchange.Rmd
+    Untracked:  analysis/drugana.Rmd
+    Untracked:  analysis/drugcamera.Rmd
+    Untracked:  analysis/drugheatmap.pdf
+    Untracked:  analysis/drugheatmap_color_2.pdf
+    Untracked:  analysis/drugheatmap_goslim.pdf
+    Untracked:  analysis/drugheatmap_target_color.pdf
+    Untracked:  analysis/drugheatmap_target_nodup.pdf
+    Untracked:  analysis/druginfo.total.csv
+    Untracked:  analysis/druginfo_total.csv
+    Untracked:  analysis/fifthheatmap.pdf
+    Untracked:  analysis/firstheatmap.pdf
+    Untracked:  analysis/fourthheatmap.pdf
+    Untracked:  analysis/gdsc.Rmd
+    Untracked:  analysis/gdsc_ccle.Rmd
+    Untracked:  analysis/gdsc_drugheatmap.pdf
+    Untracked:  analysis/gdsc_drugheatmap_target.pdf
+    Untracked:  analysis/gdsc_drugheatmap_target_nodup.pdf
+    Untracked:  analysis/gdsccamera.Rmd
+    Untracked:  analysis/gene_set_example.Rmd
+    Untracked:  analysis/heatmap.pdf
+    Untracked:  analysis/regsva_z_row.Rdata
+    Untracked:  analysis/secondheatmap.pdf
+    Untracked:  analysis/selected_cl.Rdata
+    Untracked:  analysis/test.tsv
+    Untracked:  analysis/thirdheatmap.pdf
+    Untracked:  code/analysis.R
+    Untracked:  code/kegg.Rmd
+    Untracked:  code/reg.R
+    Untracked:  data/CCLE/
+    Untracked:  data/GDSC/
+    Untracked:  data/GSE36133_series_matrix.txt
+    Untracked:  data/Gene_regulators/
+    Untracked:  data/gogsva_z_col.Rdata
+    Untracked:  data/kegg_z_col.Rdata
+    Untracked:  data/regsva_new_z_col.Rdata
+    Untracked:  data/regsva_z_col.Rdata
+    Untracked:  data/regsva_z_row.Rdata
+    Untracked:  data/regsva_zscore.Rdata
+    Untracked:  data/regulators_5_cl_20_tar.Rdata
+    Untracked:  data/selected_cl.Rdata
+    Untracked:  docs/drugheatmap.pdf
+    Untracked:  docs/figure/correlation analysis.Rmd/
+    Untracked:  docs/figure/drug.Rmd/
+    Untracked:  docs/figure/gene_set_analysis_re.Rmd/
+    Untracked:  docs/goslim_cor_lab_heatmap(reorder).pdf
+    Untracked:  docs/goslim_cor_lab_heatmap.pdf
+    Untracked:  output/GDSC.pdf
+    Untracked:  output/ccle.pdf
+
+Unstaged changes:
+    Modified:   analysis/_site.yml
+    Modified:   analysis/correlation_analysis.Rmd
+    Modified:   analysis/drugcorr.Rmd
+    Modified:   analysis/drugresponse.Rmd
+    Modified:   analysis/gdsccorr.Rmd
+    Modified:   analysis/gene_set_analysis.Rmd
+    Modified:   data/README.md
 
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
@@ -381,6 +463,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/cf2018be41f5a23ed2da05cb8a56595108592b6b/docs/first-analysis.html" target="_blank">cf2018b</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-07-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -675,459 +774,238 @@ Add my first analysis
 </ul>
 <p></details></p>
 <hr />
-<div id="roast-analysis" class="section level2">
-<h2>ROAST Analysis</h2>
-<div id="log10p-value-barcodeplot-of-regulator-target-sets" class="section level3">
-<h3>-log10(p-value) barcodeplot of regulator target sets</h3>
-<ul>
-<li>One target set per regulator</li>
-<li>Perfrom Roast gene set analysis for the target set of each regulator comparing mutated cell line to non-mutated cell line</li>
-<li>barcode plot plots on -log10 of the p-value for each set</li>
-<li>Down and Up regulation is colored by the -log10(0.05),-log10(0.95) cut-off</li>
-</ul>
-<p><img src="figure/first-analysis.Rmd/cars-1.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of cars-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
+<div id="results-of-significant-differential-expressed-regulators-logfc-1-or--1-adjusted-p-value-0.05" class="section level2">
+<h2>Results of significant differential expressed regulators (logFC &gt;= 1 or &lt;= -1, adjusted p-value &lt;= 0.05)</h2>
+<pre><code>         ID     logFC          AveExpr                 t
+ 1:     AGT  2.098001 4.58100830649351  5.61765467006605
+ 2:   APOA1  2.402709 4.14332503896104  5.30666212736936
+ 3:     B2M -1.730928 13.3491404350649 -7.09580995167322
+ 4:    CBR1 -5.506607 9.07087987662338 -4.00627366899606
+ 5:    CFTR  1.677130 4.16214019350649  5.38492847028329
+ 6:  DHCR24 -4.147224 10.0922432714286 -3.61291927115975
+ 7:    IRF2 -1.480891 7.23056384545455 -3.84985398361674
+ 8:    JAK1 -2.243552 8.85396401168831 -12.6174934495148
+ 9:    MLH1 -1.267991 10.3140302779221 -4.07099440095817
+10:    MSH2 -1.783054 9.52578524805195 -7.19399950574173
+11:     RB1 -1.346342 7.14722145194805  -13.170078660041
+12: SLC31A1 -3.880482 9.17624947272727 -6.80715731605919
+13: SMARCA4 -2.065695 9.08198166753247 -15.4242672297773
+14:    SOX9  1.922076        7.7552931  3.49051068219981
+15:    TP53 -1.937594 7.00742108701299 -17.8473830352295
+                 P.value    adj.P.Val                  B
+ 1: 2.70486568923239e-08 5.680518e-05   8.55718665654652
+ 2: 1.46122919277495e-07 7.671859e-05   7.04644079662139
+ 3: 2.92061134409601e-12 2.760124e-08   16.9789927102828
+ 4:  6.7668665998736e-05 1.540970e-02   1.46624565616076
+ 5: 9.63307253278109e-08 1.011526e-04   7.38202702312166
+ 6: 0.000322428047955795 4.710133e-02  0.038018565285288
+ 7: 0.000127999156977133 4.652523e-02  0.894940853355964
+ 8: 2.60394346667035e-33 4.921714e-29   62.7744950311121
+ 9: 5.16508274669157e-05 3.366387e-02   1.66335126647402
+10:  1.4940098222972e-12 2.823828e-08   17.2245446789547
+11: 7.17470427506221e-36 1.695114e-32   70.5347012440696
+12: 2.00321828559225e-11 1.992780e-08   15.3884555106682
+13:  5.6508632174933e-47 1.068070e-42   93.3701220439381
+14: 0.000509534940847369 1.441725e-02 -0.447125242022418
+15: 6.91103747068378e-60 1.306255e-55   112.850249206716</code></pre>
+<table>
 <thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
+<tr class="header">
+<th align="left">ID</th>
+<th align="right">logFC</th>
+<th align="left">AveExpr</th>
+<th align="left">t</th>
+<th align="left">P.value</th>
+<th align="right">adj.P.Val</th>
+<th align="left">B</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/66baded310ef4d495267d96e14c1c0882c3f531b/docs/figure/first-analysis.Rmd/cars-1.png" target="_blank">66baded</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-23
-</td>
+<tr class="odd">
+<td align="left">AGT</td>
+<td align="right">2.098001</td>
+<td align="left">4.58100830649351</td>
+<td align="left">5.61765467006605</td>
+<td align="left">2.70486568923239e-08</td>
+<td align="right">0.0000568</td>
+<td align="left">8.55718665654652</td>
+</tr>
+<tr class="even">
+<td align="left">APOA1</td>
+<td align="right">2.402709</td>
+<td align="left">4.14332503896104</td>
+<td align="left">5.30666212736936</td>
+<td align="left">1.46122919277495e-07</td>
+<td align="right">0.0000767</td>
+<td align="left">7.04644079662139</td>
+</tr>
+<tr class="odd">
+<td align="left">B2M</td>
+<td align="right">-1.730928</td>
+<td align="left">13.3491404350649</td>
+<td align="left">-7.09580995167322</td>
+<td align="left">2.92061134409601e-12</td>
+<td align="right">0.0000000</td>
+<td align="left">16.9789927102828</td>
+</tr>
+<tr class="even">
+<td align="left">CBR1</td>
+<td align="right">-5.506607</td>
+<td align="left">9.07087987662338</td>
+<td align="left">-4.00627366899606</td>
+<td align="left">6.7668665998736e-05</td>
+<td align="right">0.0154097</td>
+<td align="left">1.46624565616076</td>
+</tr>
+<tr class="odd">
+<td align="left">CFTR</td>
+<td align="right">1.677129</td>
+<td align="left">4.16214019350649</td>
+<td align="left">5.38492847028329</td>
+<td align="left">9.63307253278109e-08</td>
+<td align="right">0.0001012</td>
+<td align="left">7.38202702312166</td>
+</tr>
+<tr class="even">
+<td align="left">DHCR24</td>
+<td align="right">-4.147224</td>
+<td align="left">10.0922432714286</td>
+<td align="left">-3.61291927115975</td>
+<td align="left">0.000322428047955795</td>
+<td align="right">0.0471013</td>
+<td align="left">0.038018565285288</td>
+</tr>
+<tr class="odd">
+<td align="left">IRF2</td>
+<td align="right">-1.480891</td>
+<td align="left">7.23056384545455</td>
+<td align="left">-3.84985398361674</td>
+<td align="left">0.000127999156977133</td>
+<td align="right">0.0465252</td>
+<td align="left">0.894940853355964</td>
+</tr>
+<tr class="even">
+<td align="left">JAK1</td>
+<td align="right">-2.243552</td>
+<td align="left">8.85396401168831</td>
+<td align="left">-12.6174934495148</td>
+<td align="left">2.60394346667035e-33</td>
+<td align="right">0.0000000</td>
+<td align="left">62.7744950311121</td>
+</tr>
+<tr class="odd">
+<td align="left">MLH1</td>
+<td align="right">-1.267991</td>
+<td align="left">10.3140302779221</td>
+<td align="left">-4.07099440095817</td>
+<td align="left">5.16508274669157e-05</td>
+<td align="right">0.0336639</td>
+<td align="left">1.66335126647402</td>
+</tr>
+<tr class="even">
+<td align="left">MSH2</td>
+<td align="right">-1.783054</td>
+<td align="left">9.52578524805195</td>
+<td align="left">-7.19399950574173</td>
+<td align="left">1.4940098222972e-12</td>
+<td align="right">0.0000000</td>
+<td align="left">17.2245446789547</td>
+</tr>
+<tr class="odd">
+<td align="left">RB1</td>
+<td align="right">-1.346342</td>
+<td align="left">7.14722145194805</td>
+<td align="left">-13.170078660041</td>
+<td align="left">7.17470427506221e-36</td>
+<td align="right">0.0000000</td>
+<td align="left">70.5347012440696</td>
+</tr>
+<tr class="even">
+<td align="left">SLC31A1</td>
+<td align="right">-3.880482</td>
+<td align="left">9.17624947272727</td>
+<td align="left">-6.80715731605919</td>
+<td align="left">2.00321828559225e-11</td>
+<td align="right">0.0000000</td>
+<td align="left">15.3884555106682</td>
+</tr>
+<tr class="odd">
+<td align="left">SMARCA4</td>
+<td align="right">-2.065695</td>
+<td align="left">9.08198166753247</td>
+<td align="left">-15.4242672297773</td>
+<td align="left">5.6508632174933e-47</td>
+<td align="right">0.0000000</td>
+<td align="left">93.3701220439381</td>
+</tr>
+<tr class="even">
+<td align="left">SOX9</td>
+<td align="right">1.922076</td>
+<td align="left">7.7552931</td>
+<td align="left">3.49051068219981</td>
+<td align="left">0.000509534940847369</td>
+<td align="right">0.0144172</td>
+<td align="left">-0.447125242022418</td>
+</tr>
+<tr class="odd">
+<td align="left">TP53</td>
+<td align="right">-1.937594</td>
+<td align="left">7.00742108701299</td>
+<td align="left">-17.8473830352295</td>
+<td align="left">6.91103747068378e-60</td>
+<td align="right">0.0000000</td>
+<td align="left">112.850249206716</td>
 </tr>
 </tbody>
 </table>
-<p></details></p>
 </div>
-<div id="regulators-that-have-significance-in-up-regulation-upper-table-and-down-regulator-lower-table-of-its-targets-in-the-roast-gene-set-test-when-mutated" class="section level3">
-<h3>Regulators that have significance in up regulation (upper table) and down regulator (lower table) of its targets in the roast gene set test when mutated</h3>
-<pre><code>             Down           Up UpOrDown Mixed
-PRKDC   0.9674837 0.0330165083    0.066 0.001
-SMARCA4 0.9904952 0.0100050025    0.020 0.001
-RB1     0.9649825 0.0355177589    0.071 0.001
-NLRP3   0.9759880 0.0245122561    0.049 0.025
-BACH2   0.9939970 0.0065032516    0.013 0.026
-ANAPC1  0.9599800 0.0405202601    0.081 0.001
-HIF1A   1.0000000 0.0005002501    0.001 0.065
-EP400   0.9774887 0.0230115058    0.046 0.015
-ZBTB14  0.9844922 0.0160080040    0.032 0.067</code></pre>
-<pre><code>              Down        Up UpOrDown Mixed
-MLH1    0.01550775 0.9849925    0.031 0.010
-EIF2AK3 0.04002001 0.9604802    0.080 0.063
-BRD4    0.01350675 0.9869935    0.027 0.039</code></pre>
+<div id="results-of-significant-differential-expressed-regulators-logfc-1-or--1-adjusted-p-value-0.05-of-only-selected-regulators" class="section level2">
+<h2>Results of significant differential expressed regulators (logFC &gt;= 1 or &lt;= -1, adjusted p-value &lt;= 0.05) of only selected regulators</h2>
+<pre><code>     ID     logFC          AveExpr                 t              P.value
+1:  AGT  2.098001 4.58100830649351  5.61765467006605 2.70486568923239e-08
+2:  RB1 -1.346342 7.14722145194805  -13.170078660041 7.17470427506221e-36
+3: SOX9  1.922076        7.7552931  3.49051068219981 0.000509534940847369
+4: TP53 -1.937594 7.00742108701299 -17.8473830352295 6.91103747068378e-60
+      adj.P.Val                  B
+1: 5.680518e-05   8.55718665654652
+2: 1.695114e-32   70.5347012440696
+3: 1.441725e-02 -0.447125242022418
+4: 1.306255e-55   112.850249206716</code></pre>
 </div>
-<div id="barcodeplot-of-logfc-of-targets-of-which-the-regulator-is-significant-in-up-regulation-in-the-roast-gene-set-analysis-after-mutation" class="section level3">
-<h3>Barcodeplot of logFC of targets of which the regulator is significant in up regulation in the roast gene set analysis after mutation</h3>
-<p>*colored by logFC cut-off of -1 and 1 <img src="figure/first-analysis.Rmd/plot-1.png" width="960" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of plot-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/672115ea216fc5ca8c1a5a63f88971ce41d5ddd5/docs/figure/first-analysis.Rmd/plot-1.png" target="_blank">672115e</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-23
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/66baded310ef4d495267d96e14c1c0882c3f531b/docs/figure/first-analysis.Rmd/plot-1.png" target="_blank">66baded</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-23
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<div id="results-in-lung-cancer-cell-lines" class="section level2">
+<h2>results in lung cancer cell lines</h2>
+<pre><code>        ID     logFC          AveExpr                 t
+1:     AGT  6.340992 4.62428002873563  4.04142919665588
+2:    FLT1  1.499338 3.99903840229885  5.12753881941574
+3:   KHSRP -2.968614  9.2957050862069 -7.00152762155828
+4:     NF1 -1.019427 6.74289602298851 -5.64185630811218
+5:   PARP1 -2.053396       10.9478805 -4.31457388682209
+6:     RB1 -1.035881 6.75127956896552 -6.50934188240044
+7: SMARCA4 -2.609487 8.87696262068966 -10.7563044269923
+8:    TP53 -2.118825 6.75696204597701 -10.7950037213875
+                P.value    adj.P.Val                B
+1: 7.96524485914127e-05 1.123516e-02   1.258105941867
+2: 7.76713088394782e-07 1.858311e-04  5.5608529318068
+3: 5.29573594681431e-11 5.268142e-08 14.3011282533741
+4:  6.7068370660572e-08 1.267659e-03 6.93987398481858
+5: 2.67661877847844e-05 1.200935e-02 2.30775684583091
+6: 7.78299181252554e-10 2.198899e-08 12.0417785386875
+7: 5.21737168803565e-21 9.861354e-17 35.9199015066043
+8: 4.05643846997073e-21 7.667074e-17 22.2510333209967</code></pre>
 </div>
-<div id="barcodeplot-of-logfc-of-targest-of-which-the-regulator-is-significant-in-down-regulation-in-the-roast-gene-set-analysis-after-mutation" class="section level3">
-<h3>Barcodeplot of logFC of targest of which the regulator is significant in down regulation in the roast gene set analysis after mutation</h3>
-<p>*colored by logFC cut-off of -1 and 1 <img src="figure/first-analysis.Rmd/plot2-1.png" width="960" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of plot2-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/672115ea216fc5ca8c1a5a63f88971ce41d5ddd5/docs/figure/first-analysis.Rmd/plot2-1.png" target="_blank">672115e</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-23
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/264b8f944ee0dea20a4caba72e595d7a3418f26b/docs/figure/first-analysis.Rmd/plot2-1.png" target="_blank">264b8f9</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-23
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
-</div>
-<div id="discussion" class="section level3">
-<h3>Discussion</h3>
-<p>Observing the barcodeplots, I did not find significant trend in the logFC for the selected genes. Therefore, I turn to use a competitive gene set test.</p>
-</div>
-</div>
-<div id="roast-with-fry" class="section level2">
-<h2>Roast with fry</h2>
-<pre><code>[1] 49</code></pre>
-<pre><code>       NGenes Direction       PValue PValue.Mixed
-CREBBP    100        Up   0.03305583            1
-PIK3CA    396        Up   0.02984725    0.9940274
-CUX1      391        Up  0.004727074    0.2950322
-AHR       430        Up 0.0007619592    0.8224946
-EP300      73        Up  0.001089873            1
-EGF       271        Up   0.01418622    0.9953728
-ZEB1     1223        Up  0.007814694    0.3450715
-IRF8      209        Up    0.0389464            1
-ZBTB14    365        Up   0.04666588    0.9883665
-MYCN      235        Up   0.01464574    0.9989928
-FOXM1     234        Up  0.004505025    0.9999777
-GATA3     200        Up    0.0140192    0.9999972
-IRF2      121        Up   0.04631061            1
-TFCP2     391        Up  0.008063538    0.9965628
-STAT5B    327        Up  0.005797468    0.3377285
-SREBF1   1976        Up   0.01514092    0.3642378
-MAZ      1878        Up   0.01469983   0.06085112
-CDX2      222        Up    0.0187715    0.9991497
-EGR2      163        Up    0.0208556            1</code></pre>
-<pre><code>     NGenes Direction     PValue PValue.Mixed
-TP53    656        Up  0.1143966 2.765509e-05
-SOX9    400        Up 0.07514594   0.04028429
-RB1     253        Up  0.3481704 1.321314e-16
-TCF3   3580        Up 0.09080691   0.00434379</code></pre>
-<ul>
-<li>at least 5 mutated cell lines and 20 regulators</li>
-</ul>
-<div id="mix" class="section level3">
-<h3>Mix</h3>
-<p><img src="figure/first-analysis.Rmd/fryplot0-1.png" width="960" style="display: block; margin: auto;" /></p>
-</div>
-<div id="directional" class="section level3">
-<h3>Directional</h3>
-<p><img src="figure/first-analysis.Rmd/fryplot-1.png" width="960" style="display: block; margin: auto;" /><img src="figure/first-analysis.Rmd/fryplot-2.png" width="960" style="display: block; margin: auto;" /> ##Camera Analysis</p>
-</div>
-<div id="regulators-that-have-significance-in-the-camera-gene-set-test-when-mutated" class="section level3">
-<h3>Regulators that have significance in the CAMERA gene set test when mutated</h3>
-<pre><code>          NGenes Direction       PValue
-ANAPC15        2        Up   0.02449023
-ARAF           1        Up   0.04346663
-ATG5           5        Up   0.02413876
-BMF            2      Down   0.01208212
-BMP7           4        Up   0.03998398
-CA9            7        Up   0.01147036
-CAMP           2        Up   0.02382208
-CGA            1        Up  0.008135968
-COPS5          2      Down   0.02470864
-CP             2        Up 0.0002104548
-CRY2           2        Up   0.01020165
-CYP27B1        3        Up 0.0005495688
-DHCR24         2        Up  0.005023424
-DLC1           1        Up   0.02606838
-DNMT1          6        Up  0.001270264
-EIF2S1         2      Down  0.001051003
-EXOSC5         1        Up    0.0337712
-FGF8          10        Up 0.0009936227
-GNAI1          1        Up   0.01833056
-GNRHR          1        Up   0.04484628
-GTF2H1         7      Down   0.01623092
-GTF2H4         7      Down   0.04924274
-HDAC5          1      Down   0.04443173
-HDAC8          1        Up   0.03740693
-HIPK1          1        Up  0.009928304
-HIST1H2BC      3        Up   0.03898411
-HIST1H2BM      3        Up    0.0228639
-HPX            1      Down   0.01628562
-IL1A          32      Down   0.02361948
-KCNMB1         1      Down   0.04105646
-KDM3A          3        Up   0.02627117
-KIT            1        Up    0.0058206
-LDB1           1      Down   0.03954431
-MAML2          6      Down    0.0331873
-MAP2K1        11        Up   0.02417861
-MTOR          10        Up    0.0487507
-NELFB          7      Down   0.01589462
-NR2C1          1        Up  0.001375224
-PDCD5          1        Up   0.02852119
-PIN1           3        Up 0.0005917278
-PLCG1          1        Up   0.04921961
-PLK1           3        Up   0.03498213
-POLR2G        10      Down   0.03300064
-POLR2J        10        Up   0.04194447
-PPP2R2A        1      Down  0.005569465
-PRDX4         11      Down   0.02706672
-RUVBL1         4        Up   0.01876242
-S1PR3          1      Down   0.04910259
-SESN2          1      Down   0.03656895
-SHH           14        Up   0.04306852
-SLC39A8        1        Up 0.0002381013
-SLC3A2         1      Down   0.01938222
-TADA2B         3      Down   0.03290973
-TRPV6          1        Up   0.04061363
-UBE3A          1        Up    0.0139555</code></pre>
-</div>
-<div id="barcodeplot-of-logfc-of-targest-of-which-the-regulator-is-significant-in-the-camera-gene-set-analysis-after-mutation" class="section level3">
-<h3>Barcodeplot of logFC of targest of which the regulator is significant in the CAMERA gene set analysis after mutation</h3>
-<p>*selected regulators that have at least 1 target and 5 mutated cell lines</p>
-<p><img src="figure/first-analysis.Rmd/result-1.png" width="960" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of result-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/6024512013256e69120f5ab85ba0f4616df2c015/docs/figure/first-analysis.Rmd/result-1.png" target="_blank">6024512</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-30
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
-</div>
-<div id="barcodeplot-of-logfc-of-targest-of-which-the-regulator-is-significant-in-the-camera-gene-set-analysis-after-mutation-and-selected-in-the-cnv-analysis" class="section level3">
-<h3>Barcodeplot of logFC of targest of which the regulator is significant in the CAMERA gene set analysis after mutation and selected in the CNV analysis</h3>
-<ul>
-<li>from above selected genes, only 2 overlaps with the previous CNV analysis</li>
-<li>wilcox test p value significant comparing mutated cell lines and not mutated cell lines (no multiple comparison adjustment)</li>
-<li>ratio of cnv changes is over 0.5 from nonmutated cell lines to mutated cell lines</li>
-</ul>
-<p><img src="figure/first-analysis.Rmd/cnv2-1.png" width="960" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of cnv2-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/6024512013256e69120f5ab85ba0f4616df2c015/docs/figure/first-analysis.Rmd/cnv2-1.png" target="_blank">6024512</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-30
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
-</div>
-</div>
-<div id="atg5-and-maml2-ssgsea" class="section level2">
-<h2>ATG5 and MAML2 ssgsea</h2>
-<ul>
-<li>plot 3 types (not-mutated-CNV,notmutated-notCNV,mutated)</li>
-</ul>
-<p><img src="figure/first-analysis.Rmd/ssgsea-1.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of ssgsea-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/6024512013256e69120f5ab85ba0f4616df2c015/docs/figure/first-analysis.Rmd/ssgsea-1.png" target="_blank">6024512</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-30
-</td>
-</tr>
-</tbody>
-</table>
-<p></details> <img src="figure/first-analysis.Rmd/ssgsea-2.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of ssgsea-2.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/6024512013256e69120f5ab85ba0f4616df2c015/docs/figure/first-analysis.Rmd/ssgsea-2.png" target="_blank">6024512</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-07-30
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
-<div id="mutated-cell-line-information-for-atg5-and-maml2" class="section level3">
-<h3>Mutated cell line information for ATG5 and MAML2</h3>
-<pre><code>          gene.score gene.cl    primary.site     title
-GSM887005 0.09459600  mutate     endometrium        EN
-GSM887067 0.07003154  mutate     endometrium   HEC-108
-GSM887075 0.05359688  mutate     endometrium     HEC-6
-GSM887161 0.13246922  mutate         stomach      IM95
-GSM887399 0.06988642  mutate            lung NCI-H2066
-GSM887645 0.08979526  mutate large_intestine    SNU-C4</code></pre>
-<pre><code>          gene.score gene.cl    primary.site           title
-GSM886988  0.1554603  mutate        prostate          DU 145
-GSM887001  0.1133585  mutate           ovary          EFO-27
-GSM887161  0.1617418  mutate         stomach            IM95
-GSM887271  0.1145288  mutate        prostate LNCaP clone FGC
-GSM887602  0.1743522  mutate large_intestine        SNU-1040
-GSM887608  0.2601871  mutate           ovary         SNU-119</code></pre>
-</div>
-</div>
-<div id="result-discussion" class="section level2">
-<h2>Result Discussion</h2>
-<ul>
-<li>The resolution of the test p-value (fry(faster and more precise) mroast): 1) the roast has less resolution of the p-value as it is depended on the number of rotations 2) p-value changes from run to run</li>
-<li>Convert to z-score and run ssgsea</li>
-<li>For mixed gene sets, test for absolute value</li>
-<li>Find IC50 for the inhibitor of the selected gene-cell line pair</li>
-</ul>
-</div>
-<div id="meeting-summary" class="section level2">
-<h2>Meeting Summary</h2>
-<ul>
-<li>Need to look more closely at the target sets
-<ul>
-<li>roast — did fry</li>
-<li>abs(logFC)
-<ul>
-<li>ssgsea</li>
-</ul></li>
-<li>ssgsea
-<ul>
-<li>wilcox test between mcl-notmcl</li>
-</ul></li>
-</ul></li>
-<li>global analysis
-<ul>
-<li>DGE for all mcl-notmcl (which gene or gene set)</li>
-<li>ssgsea for more precise pathway or process</li>
-</ul></li>
-<li>IC50
-<ul>
-<li>comparison between mcl-notmcl</li>
-</ul></li>
-<li>For thesis
-<ul>
-<li>what are the null hypothesis of roast or camera</li>
-</ul></li>
-</ul>
+<div id="results-in-skin-cancer-cell-lines" class="section level2">
+<h2>results in skin cancer cell lines</h2>
+<pre><code>        ID     logFC          AveExpr                 t
+1:     CBL -1.292033 7.31366218867925 -3.50878997775982
+2: SLC31A1 -4.405997 9.62367228301887 -6.37787414287932
+3: SMARCA4 -3.165230  9.1745440754717 -7.95101766208119
+                P.value    adj.P.Val                 B
+1: 0.000928964590683357 3.712127e-02 -0.90997465054454
+2: 4.56887442317015e-08 3.754622e-05  8.20144810930654
+3: 1.37179570805314e-10 4.321385e-07  12.3164841941499</code></pre>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
-<pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.5.0 (2018-04-23)
 Platform: x86_64-apple-darwin15.6.0 (64-bit)
 Running under: macOS High Sierra 10.13.4
@@ -1144,31 +1022,35 @@ attached base packages:
  [8] datasets  methods   base     
 
 other attached packages:
- [1] statmod_1.4.30       bindrcpp_0.2.2       ggplot2_3.0.0       
- [4] GEOquery_2.48.0      annotate_1.58.0      XML_3.98-1.11       
- [7] org.Hs.eg.db_3.6.0   AnnotationDbi_1.42.1 IRanges_2.14.10     
-[10] S4Vectors_0.18.3     Biobase_2.40.0       BiocGenerics_0.26.0 
-[13] limma_3.36.2        
+ [1] data.table_1.11.4    GSEABase_1.42.0      graph_1.58.0        
+ [4] GSVA_1.28.0          GO.db_3.6.0          ggplot2_3.0.0       
+ [7] GEOquery_2.48.0      annotate_1.58.0      XML_3.98-1.16       
+[10] org.Hs.eg.db_3.6.0   AnnotationDbi_1.42.1 IRanges_2.14.11     
+[13] S4Vectors_0.18.3     Biobase_2.40.0       BiocGenerics_0.26.0 
+[16] limma_3.36.3        
 
 loaded via a namespace (and not attached):
- [1] tidyselect_0.2.4  purrr_0.2.5       colorspace_1.3-2 
- [4] htmltools_0.3.6   yaml_2.1.19       blob_1.1.1       
- [7] rlang_0.2.1       R.oo_1.22.0       pillar_1.2.3     
-[10] withr_2.1.2       glue_1.2.0        DBI_1.0.0        
-[13] R.utils_2.6.0     bit64_0.9-7       plyr_1.8.4       
-[16] bindr_0.1.1       stringr_1.3.1     munsell_0.5.0    
-[19] gtable_0.2.0      workflowr_1.1.1   R.methodsS3_1.7.1
-[22] memoise_1.1.0     evaluate_0.10.1   labeling_0.3     
-[25] knitr_1.20        Rcpp_0.12.17      xtable_1.8-2     
-[28] readr_1.1.1       backports_1.1.2   scales_0.5.0     
-[31] bit_1.1-14        hms_0.4.2         digest_0.6.15    
-[34] stringi_1.2.3     dplyr_0.7.6       rprojroot_1.3-2  
-[37] tools_3.5.0       bitops_1.0-6      magrittr_1.5     
-[40] lazyeval_0.2.1    RCurl_1.95-4.10   RSQLite_2.1.1    
-[43] tibble_1.4.2      whisker_0.3-2     tidyr_0.8.1      
-[46] pkgconfig_2.0.1   xml2_1.2.0        assertthat_0.2.0 
-[49] rmarkdown_1.10    R6_2.2.2          git2r_0.22.1     
-[52] compiler_3.5.0   </code></pre>
+ [1] Rcpp_0.12.18       tidyr_0.8.1        assertthat_0.2.0  
+ [4] rprojroot_1.3-2    digest_0.6.16      mime_0.5          
+ [7] R6_2.2.2           plyr_1.8.4         backports_1.1.2   
+[10] RSQLite_2.1.1      evaluate_0.11      highr_0.7         
+[13] pillar_1.3.0       rlang_0.2.2        lazyeval_0.2.1    
+[16] whisker_0.3-2      blob_1.1.1         R.utils_2.7.0     
+[19] R.oo_1.22.0        rmarkdown_1.10     shinythemes_1.1.1 
+[22] geneplotter_1.58.0 readr_1.1.1        stringr_1.3.1     
+[25] RCurl_1.95-4.11    bit_1.1-14         munsell_0.5.0     
+[28] shiny_1.1.0        compiler_3.5.0     httpuv_1.4.5      
+[31] pkgconfig_2.0.2    htmltools_0.3.6    tidyselect_0.2.4  
+[34] tibble_1.4.2       workflowr_1.1.1    crayon_1.3.4      
+[37] dplyr_0.7.6        withr_2.1.2        later_0.7.3       
+[40] bitops_1.0-6       R.methodsS3_1.7.1  xtable_1.8-3      
+[43] gtable_0.2.0       DBI_1.0.0          git2r_0.23.0      
+[46] magrittr_1.5       scales_1.0.0       stringi_1.2.4     
+[49] promises_1.0.1     bindrcpp_0.2.2     xml2_1.2.0        
+[52] RColorBrewer_1.1-2 tools_3.5.0        bit64_0.9-7       
+[55] glue_1.3.0         purrr_0.2.5        hms_0.4.2         
+[58] yaml_2.2.0         colorspace_1.3-2   memoise_1.1.0     
+[61] knitr_1.20         bindr_0.1.1       </code></pre>
 </div>
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
