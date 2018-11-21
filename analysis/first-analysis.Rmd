@@ -1,52 +1,34 @@
 ---
-title: "Analysis on the enrichment of the target sets for each regulator"
+title: "Differential gene expression analysis of mutated regulators"
 author: "Bingru Sun"
-date: "23/07/2018"
+date: "2018/11/21"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
 library(limma)
 library(org.Hs.eg.db)
 library(annotate)
 library(GEOquery)
 library(grid)
 library(ggplot2)
-```
-##ROAST Analysis
-
-### -log10(p-value) barcodeplot of regulator target sets
-* One target set per regulator
-* Perfrom Roast gene set analysis for the target set of each regulator comparing mutated cell line to non-mutated cell line
-* barcode plot plots on -log10 of the p-value for each set 
-* Down and Up regulation is colored by the -log10(0.05),-log10(0.95) cut-off
-
-```{r cars,echo=FALSE}
-result.nona<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/new_roastresult.csv',row.names = 1)
-regulator.20.table<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/regulator_atleast_20cl.csv',row.names = 1)
-regulator.20<-as.character(regulator.20.table$x)
-index.vector<-row.names(result.nona) %in% regulator.20
-barcodeplot(-log10(result.nona$Up),index = index.vector,quantiles = c(-log10(0.05
-),-log10(0.95)))
-
+library(GO.db)
+library(GSVA)
+library(GSEABase)
+library(data.table)
 ```
 
-### Regulators that have significance in up regulation (upper table) and down regulator (lower table) of its targets in the roast gene set test when mutated
-```{r table,echo = FALSE}
-result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),]
-result.nona[regulator.20,][which(result.nona[regulator.20,]$Up>0.95),]
-```
-
-
-```{r regulator,include = FALSE}
-mydata<-getGEO(filename='/Users/ll/Desktop/work/data/GSE36133_series_matrix.txt')
-mutation_o<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
+```{r regulator mutation input,include = FALSE}
+## input of mutation data
+mutation_o<-read.delim('./data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
 mutation<-mutation_o
 mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
 mutation_s<-mutation_s[which(mutation_s$isDeleterious == 'TRUE'),]
 mutation_s_w<-mutation_s
 mutation_s_w<-data.frame(mutation_s$Hugo_Symbol,mutation_s$Tumor_Sample_Barcode)
+
+## put mutated cell lines into a list
 genelist<-as.character(unique(mutation_s_w[,1]))
 rs<-function(x){
   c<-as.character(mutation_s_w[which(mutation_s_w$mutation_s.Hugo_Symbol==x),2])
@@ -56,302 +38,225 @@ a<-lapply(genelist,rs)
 names(a)<-genelist
 mutatedcelllines<-a
 b<-lapply(mutatedcelllines,length)
-mutatedcelllines_num<-as.data.frame(b)
-mutatedcelllines_num<-t(mutatedcelllines_num)
-colnames(mutatedcelllines_num)<-c('freq')
+mutatedcelllines_num<-unlist(b)
 
-regulator<-read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/regulator classification.txt')
-regulator<-regulator[,1]
-regulator<-as.character(regulator)
-regulator<-unique(regulator)
+## get regulator target gene set 
+regset <- getGmt('./data/Gene_regulators/targetset_nodup.gmt.txt')
+reg.list<-geneIds(regset)
+reg.count<-lapply(reg.list,length)
+reg.count<-unlist(reg.count)
+  
+regulator<-names(reg.count)
+target <- unique(unlist(reg.list))
 
-reg <- read.delim('/Users/ll/Desktop/work/analysis/analysis_on_mutation/Gene_regulators/Regulatory network.txt')
-regulator <- unique(reg[,1])
-target <- unique(reg[,2])
+## put the regulator target gene set into a matrix
 reg_m<-matrix(nrow=length(regulator),ncol=length(target))
 colnames(reg_m)<-target
 row.names(reg_m)<-regulator
-reg_m_n<-reg_m
-for (i in 1:length(reg[,1])){
-  
-  reg_m_n[reg[i,1],reg[i,2]] = 1
-}
-reg_m_n[is.na(reg_m_n)]<-0
-info<-read.delim('/Users/ll/Desktop/work/data/CCLE/CCLE_sample_info_file_2012-10-18.txt')
-celllines<-unique(info$CCLE.name)
-celllines<-as.character(celllines)
-```
-```{r info,include=FALSE}
-sample.info <- read.csv('/Users/ll/Desktop/work/data/CCLE/sample_info.csv')
-cl.sample<-c()
-n<-1
-k <- 1
-t <- c()
-sample.title<-as.character(sample.info$Title)
-for (i in sample.title){
-a<- as.character(info$CCLE.name[info$Cell.line.primary.name == i])
-if(length(a) == 0){
-  cl.sample[n]<-i
-} 
-else{
-cl.sample[n]<- a}
-  n <-n + 1
-  }
-sample.accession<-sample.info$Accession
-sample.info.correct<-rbind(as.character(sample.accession),cl.sample)
-sample.info.correct<-t(sample.info.correct)
 
-cl<-rep(0,length(cl.sample))
-regulator<-as.character(regulator)
-regulators.cl<-regulator[which(regulator %in% names(mutatedcelllines))]
+
+for (i in 1:nrow(reg_m)){
+  x <- regulator[i]
+  for (y in reg.list[[i]])
+  {reg_m[x,y] <- 1}
+}
+
+reg_m[is.na(reg_m)]<-0
+
+```
+
+```{r ccle data input}
+## selected 770 cell lines that have information of mutations, CNAs and expression with only hematopoeitic cell lines
+
+load('./data/selected_cl.Rdata')
+
+## read expression data
+ccle.expression<-fread('./data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct',skip = 2, sep = '\t')
+ccle.expression_o <- ccle.expression
+ccle.expression <- as.data.frame(ccle.expression)
+ccle.expression <- ccle.expression[,-c(1,2)]
+ccle.anno <- ccle.expression_o[,c(1,2)]
+toremove <- which(ccle.anno$Description == '')
+ccle.anno <- ccle.anno[-toremove,]
+ccle.expression<-ccle.expression[-toremove,]
+
+
+sample.info<-fread('./data/CCLE/CCLE_sample_info_file_2012-10-18.txt', sep = '\t')
+
+ccle.exp <- ccle.expression[,cl.tokeep]
+
+cl.sample <- colnames(ccle.exp)
 n <- length(cl.sample)
-cl[n+1] <- 'cl'
-for (i in regulators.cl){
-cl.matrix <- cl.sample %in% mutatedcelllines[[i]]
-cl.matrix[n+1] <- i 
-cl<-rbind(cl.matrix,cl)
-}
-row.names(cl)<-as.vector(cl[,ncol(cl)])
-cl.o<-cl
-cl<-cl[,-ncol(cl)]
-colnames(cl)<-cl.sample
-cl<-cl[-which(row.names(cl) == 'cl'),]
-gene.nomutate<-c()
-i<-1
-pd<-pData(mydata)
-toremove<-as.character(pd$`primary site:ch1`)
-toremove<-toremove == 'haematopoietic_and_lymphoid_tissue'
-cl<-cl[,-which(toremove == TRUE)]
-for (gene in regulators.cl){
-  if (sum(as.numeric(as.logical(cl[gene,]))) == 0){
-    gene.nomutate[i]<-gene
-    i<-i+1
-  }
-}
-regulators.cl.mutate<-regulators.cl[-which(regulators.cl %in% gene.nomutate)]
+cl<-rep(0,n)
+
+regulators.cl <- intersect(regulator, names(mutatedcelllines))
+
+mutation_df <- sapply(regulators.cl,function(x){return( cl.sample %in% mutatedcelllines[[x]])})
+
+row.names(mutation_df) <- cl.sample
+
+mutation_df <- t(mutation_df)
+
+mt.count <- rowSums(mutation_df)
 ```
 
-```{r barcodeplot,include=FALSE}
-plotbarcode<-function(gene){
-n<-ncol(cl)
+```{r dge}
+## function of doing dge for each regulator 
+dge.mutation<-function(gene){
+n<-length(cl.sample)
 cl.design <- matrix(nrow=n,ncol=2)
-cl.design[,1] <- as.numeric(as.logical(cl[gene,]))
+cl.design[,1] <- as.numeric(as.logical(mutation_df[gene,]))
 cl.design.2<-cl.design[,1]
 cl.design.2[which(cl.design[,1] == 1)]<- 0
 cl.design.2[which(cl.design[,1] == 0)]<- 1
 cl.design[,2]<-cl.design.2
 colnames(cl.design)<-c('mutated','non_mutated')
-fit <- lmFit(exprs(mydata)[,-which(toremove == TRUE)], cl.design)
+fit <- lmFit(ccle.exp, cl.design)
 contrasts <- makeContrasts(mutated - non_mutated, levels=cl.design)
 fit2 <- contrasts.fit(fit, contrasts)
 fit2 <- eBayes(fit2)
-anno <- fData(mydata)
-ent<-as.character(anno$ORF)
-genename<-getSYMBOL(ent,data='org.Hs.eg')
-anno <- cbind(anno,genename)
-fit2$genes <- anno
+fit2$genes <- ccle.anno$Description
 topTable(fit2)
 testResults <- topTable(fit2, number=nrow(fit2))
 testResults <- testResults[complete.cases(testResults),]
-target<-colnames(reg_m_n)
-mylist<-target[as.logical(reg_m_n[gene,])]
-mylist<-mylist[!is.na(mylist)]
-result.test<-testResults[which(testResults$genename %in% mylist),]
-result.test$Description <- rep(gene,nrow(result.test))
-index.vector = fit2$genes$genename %in% mylist
-sum(index.vector)
-a<-barcodeplot(fit2$coeff[,1],index = index.vector,quantiles = c(1,-1))
-return(a+title(gene))
+return(as.character(testResults[which(testResults$ID == gene),] ))
 }
-```
-  
-### Barcodeplot of logFC of targets of which the regulator is significant in up regulation in the roast gene set analysis after mutation
-  *colored by logFC cut-off of -1 and 1
-```{r plot,fig.width=10, fig.height=20,echo=FALSE}
-par(mfrow=c(5,2))
-for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20,]$Up<0.05),])){
-  plotbarcode(gene)
-}
-```
- 
-###Barcodeplot of logFC of targest of which the regulator is significant in down regulation in the roast gene set analysis after mutation
-   *colored by logFC cut-off of -1 and 1
-```{r plot2,fig.width=10, fig.height=10,echo = FALSE}
-par(mfrow=c(3,1))
-for (gene in row.names(result.nona[regulator.20,][which(result.nona[regulator.20,]$Down<0.05),])){
-  plotbarcode(gene)
-}
+
+regulators.mut <- regulators.cl[mt.count > 0]
+
+regulator_dge_df <- sapply(regulators.mut,dge.mutation)
+
+#save(regulator_dge_df,file = '../data/regulator_dge.Rdata')
 ```
 
-###Discussion
-  
-  Observing the barcodeplots, I did not find significant trend in the logFC for the selected genes. Therefore, I turn to use a competitive gene set test.
+##Results of significant differential expressed regulators (logFC >= 1 or <= -1, adjusted p-value <= 0.05)
+```{r data}
+row.names(regulator_dge_df) <- c('ID','logFC','AveExpr','t','P.value','adj.P.Val','B')
 
-##Roast with fry
+regulator_dge_df <- as.data.frame(regulator_dge_df)
 
-```{r fry,echo = FALSE}
-library(statmod)
-fry.targetset<-function(x){
-gene<-x
-idx <- target.matrix[,gene]
-n<-ncol(cl)
+regulator_dge_df <- t(regulator_dge_df)
+
+regulator_dge_tb <- data.table(regulator_dge_df)
+
+regulator_dge_tb[,logFC := as.numeric(logFC)]
+
+regulator_dge_tb[,adj.P.Val := as.numeric(adj.P.Val)]
+
+regulator_dge_tb[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+
+tb <- regulator_dge_tb[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+
+knitr::kable(tb)
+```
+
+##Results of significant differential expressed regulators (logFC >= 1 or <= -1, adjusted p-value <= 0.05) of only selected regulators
+```{r regulators }
+## load selected regulators
+load('./data/regulators_5_cl_20_tar.Rdata')
+regulator_dge_tb[ID %in% selected.regulator & adj.P.Val <= 0.05 & (logFC >= 1 | logFC <= -1)]
+```
+
+## results in lung cancer cell lines
+```{r lung dge}
+lung.cl<-cl.sample[grep('LUNG',cl.sample)]
+mutation_df.lung <- mutation_df[,lung.cl]
+
+dge.mutation.lung<-function(gene){
+n<-length(lung.cl)
 cl.design <- matrix(nrow=n,ncol=2)
-cl.design[,1] <- as.numeric(as.logical(cl[gene,]))
+cl.design[,1] <- as.numeric(as.logical(mutation_df.lung[gene,]))
 cl.design.2<-cl.design[,1]
 cl.design.2[which(cl.design[,1] == 1)]<- 0
 cl.design.2[which(cl.design[,1] == 0)]<- 1
 cl.design[,2]<-cl.design.2
 colnames(cl.design)<-c('mutated','non_mutated')
-r1 <- fry(exprs(mydata)[,-which(toremove == TRUE)], idx, cl.design,contrast=makeContrasts(mutated - non_mutated, levels=cl.design),adjust.method = 'BH')
-r1$Direction <- as.character(r1$Direction)
-return(r1)}
-#result.fry<-sapply(tofry,fry.targetset)
-#result.fry<-t(as.data.frame(result.fry))
-#result.fry.nona<-na.omit(result.fry)
-#result.fry.nona<-as.data.frame(result.fry.nona)
-load('/Users/ll/Desktop/work/analysis/analysis_on_expression/fryresult.Rdata')
-result.fry.nona.p<-result.fry.nona[which(result.fry.nona$PValue<0.05),]
-nrow(result.fry.nona.p)
-result.fry.nona.p.20<-result.fry.nona.p[which(result.fry.nona.p$NGenes>20),]
-result.fry.nona.pmix<-result.fry.nona[which(result.fry.nona$PValue.Mixed<0.05),]
-result.fry.nona.pmix.20<-result.fry.nona.pmix[which(result.fry.nona.pmix$NGenes>20),]
-#save(result.fry.nona,file = 'fryresult.Rdata')
-result.fry.nona.p.20
-result.fry.nona.pmix.20
-```
-
-* at least 5 mutated cell lines and 20 regulators
-
-###Mix
-```{r fryplot0,fig.width=10, fig.height=10,echo = FALSE}
-par(mfrow=c(2,2))
-for (gene in row.names(result.fry.nona.pmix.20)){
-  plotbarcode(gene)
+fit <- lmFit(ccle.exp[,lung.cl], cl.design)
+contrasts <- makeContrasts(mutated - non_mutated, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- ccle.anno$Description
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(as.character(testResults[which(testResults$ID == gene),] ))
 }
+
+lung.count <- rowSums(mutation_df.lung)
+
+lung.mut <- regulators.cl[lung.count > 0]
+
+regulator_dge_df.lung <- sapply(lung.mut,dge.mutation.lung)
+
+row.names(regulator_dge_df.lung) <- c('ID','logFC','AveExpr','t','P.value','adj.P.Val','B')
+
+regulator_dge_df.lung <- as.data.frame(regulator_dge_df.lung)
+
+regulator_dge.lung <- t(regulator_dge_df.lung)
+
+regulator_dge_tb.lung <- data.table(regulator_dge.lung)
+
+regulator_dge_tb.lung[,logFC := as.numeric(logFC)]
+
+regulator_dge_tb.lung[,adj.P.Val := as.numeric(adj.P.Val)]
+
+regulator_dge_tb.lung[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
 ```
 
-###Directional
-```{r fryplot, fig.width=10, fig.height=10,echo = FALSE}
-par(mfrow=c(5,2))
-for (gene in row.names(result.fry.nona.p.20)){
-  plotbarcode(gene)
+
+## results in skin cancer cell lines
+```{r skin age}
+skin.cl<-cl.sample[grep('SKIN',cl.sample)]
+mutation_df.skin <- mutation_df[,skin.cl]
+
+dge.mutation.skin<-function(gene){
+n<-length(skin.cl)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(as.logical(mutation_df.skin[gene,]))
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('mutated','non_mutated')
+fit <- lmFit(ccle.exp[,skin.cl], cl.design)
+contrasts <- makeContrasts(mutated - non_mutated, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- ccle.anno$Description
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(as.character(testResults[which(testResults$ID == gene),] ))
 }
-```
-##Camera Analysis
 
-###Regulators that have significance in the CAMERA gene set test when mutated
+skin.count <- rowSums(mutation_df.skin)
 
-```{r camera,echo = FALSE}
-load("~/Desktop/work/analysis/analysis_on_expression/cameraresult.Rdata")
-result.camera.nona.p
-```
+skin.mut <- regulators.cl[skin.count > 0]
 
-###Barcodeplot of logFC of targest of which the regulator is significant in the CAMERA gene set analysis after mutation
-*selected regulators that have at least 1 target and 5 mutated cell lines 
+regulator_dge_df.skin <- sapply(skin.mut,dge.mutation.skin)
 
-```{r result,fig.width=10, fig.height=20,echo=FALSE}
-mtcl_regulator_o<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/mtcl_regulator.csv',row.names = 1)
-mtcl_regulator <- mtcl_regulator_o$x
-names(mtcl_regulator) <- row.names(mtcl_regulator_o)
-gene.n1<-row.names(result.camera.nona.p[result.camera.nona.p$NGenes>1,])
-regulator.5<-names(mtcl_regulator[mtcl_regulator>5])
-toplot<-intersect(gene.n1,regulator.5)
-par(mfrow=c(5,2))
-for (gene in toplot){
-  plotbarcode(gene)
-}
-```
+row.names(regulator_dge_df.skin) <- c('ID','logFC','AveExpr','t','P.value','adj.P.Val','B')
 
-###Barcodeplot of logFC of targest of which the regulator is significant in the CAMERA gene set analysis after mutation and selected in the CNV analysis
+regulator_dge_df.skin <- as.data.frame(regulator_dge_df.skin)
 
-* from above selected genes, only 2 overlaps with the previous CNV analysis
-  + wilcox test p value significant comparing mutated cell lines and not mutated cell lines (no multiple comparison adjustment)
-  + ratio of cnv changes is over 0.5 from nonmutated cell lines to mutated cell lines
-  
-```{r cnv,fig.width=10, fig.height=15,echo=FALSE,include = FALSE}
-cnv_genes_o<-read.csv('/Users/ll/Desktop/work/analysis/analysis_on_expression/cnv_genes.csv',row.names = 1)
-cnv.genes<-as.character(cnv_genes_o$x)
-toplot<-intersect(cnv.genes,gene.n1)
-par(mfrow=c(3,2))
-for (gene in toplot){
-  plotbarcode(gene)
-}
+regulator_dge.skin <- t(regulator_dge_df.skin)
+
+regulator_dge_tb.skin <- data.table(regulator_dge.skin)
+
+regulator_dge_tb.skin[,logFC := as.numeric(logFC)]
+
+regulator_dge_tb.skin[,adj.P.Val := as.numeric(adj.P.Val)]
+
+regulator_dge_tb.skin[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
 ```
 
 
-```{r cnv2,fig.width=10, fig.height=15,echo=FALSE}
-load("~/Desktop/work/analysis/analysis_on_expression/sig_genes.Rdata")
-toplot<-intersect(sig.genes,gene.n1)
-par(mfrow=c(3,2))
-for (gene in toplot){
-  plotbarcode(gene)
-}
+```{r save results,eval = FALSE}
+## save results
+regulator.dge <- regulator_dge_tb[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]$ID
+regulator.lung.dge<- regulator_dge_tb.lung[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]$ID
+regulator.skin.dge<- regulator_dge_tb.skin[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]$ID
+save(regulator.dge ,regulator.lung.dge,regulator.skin.dge, file = "../data/dge.RData")
+
 ```
 
-##ATG5 and MAML2 ssgsea 
- 
-  * plot 3 types (not-mutated-CNV,notmutated-notCNV,mutated)
-
-```{r ssgsea,echo = FALSE}
-load("~/Desktop/work/analysis/analysis_on_expression/ssgsea_nohemo.Rdata")
-plotgene<-function(x){
-gene.cl<-cl[x,]
-gene.score<-regsva[x,]
-gene.cl[which(gene.cl == 'TRUE')]<-'mutate'
-gene.cl[which(gene.cl == 'FALSE')]<-'notmutate'
-gene.df<-data.frame(gene.score,gene.cl)
-colnames(gene.df)<-c('score','condition')
-Scatterplot<-ggplot(gene.df,aes(condition,score,color = condition))+geom_point(position = 'jitter')+scale_colour_manual(values = c('darkorange','darkorchid4'))
-return(Scatterplot+geom_boxplot(alpha = 0,colour = 'black')+ggtitle(x))}
-par(mfrow=c(2,1))
-plotgene('MAML2')
-plotgene('ATG5')
-```
-
-###Mutated cell line information for ATG5 and MAML2
-
-```{r extractcl,echo = FALSE}
-extract_cl<-function(x){
-gene.cl<-cl[x,]
-gene.score<-regsva[x,]
-gene.cl[which(gene.cl == 'TRUE')]<-'mutate'
-gene.cl[which(gene.cl == 'FALSE')]<-'notmutate'
-gene.df<-data.frame(gene.score,gene.cl)
-return(gene.df)}
-maml2<-extract_cl('MAML2')
-maml2_mutate<-maml2[which(maml2$gene.cl == 'mutate'),]
-maml2_mutate_min<-maml2_mutate[which.min(maml2_mutate$gene.score),]
-maml2.mutate.info<-pd[row.names(maml2_mutate),]
-maml2_mutate$primary.site<-maml2.mutate.info$`primary site:ch1`
-maml2_mutate$title<-maml2.mutate.info$title
-maml2_mutate
-atg5<-extract_cl('ATG5')
-atg5_mutate<-atg5[which(atg5$gene.cl == 'mutate'),]
-atg5_mutate_min<-atg5_mutate[which.max(atg5_mutate$gene.score),]
-atg5.mutate.info<-pd[row.names(atg5_mutate),]
-atg5_mutate$primary.site<-atg5.mutate.info$`primary site:ch1`
-atg5_mutate$title<-atg5.mutate.info$title
-atg5_mutate
-```
-##Result Discussion
-* The resolution of the test p-value (fry(faster and more precise) mroast): 1) the roast has less resolution of the p-value as it is depended on the number of rotations 2) p-value changes from run to run
-* Convert to z-score and run ssgsea 
-* For mixed gene sets, test for absolute value
-* Find IC50 for the inhibitor of the selected gene-cell line pair
-
-##Meeting Summary
-* Need to look more closely at the target sets
-    - roast --- did fry
-    - abs(logFC) 
-        - ssgsea
-    - ssgsea 
-        - wilcox test between mcl-notmcl
-* global analysis
-    - DGE for all mcl-notmcl (which gene or gene set)
-    - ssgsea for more precise pathway or process
-
-* IC50
-    - comparison between mcl-notmcl
-
-* For thesis
-    - what are the null hypothesis of roast or camera
