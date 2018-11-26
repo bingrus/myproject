@@ -129,7 +129,8 @@ regulator_dge_df <- sapply(regulators.mut,dge.mutation)
 #save(regulator_dge_df,file = '../data/regulator_dge.Rdata')
 ```
 
-##Results of significant differential expressed regulators (logFC >= 1 or <= -1, adjusted p-value <= 0.05)
+##Results of significant differential expressed regulators 
+*(logFC >= 1 or <= -1, adjusted p-value <= 0.05)
 ```{r data}
 row.names(regulator_dge_df) <- c('ID','logFC','AveExpr','t','P.value','adj.P.Val','B')
 
@@ -143,18 +144,20 @@ regulator_dge_tb[,logFC := as.numeric(logFC)]
 
 regulator_dge_tb[,adj.P.Val := as.numeric(adj.P.Val)]
 
-regulator_dge_tb[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+#regulator_dge_tb[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
 
 tb <- regulator_dge_tb[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
 
 knitr::kable(tb)
 ```
 
-##Results of significant differential expressed regulators (logFC >= 1 or <= -1, adjusted p-value <= 0.05) of only selected regulators
+##Results of significant differential expressed regulators 
+*(logFC >= 1 or <= -1, adjusted p-value <= 0.05) of only selected regulators
 ```{r regulators }
 ## load selected regulators
 load('./data/regulators_5_cl_20_tar.Rdata')
-regulator_dge_tb[ID %in% selected.regulator & adj.P.Val <= 0.05 & (logFC >= 1 | logFC <= -1)]
+tb <- regulator_dge_tb[ID %in% selected.regulator & adj.P.Val <= 0.05 & (logFC >= 1 | logFC <= -1)]
+knitr::kable(tb)
 ```
 
 ## results in lung cancer cell lines
@@ -200,7 +203,9 @@ regulator_dge_tb.lung[,logFC := as.numeric(logFC)]
 
 regulator_dge_tb.lung[,adj.P.Val := as.numeric(adj.P.Val)]
 
-regulator_dge_tb.lung[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+tb <- regulator_dge_tb.lung[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+
+knitr::kable(tb)
 ```
 
 
@@ -247,7 +252,9 @@ regulator_dge_tb.skin[,logFC := as.numeric(logFC)]
 
 regulator_dge_tb.skin[,adj.P.Val := as.numeric(adj.P.Val)]
 
-regulator_dge_tb.skin[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+tb <- regulator_dge_tb.skin[(logFC >= 1 | logFC <= -1) & adj.P.Val <= 0.05]
+
+knitr::kable(tb)
 ```
 
 
