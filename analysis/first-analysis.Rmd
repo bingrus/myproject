@@ -152,7 +152,8 @@ knitr::kable(tb)
 ```
 
 ##Results of significant differential expressed regulators 
-*(logFC >= 1 or <= -1, adjusted p-value <= 0.05) of only selected regulators
+*(logFC >= 1 or <= -1, adjusted p-value <= 0.05) of regulators mutated in at least 5 cell lines and 20 downstream target genes
+
 ```{r regulators }
 ## load selected regulators
 load('./data/regulators_5_cl_20_tar.Rdata')
