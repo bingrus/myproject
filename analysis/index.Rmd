@@ -8,12 +8,13 @@ output:
 
 Welcome to Bingru's research journal.  
 
-#Roast Analysis
+I conducted analysis on the Cancer cell line encyclopedia data to investigate how interuppted gene regulatory network can be used for targeting in cancer treatment
 
-###**[Analysis](first-analysis.html)** 
+1) differential gene expression analysis under regulator mutations
+###**[Link](first-analysis.html)** 
 
-#Camera analysis for go slim and hallmark analysis
 
+2) Gene set tests under regulator mutations
 **[Link](gene_set_analysis.html)** 
 
 # Drug response
