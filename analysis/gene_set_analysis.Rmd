@@ -481,7 +481,7 @@ order.2 <- row.names(toheatmap)[rev(hp.2$rowInd)]
 ```
 
 ```{r regulator reg 1}
-load('../data/regulator_regulation.Rdata')
+load('./data/regulator_regulation.Rdata')
 reg.class <- regulator_tb$class
 names(reg.class) <- regulator_tb$regulator
 reg.col <- as.factor(reg.class)
@@ -771,13 +771,13 @@ my_palette <- colorRampPalette(c("blue", "white", "red"))(n = 4)
 ```
 
 
-```{r save result,eval = false}
+```{r save result,eval = FALSE}
 regulator.fry <- regulator_fry_tb[Pvalue <= 0.05 & Gene %in% selected.regulator]
 regulator.fry.lung <- regulator_fry_tb.lung[Pvalue <= 0.05 & Gene %in% selected.regulator]
 regulator.fry.skin <- regulator_fry_tb.lung[Pvalue <= 0.05 & Gene %in% selected.regulator]
 ```
 
-```{r save result 2,eval = false}
+```{r save result 2,eval = FALSE}
 regulator.fry <- regulator.fry$Gene
 regulator.fry.lung <- regulator.fry.lung$Gene
 regulator.fry.skin <- regulator.fry.skin$Gene
