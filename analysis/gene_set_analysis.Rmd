@@ -450,8 +450,8 @@ reg.class <- regulator_tb$class
 names(reg.class) <- regulator_tb$regulator
 reg.col <- as.factor(reg.class)
 reg.level <- levels(reg.col) 
-reg.level
 levels(reg.col) <- c('lightcyan','steelblue','hotpink','white','springgreen','tan')
+reg.level[order(levels(reg.col))]
 reg.col <- as.character(reg.col[selected.regulator])
 names(reg.col) <- selected.regulator
 selected.regulator.order <- selected.regulator[order(reg.col)]
@@ -509,16 +509,18 @@ mtext('UC',side = 2,line = -2,at = 0.45)
 mtext('goslim class',side = 2,line = 1)
 ```
 
-### regulators colored with phylostrata
+### regulators colored with phylostrata (red is late metazoan, white is unicellular, pink is early metazoan)
 
 ```{r regulator reg 2}
 reg.age <- regulator_tb$phylostrata
 names(reg.age) <- regulator_tb$regulator
+reg.age[reg.age %in% c(2:3)] <- 1
+reg.age[reg.age %in% c(2:8)] <- 2
+reg.age[reg.age %in% c(9:12)] <- 3
 reg.col <- as.factor(reg.age)
 reg.level <- levels(reg.col) 
-reg.level
-colfun <- colorRampPalette((c('white','yellow')))
-levels(reg.col) <- colfun(11)
+colfun <- colorRampPalette((c('white','red')))
+levels(reg.col) <- colfun(3)
 reg.col <- as.character(reg.col[selected.regulator])
 names(reg.col) <- selected.regulator
 selected.regulator.order <- selected.regulator[order(reg.col)]
