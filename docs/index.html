@@ -190,10 +190,10 @@ $(document).ready(function () {
   <a href="about.html">About</a>
 </li>
 <li>
-  <a href="first-analysis.html">Roast Analysis</a>
+  <a href="first-analysis.html">Differential Gene Expression</a>
 </li>
 <li>
-  <a href="gene_set_analysis.html">Camera Analysis</a>
+  <a href="gene_set_analysis.html">Gene Set Tests</a>
 </li>
 <li>
   <a href="correlation_analysis.html">Correlation analysis</a>
@@ -210,7 +210,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/bingrus/myproject">
+  <a href="https://github.com/bingrus/myprojects">
     <span class="fa fa-github"></span>
      
   </a>
@@ -236,7 +236,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-09-10</p>
+<p><strong>Last updated:</strong> 2018-11-27</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -245,53 +245,46 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/3da043dbc4089e30735b65da962d5bf878ff7ff2" target="_blank">3da043d</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/e279d4f2a297d4e0d4e6f58c40174e53310c2417" target="_blank">e279d4f</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
-    Ignored:    .DS_Store
-    Ignored:    .Rhistory
-    Ignored:    .Rproj.user/
-    Ignored:    analysis/.DS_Store
-    Ignored:    analysis/.Rhistory
-    Ignored:    docs/.DS_Store
-    Ignored:    docs/figure/.DS_Store
+    Ignored:    data/.DS_Store
 
 Untracked files:
-    Untracked:  analysis/drugheatmap.pdf
-    Untracked:  analysis/drugheatmap_color_2.pdf
-    Untracked:  analysis/drugheatmap_target_color.pdf
-    Untracked:  analysis/druginfo.total.csv
-    Untracked:  analysis/druginfo_total.csv
-    Untracked:  analysis/fifthheatmap.pdf
-    Untracked:  analysis/firstheatmap.pdf
-    Untracked:  analysis/fourthheatmap.pdf
-    Untracked:  analysis/gdsc.Rmd
-    Untracked:  analysis/gene_set_example.Rmd
-    Untracked:  analysis/heatmap.pdf
-    Untracked:  analysis/regsva_z_row.Rdata
-    Untracked:  analysis/secondheatmap.pdf
-    Untracked:  analysis/test.tsv
-    Untracked:  analysis/thirdheatmap.pdf
+    Untracked:  analysis/goslim_sub_old_order.pdf
+    Untracked:  data/._.DS_Store
+    Untracked:  data/._GSE36133_series_matrix.txt
     Untracked:  data/CCLE/
+    Untracked:  data/GDSC/
+    Untracked:  data/GDSC_CCLE_experiment_cl.Rdata
+    Untracked:  data/GDSC_CCLE_mutual.Rdata
     Untracked:  data/GSE36133_series_matrix.txt
     Untracked:  data/Gene_regulators/
+    Untracked:  data/ccle_regsva_regulator.Rdata
+    Untracked:  data/cnv_result.Rdata
+    Untracked:  data/cpgsva_z_col.Rdata
+    Untracked:  data/dge.RData
+    Untracked:  data/drug_totest.Rdata
+    Untracked:  data/dry_regulator_gene_set.Rdata
+    Untracked:  data/fry_regulator_gene_set_lung.Rdata
+    Untracked:  data/fry_regulator_gene_set_skin.Rdata
+    Untracked:  data/fry_result.Rdata
+    Untracked:  data/gogsva_z_col.Rdata
+    Untracked:  data/gosva.Rdata
+    Untracked:  data/hggsva_z_col.Rdata
+    Untracked:  data/keggsva_z_col.Rdata
+    Untracked:  data/lung_common_cl.Rdata
+    Untracked:  data/lung_common_cl_pd.Rdata
+    Untracked:  data/regsva_new_new_z_col.Rdata
+    Untracked:  data/regsva_new_z_col.Rdata
     Untracked:  data/regsva_z_col.Rdata
     Untracked:  data/regsva_z_row.Rdata
     Untracked:  data/regsva_zscore.Rdata
-    Untracked:  docs/drugheatmap.pdf
-    Untracked:  docs/figure/correlation analysis.Rmd/
-    Untracked:  docs/figure/drug.Rmd/
-    Untracked:  docs/figure/gene_set_analysis_re.Rmd/
-    Untracked:  docs/goslim_cor_lab_heatmap(reorder).pdf
-    Untracked:  docs/goslim_cor_lab_heatmap.pdf
-
-Unstaged changes:
-    Modified:   analysis/_site.yml
-    Modified:   analysis/correlation_analysis.Rmd
-    Modified:   analysis/drugresponse.Rmd
-    Modified:   analysis/gene_set_analysis.Rmd
-    Modified:   data/README.md
+    Untracked:  data/regulator_dge.Rdata
+    Untracked:  data/regulator_regulation.Rdata
+    Untracked:  data/regulators_5_cl_20_tar.Rdata
+    Untracked:  data/selected_cl.Rdata
 
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
@@ -320,6 +313,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/5bfaddc54a003aa8461414de337551aee681583f/docs/index.html" target="_blank">5bfaddc</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-09-10
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 html
