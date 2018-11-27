@@ -7,9 +7,9 @@ navbar:
       href: index.html
     - text: "About"
       href: about.html
-    - text: 'Roast Analysis'
+    - text: 'Differential Gene Expression'
       href: first-analysis.html
-    - text: 'Camera Analysis'
+    - text: 'Gene Set Tests'
       href: gene_set_analysis.html
     - text: 'Correlation analysis'
       href: correlation_analysis.html
