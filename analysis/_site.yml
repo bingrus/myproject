@@ -22,7 +22,7 @@ navbar:
   
   right:
     - icon: fa-github
-      href: https://github.com/bingrus/myprojects
+      href: https://github.com/bingrus/myproject
 output:
   workflowr::wflow_html:
     toc: true
