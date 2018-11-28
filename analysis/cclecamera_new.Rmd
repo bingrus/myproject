@@ -21,9 +21,8 @@ library(limma)
 library(data.table)
 ```
 
-```{r}
+```{r input cell line}
 load('./data/selected_cl.Rdata')
-
 ```
 
 ```{r drugdata input}
@@ -107,7 +106,7 @@ names(result.camera) <- drugs
 ## Camera
 ```{r table 1, results='asis'}
 my.list2 <- lapply(X = result.camera, FUN = function(i) {
-  kable(x = i, caption = paste0("Camera table for  '", colnames(i)[2], "' drug."))
+  kable(x = i)
 })
 my.list2
 ```
@@ -145,13 +144,13 @@ return(testResults[which(testResults$logFC <= -1 | testResults$logFC >= 1),])
 
 result.dge <- lapply(drugs,dge.drug)
 names(result.dge) <- drugs
-result.dge
 ```
 
 ## Differential gene expression
 ```{r table 2, results='asis'}
+
 my.list2 <- lapply(X = result.dge, FUN = function(i) {
-  kable(x = i, caption = paste0("Camera table for  '", colnames(i)[2], "' drug."))
+  kable(x = i)
 })
 my.list2
 ```
@@ -329,28 +328,28 @@ azd.name <- row.names(result.camera$AZD6244)
 
 ```{r azd2, echo = FALSE}
 azd <- result.dge$AZD6244
-azd[which(azd$logFC > 1 | azd$logFC < -1),]
+kable(azd[which(azd$logFC > 1 | azd$logFC < -1),])
 ```
 
 ### differential expression of regulators
 
 ```{r dge2}
-azd[which(azd$genename %in% azd.name),]
+kable(azd[which(azd$genename %in% azd.name),])
 ```
 
 ### go slim
 ```{r goslim0}
-result.camera.goslim$AZD0530
+kable(result.camera.goslim$AZD0530)
 ```
 
 ### kegg slim
 ```{r keggslim0}
-result.camera.kegg$AZD0530
+kable(result.camera.kegg$AZD0530)
 ```
 
 ### hallmark 
 ```{r h0}
-result.camera.h$AZD0530
+kable(result.camera.h$AZD0530)
 ```
 
 ## Example mek inhibitor PD-0325901
@@ -365,26 +364,26 @@ pd.name <- row.names(result.camera$`PD-0325901`)
 
 ```{r pd2, echo = FALSE}
 pd <- result.dge$`PD-0325901`
-pd[which(pd$logFC > 1 | pd$logFC < -1),]
+kable(pd[which(pd$logFC > 1 | pd$logFC < -1),])
 ```
 
 ### differential expression of regulators
 ```{r dge3}
-pd[which(pd$genename %in% pd.name),]
+kable(pd[which(pd$genename %in% pd.name),])
 ```
 
 ### go slim
 ```{r goslim}
-result.camera.goslim$`PD-0325901`
+kable(result.camera.goslim$`PD-0325901`)
 ```
 
 ### kegg slim
 ```{r keggslim1}
-result.camera.kegg$`PD-0325901`
+kable(result.camera.kegg$`PD-0325901`)
 ```
 
 ### hallmark 
 ```{r h1}
-result.camera.h$`PD-0325901`
+kable(result.camera.h$`PD-0325901`)
 ```
 
