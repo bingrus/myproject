@@ -195,9 +195,14 @@ return(r1[which(r1$PValue<0.05),])}
 
 result.camera.goslim <- lapply(drugs,camera.drug.go)
 names(result.camera.goslim) <- drugs
-result.camera.goslim
 ```
 
+```{r table 3, results='asis'}
+my.list2 <- lapply(X = result.camera.goslim, FUN = function(i) {
+  kable(x = i)
+})
+my.list2
+```
 
 ```{r process age old}
 process.name<-names(pathways)
@@ -221,7 +226,7 @@ tomatch<-process.name.sort
 ```
 
 
-```{r fig.width = 12,fig.height = 12}
+```{r toheatmap}
 load("~/git/myproject/analysis/goslim_order.Rdata")
 goslim <- order.2
 convert.heatmap<-function(drug){
@@ -236,6 +241,9 @@ convert.heatmap<-function(drug){
 toheatmap <- sapply(drugs,convert.heatmap)
 
 my_palette <- c("darkviolet", "grey", "orange")
+```
+
+```{r heatmap, fig.width = 12,fig.height = 12}
 heatmap.2(toheatmap[order.2,],main = 'Camera analysis of cancer drug response\n for GO slim biological processes ',
           Rowv = FALSE,
           dendrogram="col",
