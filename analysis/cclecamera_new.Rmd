@@ -155,7 +155,7 @@ my.list2 <- lapply(X = result.dge, FUN = function(i) {
 my.list2
 ```
 
-
+## GO slim
 
 ```{r camera go slim}
 slim_terms <- getOBOCollection("./data/Gene_regulators/goslim_generic.obo")
