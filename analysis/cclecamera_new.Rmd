@@ -68,7 +68,7 @@ drug.camera[(! is.na(drug.camera)) & (drug.camera != 'nr')] <- 'r'
 ```
 
 
-```{r camera , echo = FALSE}
+```{r camera}
 gene.ORF <- unlist(strsplit(ccle.anno$Name, "_"))
 gene.ORF <- gene.ORF[gene.ORF != 'at']
 gene.name <- ccle.anno$Description
@@ -102,10 +102,15 @@ drugs <- colnames(drug.camera)
 drugs <- drugs[! drugs == 'Panobinostat']
 result.camera <- lapply(drugs,camera.drug)
 names(result.camera) <- drugs
-
 ```
 
-
+## Camera
+```{r table 1, results='asis'}
+my.list2 <- lapply(X = result.camera, FUN = function(i) {
+  kable(x = i, caption = paste0("Camera table for  '", colnames(i)[2], "' drug."))
+})
+my.list2
+```
 
 
 ```{r dge}
@@ -142,58 +147,15 @@ result.dge <- lapply(drugs,dge.drug)
 names(result.dge) <- drugs
 result.dge
 ```
-```{r}
-dge.drug<-function(x){
-#x <- '17-AAG'
-drug<-x
 
-cl.drug<-drug.camera[,drug]
-cl.name <- row.names(drug.camera)
-cl.name <- cl.name[!is.na(cl.drug)]
-cl.drug <- cl.drug[!is.na(cl.drug)]
-
-n<-length(cl.drug)
-cl.design <- matrix(nrow=n,ncol=2)
-cl.design[,1] <- as.numeric(cl.drug == 'r')
-cl.design.2<-cl.design[,1]
-cl.design.2[which(cl.design[,1] == 1)]<- 0
-cl.design.2[which(cl.design[,1] == 0)]<- 1
-cl.design[,2]<-cl.design.2
-colnames(cl.design)<-c('response','non_response')
-fit <- lmFit(ccle.camera[which(gene.name %in% selected.regulator),cl.name], cl.design)
-contrasts <- makeContrasts(response - non_response, levels=cl.design)
-fit2 <- contrasts.fit(fit, contrasts)
-fit2 <- eBayes(fit2)
-fit2$genes <- ccle.anno[which(ccle.anno$Description %in% selected.regulator),]
-topTable(fit2)
-testResults <- topTable(fit2, number=nrow(fit2))
-testResults <- testResults[complete.cases(testResults),]
-return(testResults[which(testResults$logFC <= -1 | testResults$logFC >= 1),])
-}
-
-result.dge.2 <- lapply(drugs,dge.drug)
-names(result.dge.2) <- drugs
-result.dge.2
+## Differential gene expression
+```{r table 2, results='asis'}
+my.list2 <- lapply(X = result.dge, FUN = function(i) {
+  kable(x = i, caption = paste0("Camera table for  '", colnames(i)[2], "' drug."))
+})
+my.list2
 ```
 
-
-```{r}
-result <- c()
-n <- 1
-for (i in c(1:length(drugs))){
-  if( nrow(result.dge[[i]]) != 0){
-    result[n] <- i
-    n <- n + 1
-  }
-
-     }
-```
-
-```{r}
-for (i in result){
-  print(result.dge[[i]])
-}
-```
 
 
 ```{r camera go slim}
@@ -236,6 +198,8 @@ result.camera.goslim <- lapply(drugs,camera.drug.go)
 names(result.camera.goslim) <- drugs
 result.camera.goslim
 ```
+
+
 ```{r process age old}
 process.name<-names(pathways)
 geneage<-read.csv('./data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt',header = TRUE,row.names = 1)
@@ -352,6 +316,7 @@ return(r1[which(r1$PValue<0.05),])}
 result.camera.kegg <- lapply(drugs,camera.drug.kegg)
 names(result.camera.kegg) <- drugs
 ```
+
 ## Example mek inhibitor AZD06244
 
 ### regulator target sets of differential expression by camera
