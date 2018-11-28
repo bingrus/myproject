@@ -1,0 +1,425 @@
+---
+title: "CCLE drug camera"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
+library(reshape)
+library(GEOquery)
+library(gplots)
+library(dplyr)
+library(GSVA)
+library(GSEABase)
+library(knitr)
+library(org.Hs.eg.db)
+library(annotate)
+library(GO.db)
+library(limma)
+library(data.table)
+```
+
+```{r}
+load('./data/selected_cl.Rdata')
+
+```
+
+```{r drugdata input}
+# input data
+ccle.expression<-fread('./data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct',skip = 2, sep = '\t')
+ccle.expression_o <- ccle.expression
+ccle.expression <- as.data.frame(ccle.expression)
+ccle.expression <- ccle.expression[,-c(1,2)]
+ccle.anno <- ccle.expression_o[,c(1,2)]
+toremove <- which(ccle.anno$Description == '')
+ccle.anno <- ccle.anno[-toremove,]
+ccle.expression<-ccle.expression[-toremove,]
+sample.info<-fread('./data/CCLE/CCLE_sample_info_file_2012-10-18.txt', sep = '\t')
+cl.pos<-match(colnames(ccle.expression),sample.info$`CCLE name`)
+cl.info <- sample.info[cl.pos,]
+cl.toremove <- which(cl.info$`Site Primary` == 'haematopoietic_and_lymphoid_tissue')
+ccle.exp <- ccle.expression[,cl.tokeep]
+
+regset <- getGmt('./data/Gene_regulators/targetset_nodup.gmt.txt')
+
+drugdata<-read.csv('./data/CCLE/CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+drugdata.cast<-cast(drugdata,formula = CCLE.Cell.Line.Name ~ Compound, value = 'IC50..uM.')
+row.names(drugdata.cast)<-drugdata.cast$CCLE.Cell.Line.Name
+drugdata.cast$CCLE.Cell.Line.Name<-NULL
+drugdata.cast<-as.data.frame(drugdata.cast)
+
+drug.cl<-row.names(drugdata.cast)
+drug.pos<-match(drug.cl,colnames(ccle.exp))
+drug.toremove <- which(is.na(drug.pos))
+drug.camera<-drugdata.cast[-drug.toremove,]
+ccle.camera<-ccle.exp[,row.names(drug.camera)]
+
+load('./data/regulators_5_cl_20_tar.Rdata')
+load('./data/regulator_regulation.Rdata')
+regulator.key <- selected.regulator[regulator_tb$class == 'CNV,target set']
+```
+
+```{r drug}
+# classify cell lines into non-response or response cell lines 
+drug.camera[drug.camera == 8] <- 'nr'
+drug.camera[(! is.na(drug.camera)) & (drug.camera != 'nr')] <- 'r'
+```
+
+
+```{r camera , echo = FALSE}
+gene.ORF <- unlist(strsplit(ccle.anno$Name, "_"))
+gene.ORF <- gene.ORF[gene.ORF != 'at']
+gene.name <- ccle.anno$Description
+ids <- ids2indices(geneIds(regset),gene.name) 
+## camera analysis on drug response
+camera.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+result <- r1[which(r1$PValue<0.05),]
+return(result[which(row.names(result) %in% selected.regulator),])}
+
+drugs <- colnames(drug.camera)
+drugs <- drugs[! drugs == 'Panobinostat']
+result.camera <- lapply(drugs,camera.drug)
+names(result.camera) <- drugs
+
+```
+
+
+
+
+```{r dge}
+## differential gene expression analysis on drug response
+dge.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+fit <- lmFit(ccle.camera[which(gene.name %in% selected.regulator),cl.name], cl.design)
+contrasts <- makeContrasts(response - non_response, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- ccle.anno[which(ccle.anno$Description %in% selected.regulator),]
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(testResults[which(testResults$logFC <= -1 | testResults$logFC >= 1),])
+}
+
+result.dge <- lapply(drugs,dge.drug)
+names(result.dge) <- drugs
+result.dge
+```
+```{r}
+dge.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+fit <- lmFit(ccle.camera[which(gene.name %in% selected.regulator),cl.name], cl.design)
+contrasts <- makeContrasts(response - non_response, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- ccle.anno[which(ccle.anno$Description %in% selected.regulator),]
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(testResults[which(testResults$logFC <= -1 | testResults$logFC >= 1),])
+}
+
+result.dge.2 <- lapply(drugs,dge.drug)
+names(result.dge.2) <- drugs
+result.dge.2
+```
+
+
+```{r}
+result <- c()
+n <- 1
+for (i in c(1:length(drugs))){
+  if( nrow(result.dge[[i]]) != 0){
+    result[n] <- i
+    n <- n + 1
+  }
+
+     }
+```
+
+```{r}
+for (i in result){
+  print(result.dge[[i]])
+}
+```
+
+
+```{r camera go slim}
+slim_terms <- getOBOCollection("./data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+ids<-ids2indices(pathways,gene.ORF)
+camera.drug.go<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+
+result.camera.goslim <- lapply(drugs,camera.drug.go)
+names(result.camera.goslim) <- drugs
+result.camera.goslim
+```
+```{r process age old}
+process.name<-names(pathways)
+geneage<-read.csv('./data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt',header = TRUE,row.names = 1)
+mode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+convertgeneage<-function(x){
+  process.gene<-pathways[[x]]
+  process.age<-geneage[with(geneage,geneage$Entrez %in% process.gene),2]
+  return(mode(process.age))
+}
+processage<-sapply(c(1:69),convertgeneage)
+names(processage)<-process.name
+#save(processage,file = 'goslim_age.Rdata')
+uc_group<-ifelse(processage<4,'uc','mc')
+uc_color<-ifelse(processage<4,'pink','blue')
+process.name.sort<-names(sort(uc_color))
+tomatch<-process.name.sort
+```
+
+
+```{r fig.width = 12,fig.height = 12}
+load("~/git/myproject/analysis/goslim_order.Rdata")
+goslim <- order.2
+convert.heatmap<-function(drug){
+  a<-result.camera.goslim[[drug]]
+  s <- goslim %in% rownames(a)
+  ss<-as.numeric(goslim %in% rownames(a))
+  names(ss) <- goslim
+  toreplace<-ifelse(a[goslim[s],]$Direction == 'Up',1,-1)
+  ss[rownames(a)] <- toreplace
+  return(ss)
+  }
+toheatmap <- sapply(drugs,convert.heatmap)
+
+my_palette <- c("darkviolet", "grey", "orange")
+heatmap.2(toheatmap[order.2,],main = 'Camera analysis of cancer drug response\n for GO slim biological processes ',
+          Rowv = FALSE,
+          dendrogram="col",
+          breaks = c(-1,-1/3,1/3,1),
+          col = my_palette,trace="none",
+          keysize = 0.7,
+          RowSideColors = uc_color[order.2],
+          #seriate = 'mean',
+          #row_dend_left = TRUE,
+          #plot_method = 'plotly'
+          margins = c(10,30),
+          cexRow = 0.9,
+          density.info = 'none',
+          cexCol = 1
+          #Colv = FALSE,
+          )
+```
+
+
+
+```{r camera go h}
+hgset <- getGmt('./data/Gene_regulators/h.all.v6.2.symbols.gmt')
+ids <- ids2indices(geneIds(hgset),gene.name) 
+camera.drug.h<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.h <- lapply(drugs,camera.drug.h)
+names(result.camera.h) <- drugs
+```
+
+```{r camera go kegg}
+keggset <- getGmt('./data/Gene_regulators/c2.cp.kegg.v6.2.symbols.gmt.txt')
+ids <- ids2indices(geneIds(keggset),gene.name) 
+camera.drug.kegg<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.kegg <- lapply(drugs,camera.drug.kegg)
+names(result.camera.kegg) <- drugs
+```
+## Example mek inhibitor AZD06244
+
+### regulator target sets of differential expression by camera
+```{r azd,echo = FALSE}
+result.camera$AZD6244
+azd.name <- row.names(result.camera$AZD6244)
+```
+
+### differential expression of significant regulators by logFC
+
+```{r azd2, echo = FALSE}
+azd <- result.dge$AZD6244
+azd[which(azd$logFC > 1 | azd$logFC < -1),]
+```
+
+### differential expression of regulators
+
+```{r dge2}
+azd[which(azd$genename %in% azd.name),]
+```
+
+### go slim
+```{r goslim0}
+result.camera.goslim$AZD0530
+```
+
+### kegg slim
+```{r keggslim0}
+result.camera.kegg$AZD0530
+```
+
+### hallmark 
+```{r h0}
+result.camera.h$AZD0530
+```
+
+## Example mek inhibitor PD-0325901
+
+### regulator target sets of differential expression by camera
+```{r pd,echo = FALSE}
+result.camera$`PD-0325901`
+pd.name <- row.names(result.camera$`PD-0325901`)
+```
+
+### differential expression of significant regulators by logFC
+
+```{r pd2, echo = FALSE}
+pd <- result.dge$`PD-0325901`
+pd[which(pd$logFC > 1 | pd$logFC < -1),]
+```
+
+### differential expression of regulators
+```{r dge3}
+pd[which(pd$genename %in% pd.name),]
+```
+
+### go slim
+```{r goslim}
+result.camera.goslim$`PD-0325901`
+```
+
+### kegg slim
+```{r keggslim1}
+result.camera.kegg$`PD-0325901`
+```
+
+### hallmark 
+```{r h1}
+result.camera.h$`PD-0325901`
+```
+
