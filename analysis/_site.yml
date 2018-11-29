@@ -1,7 +1,7 @@
-name: "myproject"
+name: "Project"
 output_dir: "../docs"
 navbar:
-  title: "myproject"
+  title: "Project"
   left:
     - text: "Home"
       href: index.html
@@ -14,7 +14,7 @@ navbar:
     - text: 'Correlation analysis'
       href: correlation_analysis.html
     - text: 'Drug response'
-      href: drugresponse.html
+      href: cclecamera_new.html
     - text: 'Drug correlation'
       href: drugcorr.html
     - text: "License"
