@@ -9,7 +9,7 @@ navbar:
       href: first-analysis.html
     - text: 'Gene Set Tests'
       href: gene_set_analysis.html
-    - text: 'Copy Number Alteration analysis'
+    - text: 'CNA analysis'
       href: cnvchange.html
     - text: 'Correlation analysis'
       href: correlation_analysis.html
