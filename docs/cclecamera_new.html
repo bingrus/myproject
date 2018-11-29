@@ -11,7 +11,7 @@
 
 
 
-<title>CCLE drug camera</title>
+<title>CCLE drug camera gene set tests</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -329,12 +329,12 @@ div.section {
 
 
 
-<h1 class="title toc-ignore">CCLE drug camera</h1>
+<h1 class="title toc-ignore">CCLE drug camera gene set tests</h1>
 
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-11-28</p>
+<p><strong>Last updated:</strong> 2018-11-29</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -358,7 +358,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/5897e28f20f8d2c1a4b7063e9fc3555ef58079fa" target="_blank">5897e28</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/5cce04e0ada41018766fc526fa09bf777ebee692" target="_blank">5cce04e</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -437,6 +437,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/5cce04e0ada41018766fc526fa09bf777ebee692/analysis/cclecamera_new.Rmd" target="_blank">5cce04e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-29
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/cclecamera_new.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/fde1a3595384dca4c756379e258c09b74ee1c285/docs/cclecamera_new.html" target="_blank">fde1a35</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-28
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 html
@@ -646,8 +680,245 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </ul>
 <p></details></p>
 <hr />
-<div id="camera" class="section level2">
-<h2>Camera</h2>
+<div id="information-of-drugs-in-ccle" class="section level2">
+<h2>Information of drugs in CCLE</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Compound..code.or.generic.name.</th>
+<th align="left">Compound..brand.name.</th>
+<th align="left">Target.s.</th>
+<th align="left">Mechanism.of.action</th>
+<th align="left">Class</th>
+<th align="left">Highest.Phase</th>
+<th align="left">Organization</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Erlotinib</td>
+<td align="left">Tarceva</td>
+<td align="left">EGFR</td>
+<td align="left">EGFR Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Launched-2004</td>
+<td align="left">Genentech</td>
+</tr>
+<tr class="even">
+<td align="left">Lapatinib</td>
+<td align="left">Tykerb</td>
+<td align="left">EGFR, HER2</td>
+<td align="left">EGFR and HER2 Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Launched-2007</td>
+<td align="left">GlaxoSmithKline</td>
+</tr>
+<tr class="odd">
+<td align="left">PHA-665752</td>
+<td align="left"></td>
+<td align="left">c-MET</td>
+<td align="left">c-MET Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Preclinical</td>
+<td align="left">Pfizer</td>
+</tr>
+<tr class="even">
+<td align="left">PF-2341066</td>
+<td align="left">Crizotinib</td>
+<td align="left">c-MET, ALK</td>
+<td align="left">c-MET and ALK Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Launched-2011</td>
+<td align="left">Pfizer</td>
+</tr>
+<tr class="odd">
+<td align="left">TAE684</td>
+<td align="left"></td>
+<td align="left">ALK</td>
+<td align="left">ALK Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Preclinical</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="even">
+<td align="left">Vandetanib</td>
+<td align="left">Zactima</td>
+<td align="left">Abl, EGFR, Flt3, C-KIT, RET, VEGFR-1, KDR, FLT4</td>
+<td align="left">Multi-kinase inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Launched-2011</td>
+<td align="left">AstraZeneca</td>
+</tr>
+<tr class="odd">
+<td align="left">Nilotinib</td>
+<td align="left">Tasigna</td>
+<td align="left">Abl/Bcr-Abl</td>
+<td align="left">Abl Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Launched-2007</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="even">
+<td align="left">AZD0530</td>
+<td align="left">Saracatinib</td>
+<td align="left">Src, Abl/Bcr-Abl, EGFR</td>
+<td align="left">Src and Abl inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Phase II</td>
+<td align="left">AstraZeneca</td>
+</tr>
+<tr class="odd">
+<td align="left">Sorafenib</td>
+<td align="left">Nexavar</td>
+<td align="left">Flt3, C-KIT, PDGFRbeta, RET, Raf kinase B, Raf kinase C, VEGFR-1, KDR, FLT4</td>
+<td align="left">Multi-kinase inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Launched-2005</td>
+<td align="left">Bayer</td>
+</tr>
+<tr class="even">
+<td align="left">TKI258</td>
+<td align="left">Dovitinib</td>
+<td align="left">EGFR, FGFR1, PDGFRbeta, VEGFR-1, KDR</td>
+<td align="left">Multi-kinase inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Phase III</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="odd">
+<td align="left">PD-0332991</td>
+<td align="left"></td>
+<td align="left">CDK4/6</td>
+<td align="left">CDK4/6 Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Phase II</td>
+<td align="left">Pfizer</td>
+</tr>
+<tr class="even">
+<td align="left">AEW541</td>
+<td align="left"></td>
+<td align="left">IGF-1R</td>
+<td align="left">IGF-1R Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Preclinical</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="odd">
+<td align="left">RAF265</td>
+<td align="left"></td>
+<td align="left">Raf kinase B, KDR</td>
+<td align="left">Raf kinase B and KDR Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Phase I</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="even">
+<td align="left">PLX4720</td>
+<td align="left"></td>
+<td align="left">RAF</td>
+<td align="left">Raf kinase B Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Preclinical</td>
+<td align="left">Plexxikon</td>
+</tr>
+<tr class="odd">
+<td align="left">PD-0325901</td>
+<td align="left"></td>
+<td align="left">MEK</td>
+<td align="left">MEK1 and MEK2 Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Discontinued</td>
+<td align="left">Pfizer</td>
+</tr>
+<tr class="even">
+<td align="left">AZD6244</td>
+<td align="left">Selumetinib</td>
+<td align="left">MEK</td>
+<td align="left">MEK1 and MEK2 Inhibitor</td>
+<td align="left">Kinase inhibitor</td>
+<td align="left">Phase II</td>
+<td align="left">AstraZeneca</td>
+</tr>
+<tr class="odd">
+<td align="left">Nutlin-3</td>
+<td align="left"></td>
+<td align="left">MDM2</td>
+<td align="left">MDM2 Inhibitor</td>
+<td align="left">Other targeted therapies</td>
+<td align="left">Preclinical</td>
+<td align="left">Roche</td>
+</tr>
+<tr class="even">
+<td align="left">LBW242</td>
+<td align="left"></td>
+<td align="left">IAP</td>
+<td align="left">Inhibitor of Apoptosis Proteins (IAP) Inhibitor</td>
+<td align="left">Other targeted therapies</td>
+<td align="left">Preclinical</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="odd">
+<td align="left">17-AAG</td>
+<td align="left">Tanespimycin</td>
+<td align="left">HSP90</td>
+<td align="left">Heat Shock Protein 90 (hsp90) Inhibitor</td>
+<td align="left">Other targeted therapies</td>
+<td align="left">Phase III</td>
+<td align="left">Bristol-Myers Squibb</td>
+</tr>
+<tr class="even">
+<td align="left">L-685458</td>
+<td align="left"></td>
+<td align="left">Gamma Secretase</td>
+<td align="left">gamma-Secretase Inhibitor</td>
+<td align="left">Other targeted therapies</td>
+<td align="left">Preclinical</td>
+<td align="left">Merck Sharp &amp; Dohme</td>
+</tr>
+<tr class="odd">
+<td align="left">Panobinostat</td>
+<td align="left">Faridak</td>
+<td align="left">HDAC</td>
+<td align="left">Histone Deacetylase (HDAC) Inhibitor</td>
+<td align="left">Other targeted therapies</td>
+<td align="left">Pre-Registered</td>
+<td align="left">Novartis</td>
+</tr>
+<tr class="even">
+<td align="left">Paclitaxel</td>
+<td align="left">Taxol</td>
+<td align="left">beta-tubulin</td>
+<td align="left">Microtubule-Stabilizing Agents</td>
+<td align="left">Cytotoxic</td>
+<td align="left">Launched-1993</td>
+<td align="left">Bristol-Myers Squibb</td>
+</tr>
+<tr class="odd">
+<td align="left">Irinotecan</td>
+<td align="left">Camptosar</td>
+<td align="left">Topoisomerase I</td>
+<td align="left">DNA Topoisomerase I Inhibitor</td>
+<td align="left">Cytotoxic</td>
+<td align="left">Launched-1994</td>
+<td align="left">Pfizer</td>
+</tr>
+<tr class="even">
+<td align="left">Topotecan</td>
+<td align="left">Hycamtin</td>
+<td align="left">Topoisomerase I</td>
+<td align="left">DNA Topoisomerase I Inhibitor</td>
+<td align="left">Cytotoxic</td>
+<td align="left">Launched-1996</td>
+<td align="left">GlaxoSmithKline</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="camera-analysis-between-reponse-cell-lines-and-non-response-cell-lines-of-target-gene-set-expression" class="section level2">
+<h2>CAMERA analysis between reponse cell lines and non-response cell lines of target gene set expression</h2>
+<ul>
+<li>response cell lines and non-response cell lines classified by threshold 8nm IC50 value</li>
+</ul>
 <p>$<code>17-AAG</code></p>
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
 <p>$AEW541</p>
@@ -681,35 +952,14 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
 <p>$<code>L-685458</code></p>
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
-<p>$Lapatinib</p>
-<p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
 <p>$LBW242</p>
+<p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
+<p>$Lapatinib</p>
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
 <p>$Nilotinib</p>
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
 <p>$<code>Nutlin-3</code></p>
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
-<p>$Paclitaxel</p>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">NGenes</th>
-<th align="left">Direction</th>
-<th align="right">PValue</th>
-<th align="right">FDR</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>NCOA3</td>
-<td align="right">22</td>
-<td align="left">Down</td>
-<td align="right">0.0327714</td>
-<td align="right">0.9402536</td>
-</tr>
-</tbody>
-</table>
 <p>$<code>PD-0325901</code></p>
 <p>NGenes Direction PValue FDR ——- ———- ——- —-</p>
 <p>$<code>PD-0332991</code></p>
@@ -755,6 +1005,27 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <td align="left">Up</td>
 <td align="right">0.0288721</td>
 <td align="right">0.9954628</td>
+</tr>
+</tbody>
+</table>
+<p>$Paclitaxel</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">NGenes</th>
+<th align="left">Direction</th>
+<th align="right">PValue</th>
+<th align="right">FDR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NCOA3</td>
+<td align="right">22</td>
+<td align="left">Down</td>
+<td align="right">0.0327714</td>
+<td align="right">0.9402536</td>
 </tr>
 </tbody>
 </table>
@@ -828,8 +1099,9 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </tbody>
 </table>
 </div>
-<div id="differential-gene-expression" class="section level2">
-<h2>Differential gene expression</h2>
+<div id="differential-gene-expression-between-reponse-cell-lines-and-non-response-cell-lines" class="section level2">
+<h2>Differential gene expression between reponse cell lines and non-response cell lines</h2>
+<p>*response cell lines and non-response cell lines classified by threshold 8nm IC50 value</p>
 <p>$<code>17-AAG</code></p>
 <table>
 <thead>
@@ -1211,35 +1483,6 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </table>
 <p>$<code>L-685458</code></p>
 <p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
-<p>$Lapatinib</p>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="left">Name</th>
-<th align="left">Description</th>
-<th align="right">logFC</th>
-<th align="right">AveExpr</th>
-<th align="right">t</th>
-<th align="right">P.Value</th>
-<th align="right">adj.P.Val</th>
-<th align="right">B</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>14654</td>
-<td align="left">6935_at</td>
-<td align="left">ZEB1</td>
-<td align="right">-1.207352</td>
-<td align="right">6.017515</td>
-<td align="right">-7.672528</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">20.27508</td>
-</tr>
-</tbody>
-</table>
 <p>$LBW242</p>
 <table>
 <thead>
@@ -1277,6 +1520,35 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <td align="right">0.0015506</td>
 <td align="right">0.0582991</td>
 <td align="right">-1.3422494</td>
+</tr>
+</tbody>
+</table>
+<p>$Lapatinib</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">Name</th>
+<th align="left">Description</th>
+<th align="right">logFC</th>
+<th align="right">AveExpr</th>
+<th align="right">t</th>
+<th align="right">P.Value</th>
+<th align="right">adj.P.Val</th>
+<th align="right">B</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>14654</td>
+<td align="left">6935_at</td>
+<td align="left">ZEB1</td>
+<td align="right">-1.207352</td>
+<td align="right">6.017515</td>
+<td align="right">-7.672528</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">20.27508</td>
 </tr>
 </tbody>
 </table>
@@ -1355,8 +1627,6 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </tr>
 </tbody>
 </table>
-<p>$Paclitaxel</p>
-<p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 <p>$<code>PD-0325901</code></p>
 <p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 <p>$<code>PD-0332991</code></p>
@@ -1432,6 +1702,8 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </tr>
 </tbody>
 </table>
+<p>$Paclitaxel</p>
+<p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 <p>$RAF265</p>
 <p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 <p>$Sorafenib</p>
@@ -1472,8 +1744,9 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <p>$<code>ZD-6474</code></p>
 <p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 </div>
-<div id="go-slim" class="section level2">
-<h2>GO slim</h2>
+<div id="camera-gene-set-tests-between-reponse-cell-lines-and-non-response-cell-lines-of-go-slim-biological-processes" class="section level2">
+<h2>Camera gene set tests between reponse cell lines and non-response cell lines of GO slim biological processes</h2>
+<p>*response cell lines and non-response cell lines classified by threshold 8nm IC50 value</p>
 <p>$<code>17-AAG</code></p>
 <table>
 <thead>
@@ -2258,41 +2531,6 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </tr>
 </tbody>
 </table>
-<p>$Lapatinib</p>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">NGenes</th>
-<th align="left">Direction</th>
-<th align="right">PValue</th>
-<th align="right">FDR</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>cytoskeleton-dependent intracellular transport</td>
-<td align="right">158</td>
-<td align="left">Down</td>
-<td align="right">0.0082728</td>
-<td align="right">0.5708198</td>
-</tr>
-<tr class="even">
-<td>lipid metabolic process</td>
-<td align="right">1325</td>
-<td align="left">Up</td>
-<td align="right">0.0172194</td>
-<td align="right">0.5940707</td>
-</tr>
-<tr class="odd">
-<td>chromosome segregation</td>
-<td align="right">340</td>
-<td align="left">Down</td>
-<td align="right">0.0261893</td>
-<td align="right">0.6023535</td>
-</tr>
-</tbody>
-</table>
 <p>$LBW242</p>
 <table>
 <thead>
@@ -2479,6 +2717,41 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <td align="left">Up</td>
 <td align="right">0.0386869</td>
 <td align="right">0.1067759</td>
+</tr>
+</tbody>
+</table>
+<p>$Lapatinib</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">NGenes</th>
+<th align="left">Direction</th>
+<th align="right">PValue</th>
+<th align="right">FDR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>cytoskeleton-dependent intracellular transport</td>
+<td align="right">158</td>
+<td align="left">Down</td>
+<td align="right">0.0082728</td>
+<td align="right">0.5708198</td>
+</tr>
+<tr class="even">
+<td>lipid metabolic process</td>
+<td align="right">1325</td>
+<td align="left">Up</td>
+<td align="right">0.0172194</td>
+<td align="right">0.5940707</td>
+</tr>
+<tr class="odd">
+<td>chromosome segregation</td>
+<td align="right">340</td>
+<td align="left">Down</td>
+<td align="right">0.0261893</td>
+<td align="right">0.6023535</td>
 </tr>
 </tbody>
 </table>
@@ -2724,195 +2997,6 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <td align="left">Down</td>
 <td align="right">0.0462974</td>
 <td align="right">0.1331050</td>
-</tr>
-</tbody>
-</table>
-<p>$Paclitaxel</p>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">NGenes</th>
-<th align="left">Direction</th>
-<th align="right">PValue</th>
-<th align="right">FDR</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>ribosome biogenesis</td>
-<td align="right">275</td>
-<td align="left">Up</td>
-<td align="right">0.0000000</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="even">
-<td>chromosome segregation</td>
-<td align="right">340</td>
-<td align="left">Up</td>
-<td align="right">0.0000000</td>
-<td align="right">0.0000000</td>
-</tr>
-<tr class="odd">
-<td>mitotic cell cycle</td>
-<td align="right">981</td>
-<td align="left">Up</td>
-<td align="right">0.0000000</td>
-<td align="right">0.0000003</td>
-</tr>
-<tr class="even">
-<td>ribonucleoprotein complex assembly</td>
-<td align="right">186</td>
-<td align="left">Up</td>
-<td align="right">0.0000000</td>
-<td align="right">0.0000003</td>
-</tr>
-<tr class="odd">
-<td>mRNA processing</td>
-<td align="right">458</td>
-<td align="left">Up</td>
-<td align="right">0.0000000</td>
-<td align="right">0.0000003</td>
-</tr>
-<tr class="even">
-<td>tRNA metabolic process</td>
-<td align="right">180</td>
-<td align="left">Up</td>
-<td align="right">0.0000000</td>
-<td align="right">0.0000006</td>
-</tr>
-<tr class="odd">
-<td>DNA metabolic process</td>
-<td align="right">940</td>
-<td align="left">Up</td>
-<td align="right">0.0000001</td>
-<td align="right">0.0000009</td>
-</tr>
-<tr class="even">
-<td>mitotic nuclear division</td>
-<td align="right">256</td>
-<td align="left">Up</td>
-<td align="right">0.0000001</td>
-<td align="right">0.0000009</td>
-</tr>
-<tr class="odd">
-<td>chromosome organization</td>
-<td align="right">1147</td>
-<td align="left">Up</td>
-<td align="right">0.0000005</td>
-<td align="right">0.0000039</td>
-</tr>
-<tr class="even">
-<td>cell division</td>
-<td align="right">578</td>
-<td align="left">Up</td>
-<td align="right">0.0000012</td>
-<td align="right">0.0000084</td>
-</tr>
-<tr class="odd">
-<td>cell cycle</td>
-<td align="right">1749</td>
-<td align="left">Up</td>
-<td align="right">0.0000021</td>
-<td align="right">0.0000133</td>
-</tr>
-<tr class="even">
-<td>nucleocytoplasmic transport</td>
-<td align="right">327</td>
-<td align="left">Up</td>
-<td align="right">0.0000034</td>
-<td align="right">0.0000198</td>
-</tr>
-<tr class="odd">
-<td>translation</td>
-<td align="right">602</td>
-<td align="left">Up</td>
-<td align="right">0.0000057</td>
-<td align="right">0.0000303</td>
-</tr>
-<tr class="even">
-<td>protein folding</td>
-<td align="right">230</td>
-<td align="left">Up</td>
-<td align="right">0.0000735</td>
-<td align="right">0.0003622</td>
-</tr>
-<tr class="odd">
-<td>cellular nitrogen compound metabolic process</td>
-<td align="right">6024</td>
-<td align="left">Up</td>
-<td align="right">0.0002653</td>
-<td align="right">0.0012206</td>
-</tr>
-<tr class="even">
-<td>nucleobase-containing compound catabolic process</td>
-<td align="right">536</td>
-<td align="left">Up</td>
-<td align="right">0.0006772</td>
-<td align="right">0.0029205</td>
-</tr>
-<tr class="odd">
-<td>cytoskeleton-dependent intracellular transport</td>
-<td align="right">158</td>
-<td align="left">Up</td>
-<td align="right">0.0019105</td>
-<td align="right">0.0077542</td>
-</tr>
-<tr class="even">
-<td>mitochondrion organization</td>
-<td align="right">536</td>
-<td align="left">Up</td>
-<td align="right">0.0030568</td>
-<td align="right">0.0117176</td>
-</tr>
-<tr class="odd">
-<td>cell wall organization or biogenesis</td>
-<td align="right">13</td>
-<td align="left">Down</td>
-<td align="right">0.0040643</td>
-<td align="right">0.0147600</td>
-</tr>
-<tr class="even">
-<td>cellular component assembly</td>
-<td align="right">2721</td>
-<td align="left">Up</td>
-<td align="right">0.0084820</td>
-<td align="right">0.0292628</td>
-</tr>
-<tr class="odd">
-<td>protein-containing complex assembly</td>
-<td align="right">1711</td>
-<td align="left">Up</td>
-<td align="right">0.0110556</td>
-<td align="right">0.0362970</td>
-</tr>
-<tr class="even">
-<td>protein targeting</td>
-<td align="right">350</td>
-<td align="left">Up</td>
-<td align="right">0.0115730</td>
-<td align="right">0.0362970</td>
-</tr>
-<tr class="odd">
-<td>biosynthetic process</td>
-<td align="right">5940</td>
-<td align="left">Up</td>
-<td align="right">0.0159877</td>
-<td align="right">0.0479631</td>
-</tr>
-<tr class="even">
-<td>nervous system process</td>
-<td align="right">936</td>
-<td align="left">Down</td>
-<td align="right">0.0235469</td>
-<td align="right">0.0676975</td>
-</tr>
-<tr class="odd">
-<td>pigmentation</td>
-<td align="right">96</td>
-<td align="left">Up</td>
-<td align="right">0.0424627</td>
-<td align="right">0.1171970</td>
 </tr>
 </tbody>
 </table>
@@ -3494,6 +3578,195 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 <td align="left">Up</td>
 <td align="right">0.0420194</td>
 <td align="right">0.2416115</td>
+</tr>
+</tbody>
+</table>
+<p>$Paclitaxel</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">NGenes</th>
+<th align="left">Direction</th>
+<th align="right">PValue</th>
+<th align="right">FDR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ribosome biogenesis</td>
+<td align="right">275</td>
+<td align="left">Up</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td>chromosome segregation</td>
+<td align="right">340</td>
+<td align="left">Up</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td>mitotic cell cycle</td>
+<td align="right">981</td>
+<td align="left">Up</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000003</td>
+</tr>
+<tr class="even">
+<td>ribonucleoprotein complex assembly</td>
+<td align="right">186</td>
+<td align="left">Up</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000003</td>
+</tr>
+<tr class="odd">
+<td>mRNA processing</td>
+<td align="right">458</td>
+<td align="left">Up</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000003</td>
+</tr>
+<tr class="even">
+<td>tRNA metabolic process</td>
+<td align="right">180</td>
+<td align="left">Up</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000006</td>
+</tr>
+<tr class="odd">
+<td>DNA metabolic process</td>
+<td align="right">940</td>
+<td align="left">Up</td>
+<td align="right">0.0000001</td>
+<td align="right">0.0000009</td>
+</tr>
+<tr class="even">
+<td>mitotic nuclear division</td>
+<td align="right">256</td>
+<td align="left">Up</td>
+<td align="right">0.0000001</td>
+<td align="right">0.0000009</td>
+</tr>
+<tr class="odd">
+<td>chromosome organization</td>
+<td align="right">1147</td>
+<td align="left">Up</td>
+<td align="right">0.0000005</td>
+<td align="right">0.0000039</td>
+</tr>
+<tr class="even">
+<td>cell division</td>
+<td align="right">578</td>
+<td align="left">Up</td>
+<td align="right">0.0000012</td>
+<td align="right">0.0000084</td>
+</tr>
+<tr class="odd">
+<td>cell cycle</td>
+<td align="right">1749</td>
+<td align="left">Up</td>
+<td align="right">0.0000021</td>
+<td align="right">0.0000133</td>
+</tr>
+<tr class="even">
+<td>nucleocytoplasmic transport</td>
+<td align="right">327</td>
+<td align="left">Up</td>
+<td align="right">0.0000034</td>
+<td align="right">0.0000198</td>
+</tr>
+<tr class="odd">
+<td>translation</td>
+<td align="right">602</td>
+<td align="left">Up</td>
+<td align="right">0.0000057</td>
+<td align="right">0.0000303</td>
+</tr>
+<tr class="even">
+<td>protein folding</td>
+<td align="right">230</td>
+<td align="left">Up</td>
+<td align="right">0.0000735</td>
+<td align="right">0.0003622</td>
+</tr>
+<tr class="odd">
+<td>cellular nitrogen compound metabolic process</td>
+<td align="right">6024</td>
+<td align="left">Up</td>
+<td align="right">0.0002653</td>
+<td align="right">0.0012206</td>
+</tr>
+<tr class="even">
+<td>nucleobase-containing compound catabolic process</td>
+<td align="right">536</td>
+<td align="left">Up</td>
+<td align="right">0.0006772</td>
+<td align="right">0.0029205</td>
+</tr>
+<tr class="odd">
+<td>cytoskeleton-dependent intracellular transport</td>
+<td align="right">158</td>
+<td align="left">Up</td>
+<td align="right">0.0019105</td>
+<td align="right">0.0077542</td>
+</tr>
+<tr class="even">
+<td>mitochondrion organization</td>
+<td align="right">536</td>
+<td align="left">Up</td>
+<td align="right">0.0030568</td>
+<td align="right">0.0117176</td>
+</tr>
+<tr class="odd">
+<td>cell wall organization or biogenesis</td>
+<td align="right">13</td>
+<td align="left">Down</td>
+<td align="right">0.0040643</td>
+<td align="right">0.0147600</td>
+</tr>
+<tr class="even">
+<td>cellular component assembly</td>
+<td align="right">2721</td>
+<td align="left">Up</td>
+<td align="right">0.0084820</td>
+<td align="right">0.0292628</td>
+</tr>
+<tr class="odd">
+<td>protein-containing complex assembly</td>
+<td align="right">1711</td>
+<td align="left">Up</td>
+<td align="right">0.0110556</td>
+<td align="right">0.0362970</td>
+</tr>
+<tr class="even">
+<td>protein targeting</td>
+<td align="right">350</td>
+<td align="left">Up</td>
+<td align="right">0.0115730</td>
+<td align="right">0.0362970</td>
+</tr>
+<tr class="odd">
+<td>biosynthetic process</td>
+<td align="right">5940</td>
+<td align="left">Up</td>
+<td align="right">0.0159877</td>
+<td align="right">0.0479631</td>
+</tr>
+<tr class="even">
+<td>nervous system process</td>
+<td align="right">936</td>
+<td align="left">Down</td>
+<td align="right">0.0235469</td>
+<td align="right">0.0676975</td>
+</tr>
+<tr class="odd">
+<td>pigmentation</td>
+<td align="right">96</td>
+<td align="left">Up</td>
+<td align="right">0.0424627</td>
+<td align="right">0.1171970</td>
 </tr>
 </tbody>
 </table>
@@ -4484,6 +4757,8 @@ wflow_publish(“analysis/cclecamera_new.Rmd”)
 </tr>
 </tbody>
 </table>
+<div id="heatmap-of-camera-gene-set-tests-between-reponse-cell-lines-and-non-response-cell-lines-of-go-slim-biological-processes" class="section level3">
+<h3>heatmap of Camera gene set tests between reponse cell lines and non-response cell lines of GO slim biological processes</h3>
 <p><img src="figure/cclecamera_new.Rmd/heatmap-1.png" width="1152" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of heatmap-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
@@ -4516,12 +4791,13 @@ bingrus
 </table>
 <p></details></p>
 </div>
+</div>
 <div id="example-mek-inhibitor-azd06244" class="section level2">
 <h2>Example mek inhibitor AZD06244</h2>
 <div id="regulator-target-sets-of-differential-expression-by-camera" class="section level3">
 <h3>regulator target sets of differential expression by camera</h3>
 <pre><code>[1] NGenes    Direction PValue    FDR      
-&lt;0 行&gt; (或0-长度的row.names)</code></pre>
+NA</code></pre>
 </div>
 <div id="differential-expression-of-significant-regulators-by-logfc" class="section level3">
 <h3>differential expression of significant regulators by logFC</h3>
@@ -4531,7 +4807,7 @@ bingrus
 <h3>differential expression of regulators</h3>
 <p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 </div>
-<div id="go-slim-1" class="section level3">
+<div id="go-slim" class="section level3">
 <h3>go slim</h3>
 <table>
 <thead>
@@ -4561,8 +4837,8 @@ bingrus
 </tbody>
 </table>
 </div>
-<div id="kegg-slim" class="section level3">
-<h3>kegg slim</h3>
+<div id="kegg-gene-sets" class="section level3">
+<h3>kegg gene sets</h3>
 <table>
 <thead>
 <tr class="header">
@@ -4766,8 +5042,8 @@ bingrus
 </tbody>
 </table>
 </div>
-<div id="hallmark" class="section level3">
-<h3>hallmark</h3>
+<div id="cancer-hallmark-gene-sets" class="section level3">
+<h3>cancer hallmark gene sets</h3>
 <table>
 <thead>
 <tr class="header">
@@ -4886,7 +5162,7 @@ bingrus
 <div id="regulator-target-sets-of-differential-expression-by-camera-1" class="section level3">
 <h3>regulator target sets of differential expression by camera</h3>
 <pre><code>[1] NGenes    Direction PValue    FDR      
-&lt;0 行&gt; (或0-长度的row.names)</code></pre>
+NA</code></pre>
 </div>
 <div id="differential-expression-of-significant-regulators-by-logfc-1" class="section level3">
 <h3>differential expression of significant regulators by logFC</h3>
@@ -4896,8 +5172,8 @@ bingrus
 <h3>differential expression of regulators</h3>
 <p>Name Description logFC AveExpr t P.Value adj.P.Val B —– ———— —— ——– — ——– ———- —</p>
 </div>
-<div id="go-slim-2" class="section level3">
-<h3>go slim</h3>
+<div id="go-slim-gene-sets" class="section level3">
+<h3>go slim gene sets</h3>
 <table>
 <thead>
 <tr class="header">
@@ -5003,8 +5279,8 @@ bingrus
 </tbody>
 </table>
 </div>
-<div id="kegg-slim-1" class="section level3">
-<h3>kegg slim</h3>
+<div id="kegg-gene-sets-1" class="section level3">
+<h3>kegg gene sets</h3>
 <table>
 <thead>
 <tr class="header">
@@ -5285,8 +5561,8 @@ bingrus
 </tbody>
 </table>
 </div>
-<div id="hallmark-1" class="section level3">
-<h3>hallmark</h3>
+<div id="cancer-hallmark-gene-sets-1" class="section level3">
+<h3>cancer hallmark gene sets</h3>
 <table>
 <thead>
 <tr class="header">
@@ -5423,11 +5699,7 @@ Running under: Windows 10 x64 (build 17134)
 Matrix products: default
 
 locale:
-[1] LC_COLLATE=Chinese (Simplified)_China.936 
-[2] LC_CTYPE=Chinese (Simplified)_China.936   
-[3] LC_MONETARY=Chinese (Simplified)_China.936
-[4] LC_NUMERIC=C                              
-[5] LC_TIME=Chinese (Simplified)_China.936    
+[1] C
 
 attached base packages:
 [1] stats4    parallel  stats     graphics  grDevices utils     datasets 
