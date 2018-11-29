@@ -111,7 +111,7 @@ names(result.camera) <- drugs
 ```
 
 ## CAMERA analysis between reponse cell lines and non-response cell lines of target gene set expression
-* response cell lines and non-response cell lines classified by threshold 8nm IC50 value
+* response cell lines and non-response cell lines classified by threshold 8¦Ìm IC50 value
 
 ```{r table 1, results='asis'}
 my.list2 <- lapply(X = result.camera, FUN = function(i) {
