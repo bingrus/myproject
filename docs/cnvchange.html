@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Bingru Sun" />
+
+
+<title>CNV change</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
+<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
+<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Project</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="first-analysis.html">Differential Gene Expression</a>
+</li>
+<li>
+  <a href="gene_set_analysis.html">Gene Set Tests</a>
+</li>
+<li>
+  <a href="cnvchange.html">Copy Number Alteration analysis</a>
+</li>
+<li>
+  <a href="correlation_analysis.html">Correlation analysis</a>
+</li>
+<li>
+  <a href="cclecamera_new.html">Drug response</a>
+</li>
+<li>
+  <a href="drugcorr.html">Drug correlation</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/bingrus/myproject">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">CNV change</h1>
+<h4 class="author"><em>Bingru Sun</em></h4>
+<h4 class="date"><em>2018/11/29</em></h4>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2018-11-29</p>
+<strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
+<ul>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Environment:</strong> empty </summary></p>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Seed:</strong> <code>set.seed(20180723)</code> </summary></p>
+<p>The command <code>set.seed(20180723)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Session information:</strong> recorded </summary></p>
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/474bc65bef871d03060314231af3de082936b0c8" target="_blank">474bc65</a> </summary></p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+<pre><code>
+Ignored files:
+    Ignored:    analysis/figure/
+    Ignored:    data/.DS_Store
+
+Untracked files:
+    Untracked:  analysis/goslim_sub_old_order.pdf
+    Untracked:  data/._.DS_Store
+    Untracked:  data/._GSE36133_series_matrix.txt
+    Untracked:  data/CCLE/
+    Untracked:  data/GDSC/
+    Untracked:  data/GDSC_CCLE_experiment_cl.Rdata
+    Untracked:  data/GDSC_CCLE_mutual.Rdata
+    Untracked:  data/GSE36133_series_matrix.txt
+    Untracked:  data/Gene_regulators/
+    Untracked:  data/ccle_regsva_regulator.Rdata
+    Untracked:  data/cnv_result.Rdata
+    Untracked:  data/cpgsva_z_col.Rdata
+    Untracked:  data/dge.RData
+    Untracked:  data/drug_totest.Rdata
+    Untracked:  data/dry_regulator_gene_set.Rdata
+    Untracked:  data/fry_regulator_gene_set_lung.Rdata
+    Untracked:  data/fry_regulator_gene_set_skin.Rdata
+    Untracked:  data/fry_result.Rdata
+    Untracked:  data/gogsva_z_col.Rdata
+    Untracked:  data/gosva.Rdata
+    Untracked:  data/hggsva_z_col.Rdata
+    Untracked:  data/keggsva_z_col.Rdata
+    Untracked:  data/lung_common_cl.Rdata
+    Untracked:  data/lung_common_cl_pd.Rdata
+    Untracked:  data/regsva_new_new_z_col.Rdata
+    Untracked:  data/regsva_new_z_col.Rdata
+    Untracked:  data/regsva_z_col.Rdata
+    Untracked:  data/regsva_z_row.Rdata
+    Untracked:  data/regsva_zscore.Rdata
+    Untracked:  data/regulator_dge.Rdata
+    Untracked:  data/regulator_regulation.Rdata
+    Untracked:  data/regulators_5_cl_20_tar.Rdata
+    Untracked:  data/selected_cl.Rdata
+
+Unstaged changes:
+    Deleted:    docs/drugheatmap_target.pdf
+    Deleted:    docs/drugheatmap_target_nodup.pdf
+    Deleted:    docs/firstheatmap.pdf
+    Deleted:    docs/fourthheatmap.pdf
+    Deleted:    docs/gs-hp_1.pdf
+    Deleted:    docs/gs-hp_2.pdf
+    Deleted:    docs/gs-hp_3.pdf
+    Deleted:    docs/secondheatmap.pdf
+    Deleted:    docs/thirdheatmap.pdf
+
+</code></pre>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
+</li>
+</ul>
+<details> <summary> <small><strong>Expand here to see past versions:</strong></small> </summary>
+<ul>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/474bc65bef871d03060314231af3de082936b0c8/analysis/cnvchange.Rmd" target="_blank">474bc65</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-29
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/cnvchange.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</ul>
+<p></details></p>
+<hr />
+<div id="method" class="section level2">
+<h2>Method</h2>
+<p>compute cnv change by 1) extracting cell lines with mutated regulators, and the cell lines with non-mutated regulator. 2) count the cnv change by setting cutoff based on the data in all cell lines and all genes 3) compute the ratio of cnv change that is higher in not mutated cells lines of a regulator</p>
+</div>
+<div id="distribution-of-cna-change-ratio-of-all-regulators" class="section level2">
+<h2>Distribution of CNA change ratio of all regulators</h2>
+<pre><code>Using SYMBOL as id variables</code></pre>
+<pre><code>[1] 0.00295694</code></pre>
+<pre><code>     Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+-8.216500 -0.172600  0.017600  0.002957  0.210500  6.904900 </code></pre>
+<p><img src="figure/cnvchange.Rmd/info-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/cnvchange.Rmd/info-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="distribution-of-cna-change-ratio-of-selecter-regulators" class="section level2">
+<h2>Distribution of CNA change ratio of selecter regulators</h2>
+<ul>
+<li>selected regulators (mutated in at least 5 cell lines and at least 20 target genes)</li>
+</ul>
+<p><img src="figure/cnvchange.Rmd/plot-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/cnvchange.Rmd/plot-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.4154  0.6048  0.6834  0.6883  0.7687  0.9314 </code></pre>
+</div>
+<div id="regulators-of-ratio-0.5" class="section level2">
+<h2>regulators of ratio &gt;= 0.5</h2>
+<pre><code> [1] &quot;AGT&quot;      &quot;AHR&quot;      &quot;AKT1&quot;     &quot;AR&quot;       &quot;ATF4&quot;     &quot;ATF6&quot;    
+ [7] &quot;BACH2&quot;    &quot;BPTF&quot;     &quot;BRCA1&quot;    &quot;CARM1&quot;    &quot;CDC5L&quot;    &quot;CDKN1A&quot;  
+[13] &quot;CDX2&quot;     &quot;CREBBP&quot;   &quot;CUX1&quot;     &quot;EGF&quot;      &quot;EGR2&quot;     &quot;ELF2&quot;    
+[19] &quot;EP300&quot;    &quot;ESR1&quot;     &quot;ESR2&quot;     &quot;FOXI1&quot;    &quot;FOXM1&quot;    &quot;FOXN1&quot;   
+[25] &quot;GATA2&quot;    &quot;GATA3&quot;    &quot;GATA6&quot;    &quot;HELZ2&quot;    &quot;HIF1A&quot;    &quot;HNF1A&quot;   
+[31] &quot;IL1A&quot;     &quot;IL1B&quot;     &quot;IRF7&quot;     &quot;IRF8&quot;     &quot;JAK2&quot;     &quot;MAZ&quot;     
+[37] &quot;MECOM&quot;    &quot;MEIS1&quot;    &quot;MSX1&quot;     &quot;MTF1&quot;     &quot;MYCN&quot;     &quot;NCOA1&quot;   
+[43] &quot;NCOA3&quot;    &quot;NCOA6&quot;    &quot;NF1&quot;      &quot;NFATC2&quot;   &quot;NFE2L1&quot;   &quot;NFE2L2&quot;  
+[49] &quot;NFKB1&quot;    &quot;NR1H3&quot;    &quot;NR1H4&quot;    &quot;NR3C1&quot;    &quot;OR5I1&quot;    &quot;PAX2&quot;    
+[55] &quot;PAX6&quot;     &quot;PIK3CA&quot;   &quot;POU6F1&quot;   &quot;PPARA&quot;    &quot;PPARGC1A&quot; &quot;PTEN&quot;    
+[61] &quot;RB1&quot;      &quot;RELA&quot;     &quot;REL&quot;      &quot;REPIN1&quot;   &quot;REST&quot;     &quot;RREB1&quot;   
+[67] &quot;RUNX1&quot;    &quot;RUNX2&quot;    &quot;RXRB&quot;     &quot;SF1&quot;      &quot;SOX5&quot;     &quot;SOX9&quot;    
+[73] &quot;SP3&quot;      &quot;SPZ1&quot;     &quot;SREBF1&quot;   &quot;STAT2&quot;    &quot;STAT3&quot;    &quot;STAT5B&quot;  
+[79] &quot;STAT6&quot;    &quot;TBL1X&quot;    &quot;TCF12&quot;    &quot;TCF3&quot;     &quot;TCF4&quot;     &quot;TFCP2&quot;   
+[85] &quot;TFDP2&quot;    &quot;TGIF1&quot;    &quot;TP73&quot;     &quot;ZBTB14&quot;   &quot;ZEB1&quot;     &quot;ZHX2&quot;    
+[91] &quot;ZIC1&quot;    </code></pre>
+</div>
+<div id="histogram-and-density-plot-of-mutated-cell-line-distribution" class="section level2">
+<h2>histogram and density plot of mutated cell line distribution</h2>
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   1.000   3.000   5.087   6.000 184.000 </code></pre>
+<p><img src="figure/cnvchange.Rmd/hist-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/cnvchange.Rmd/hist-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/cnvchange.Rmd/hist-3.png" width="672" style="display: block; margin: auto;" /><img src="figure/cnvchange.Rmd/hist-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/cnvchange.Rmd/hist-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code> [1] &quot;AGT&quot;      &quot;AHR&quot;      &quot;AKT1&quot;     &quot;ATF4&quot;     &quot;ATF6&quot;     &quot;BACH2&quot;   
+ [7] &quot;BPTF&quot;     &quot;CARM1&quot;    &quot;CDC5L&quot;    &quot;CDKN1A&quot;   &quot;CDX2&quot;     &quot;CHD9&quot;    
+[13] &quot;CREBBP&quot;   &quot;CUX1&quot;     &quot;EGF&quot;      &quot;EGR2&quot;     &quot;ELF2&quot;     &quot;EP300&quot;   
+[19] &quot;ESR1&quot;     &quot;FOXA2&quot;    &quot;FOXI1&quot;    &quot;FOXM1&quot;    &quot;FOXN1&quot;    &quot;GATA2&quot;   
+[25] &quot;GATA3&quot;    &quot;GATA6&quot;    &quot;HELZ2&quot;    &quot;HNF1A&quot;    &quot;IL1A&quot;     &quot;IL1B&quot;    
+[31] &quot;IRF7&quot;     &quot;IRF8&quot;     &quot;MAZ&quot;      &quot;MECOM&quot;    &quot;MEIS1&quot;    &quot;MSX1&quot;    
+[37] &quot;MTF1&quot;     &quot;MYCN&quot;     &quot;NCOA1&quot;    &quot;NCOA3&quot;    &quot;NCOA6&quot;    &quot;NF1&quot;     
+[43] &quot;NFATC2&quot;   &quot;NFE2L1&quot;   &quot;NFE2L2&quot;   &quot;NR1H3&quot;    &quot;NR1H4&quot;    &quot;NR3C1&quot;   
+[49] &quot;OR5I1&quot;    &quot;PAX2&quot;     &quot;PAX6&quot;     &quot;PIK3CA&quot;   &quot;POU6F1&quot;   &quot;PPARA&quot;   
+[55] &quot;PPARGC1A&quot; &quot;PTEN&quot;     &quot;RELA&quot;     &quot;REL&quot;      &quot;REPIN1&quot;   &quot;REST&quot;    
+[61] &quot;RREB1&quot;    &quot;RUNX1&quot;    &quot;RUNX2&quot;    &quot;RXRB&quot;     &quot;SF1&quot;      &quot;SMAD3&quot;   
+[67] &quot;SMAD4&quot;    &quot;SOX5&quot;     &quot;SOX9&quot;     &quot;SP3&quot;      &quot;SPZ1&quot;     &quot;SREBF1&quot;  
+[73] &quot;STAT5B&quot;   &quot;STAT6&quot;    &quot;TBL1X&quot;    &quot;TCF12&quot;    &quot;TCF3&quot;     &quot;TCF4&quot;    
+[79] &quot;TFCP2&quot;    &quot;TFDP2&quot;    &quot;TGIF1&quot;    &quot;TP73&quot;     &quot;TYK2&quot;     &quot;ZBTB14&quot;  
+[85] &quot;ZEB1&quot;     &quot;ZHX2&quot;    </code></pre>
+</div>
+<div id="siginificant-regulators-in-cna-analysis" class="section level2">
+<h2>siginificant regulators in CNA analysis</h2>
+<pre><code> [1] &quot;AGT&quot;      &quot;AHR&quot;      &quot;AKT1&quot;     &quot;ATF4&quot;     &quot;ATF6&quot;     &quot;BACH2&quot;   
+ [7] &quot;BPTF&quot;     &quot;CARM1&quot;    &quot;CDC5L&quot;    &quot;CDKN1A&quot;   &quot;CDX2&quot;     &quot;CREBBP&quot;  
+[13] &quot;CUX1&quot;     &quot;EGF&quot;      &quot;EGR2&quot;     &quot;ELF2&quot;     &quot;EP300&quot;    &quot;ESR1&quot;    
+[19] &quot;FOXI1&quot;    &quot;FOXM1&quot;    &quot;FOXN1&quot;    &quot;GATA2&quot;    &quot;GATA3&quot;    &quot;GATA6&quot;   
+[25] &quot;HELZ2&quot;    &quot;HNF1A&quot;    &quot;IL1A&quot;     &quot;IL1B&quot;     &quot;IRF7&quot;     &quot;IRF8&quot;    
+[31] &quot;MAZ&quot;      &quot;MECOM&quot;    &quot;MEIS1&quot;    &quot;MSX1&quot;     &quot;MTF1&quot;     &quot;MYCN&quot;    
+[37] &quot;NCOA1&quot;    &quot;NCOA3&quot;    &quot;NCOA6&quot;    &quot;NF1&quot;      &quot;NFATC2&quot;   &quot;NFE2L1&quot;  
+[43] &quot;NFE2L2&quot;   &quot;NR1H3&quot;    &quot;NR1H4&quot;    &quot;NR3C1&quot;    &quot;OR5I1&quot;    &quot;PAX2&quot;    
+[49] &quot;PAX6&quot;     &quot;PIK3CA&quot;   &quot;POU6F1&quot;   &quot;PPARA&quot;    &quot;PPARGC1A&quot; &quot;PTEN&quot;    
+[55] &quot;RELA&quot;     &quot;REL&quot;      &quot;REPIN1&quot;   &quot;REST&quot;     &quot;RREB1&quot;    &quot;RUNX1&quot;   
+[61] &quot;RUNX2&quot;    &quot;RXRB&quot;     &quot;SF1&quot;      &quot;SOX5&quot;     &quot;SOX9&quot;     &quot;SP3&quot;     
+[67] &quot;SPZ1&quot;     &quot;SREBF1&quot;   &quot;STAT5B&quot;   &quot;STAT6&quot;    &quot;TBL1X&quot;    &quot;TCF12&quot;   
+[73] &quot;TCF3&quot;     &quot;TCF4&quot;     &quot;TFCP2&quot;    &quot;TFDP2&quot;    &quot;TGIF1&quot;    &quot;TP73&quot;    
+[79] &quot;ZBTB14&quot;   &quot;ZEB1&quot;     &quot;ZHX2&quot;    </code></pre>
+<pre><code>
+载入程辑包：&#39;data.table&#39;</code></pre>
+<pre><code>The following objects are masked from &#39;package:reshape2&#39;:
+
+    dcast, melt</code></pre>
+<pre><code>The following object is masked from &#39;package:IRanges&#39;:
+
+    shift</code></pre>
+<pre><code>The following objects are masked from &#39;package:S4Vectors&#39;:
+
+    first, second</code></pre>
+<pre><code>    Regulator  Regulator_class
+ 1:       AGT    EM_downstream
+ 2:       AHR Mixed_downstream
+ 3:      AKT1    EM_downstream
+ 4:      ATF4 Mixed_downstream
+ 5:      ATF6 Mixed_downstream
+ 6:     BACH2 Mixed_downstream
+ 7:      BPTF Mixed_downstream
+ 8:     CARM1 Mixed_downstream
+ 9:     CDC5L    EM_downstream
+10:    CDKN1A    EM_downstream
+11:      CDX2 Mixed_downstream
+12:    CREBBP Mixed_downstream
+13:      CUX1 Mixed_downstream
+14:       EGF    EM_downstream
+15:      EGR2 Mixed_downstream
+16:      ELF2 Mixed_downstream
+17:     EP300             None
+18:      ESR1 Mixed_downstream
+19:     FOXI1 Mixed_downstream
+20:     FOXM1 Mixed_downstream
+21:     FOXN1 Mixed_downstream
+22:     GATA2 Mixed_downstream
+23:     GATA3    EM_downstream
+24:     GATA6    EM_downstream
+25:     HNF1A Mixed_downstream
+26:      IL1A             None
+27:      IL1B Mixed_downstream
+28:      IRF7 Mixed_downstream
+29:      IRF8 Mixed_downstream
+30:       MAZ Mixed_downstream
+31:     MECOM Mixed_downstream
+32:     MEIS1 Mixed_downstream
+33:      MSX1 Mixed_downstream
+34:      MTF1 Mixed_downstream
+35:      MYCN Mixed_downstream
+36:     NCOA1 Mixed_downstream
+37:     NCOA3 Mixed_downstream
+38:     NCOA6 Mixed_downstream
+39:       NF1 Mixed_downstream
+40:    NFATC2             None
+41:    NFE2L1 Mixed_downstream
+42:    NFE2L2 Mixed_downstream
+43:     NR1H4 Mixed_downstream
+44:     NR3C1 Mixed_downstream
+45:     OR5I1 Mixed_downstream
+46:      PAX2 Mixed_downstream
+47:      PAX6 Mixed_downstream
+48:    PIK3CA Mixed_downstream
+49:    POU6F1    EM_downstream
+50:     PPARA Mixed_downstream
+51:  PPARGC1A Mixed_downstream
+52:      PTEN Mixed_downstream
+53:      RELA             None
+54:       REL Mixed_downstream
+55:    REPIN1 Mixed_downstream
+56:      REST    EM_downstream
+57:     RREB1 Mixed_downstream
+58:     RUNX1 Mixed_downstream
+59:     RUNX2 Mixed_downstream
+60:      RXRB Mixed_downstream
+61:       SF1 Mixed_downstream
+62:      SOX9 Mixed_downstream
+63:       SP3 Mixed_downstream
+64:      SPZ1 Mixed_downstream
+65:    SREBF1 Mixed_downstream
+66:    STAT5B Mixed_downstream
+67:     STAT6 Mixed_downstream
+68:     TBL1X Mixed_downstream
+69:     TCF12 Mixed_downstream
+70:      TCF3 Mixed_downstream
+71:      TCF4    EM_downstream
+72:     TFCP2 Mixed_downstream
+73:     TFDP2 Mixed_downstream
+74:     TGIF1 Mixed_downstream
+75:      TP73 Mixed_downstream
+76:    ZBTB14 Mixed_downstream
+77:      ZEB1 Mixed_downstream
+78:      ZHX2    EM_downstream
+    Regulator  Regulator_class</code></pre>
+<pre><code>      GeneID Entrez Phylostrata
+ 1:      AGT    183           8
+ 2:      AHR    196           4
+ 3:     AKT1    207           2
+ 4:     ATF4    468           6
+ 5:     ATF6  22926           4
+ 6:    BACH2  60468           7
+ 7:     BPTF   2186           5
+ 8:    CARM1  10498           2
+ 9:    CDC5L    988           2
+10:   CDKN1A   1026           8
+11:     CDX2   1045           6
+12:   CREBBP   1387           2
+13:     CUX1   1523           2
+14:      EGF   1950           8
+15:     EGR2   1959           6
+16:     ELF2   1998           5
+17:    EP300   2033           2
+18:     ESR1   2099           8
+19:    FOXI1   2299           3
+20:    FOXM1   2305           7
+21:    FOXN1   8456           8
+22:    GATA2   2624           6
+23:    GATA3   2625           2
+24:    GATA6   2627           2
+25:    HNF1A   6927           4
+26:     IL1A   3552          11
+27:     IL1B   3553           8
+28:     IRF7   3665           8
+29:     IRF8   3394           5
+30:      MAZ   4150           8
+31:    MECOM   2122           6
+32:    MEIS1   4211           4
+33:     MSX1   4487           6
+34:     MTF1   4520           5
+35:     MYCN   4613           5
+36:    NCOA1   8648           6
+37:    NCOA3   8202           6
+38:    NCOA6  23054           3
+39:      NF1   4763           3
+40:   NFATC2   4773           8
+41:   NFE2L1   4779           5
+42:   NFE2L2   4780           8
+43:    NR1H4   9971           8
+44:    NR3C1   2908           8
+45:    OR5I1  10798           9
+46:     PAX2   5076           6
+47:     PAX6   5080           4
+48:   PIK3CA   5290           2
+49:   POU6F1   5463           8
+50:    PPARA   5465           6
+51: PPARGC1A  10891           8
+52:     PTEN   5728           2
+53:      REL   5966           6
+54:     RELA   5970           6
+55:   REPIN1  29803           2
+56:     REST   5978           8
+57:    RREB1   6239           6
+58:    RUNX1    861           4
+59:    RUNX2    860           6
+60:     RXRB   6257           4
+61:      SF1   7536           2
+62:     SOX9   6662           4
+63:      SP3   6670           6
+64:     SPZ1  84654          12
+65:   SREBF1   6720           4
+66:   STAT5B   6777           4
+67:    STAT6   6778           8
+68:    TBL1X   6907           2
+69:    TCF12   6938           4
+70:     TCF3   6929           4
+71:     TCF4   6925           4
+72:    TFCP2   7024           5
+73:    TFDP2   7029           2
+74:    TGIF1   7050           8
+75:     TP73   7161           4
+76:   ZBTB14   7541           8
+77:     ZEB1   6935           6
+78:     ZHX2  22882           6
+      GeneID Entrez Phylostrata</code></pre>
+<pre><code>    Hugo_Symbol Variant_type Tumour
+ 1:         NF1          LoF   LUAD
+ 2:        MTF1     Missense   LUAD
+ 3:         NF1     Missense   LUAD
+ 4:      NFE2L2     Missense   LUAD
+ 5:      PIK3CA     Missense   LUAD
+ 6:       TBL1X     Missense   LUAD
+ 7:         NF1          LoF   LUSC
+ 8:        PTEN          LoF   LUSC
+ 9:         EGF     Missense   LUSC
+10:       HELZ2     Missense   LUSC
+11:       HNF1A     Missense   LUSC
+12:        IRF8     Missense   LUSC
+13:         NF1     Missense   LUSC
+14:      NFE2L2     Missense   LUSC
+15:        PTEN     Missense   LUSC
+16:       STAT6     Missense   LUSC
+17:        ZHX2     Missense   LUSC
+18:         NF1          LoF   BRCA
+19:        PTEN          LoF   BRCA
+20:      PIK3CA     Missense   BRCA
+21:        PTEN     Missense   BRCA
+22:       HNF1A          LoF   LIHC
+23:       HNF1A     Missense   LIHC
+24:      NFE2L2     Missense   LIHC
+25:       EP300          LoF   COAD
+26:       TGIF1          LoF   COAD
+27:       FOXN1     Missense   COAD
+28:      PIK3CA     Missense   COAD
+29:        RELA     Missense   COAD
+30:       TFDP2     Missense   COAD
+31:       FOXN1     Missense   STAD
+32:         NF1     Missense   STAD
+33:      PIK3CA     Missense   STAD
+34:        PTEN     Missense   STAD
+35:       TBL1X     Missense   STAD
+36:        ZHX2     Missense   STAD
+    Hugo_Symbol Variant_type Tumour</code></pre>
+</div>
+<div id="age-of-regulators" class="section level2">
+<h2>age of regulators</h2>
+<p><img src="figure/cnvchange.Rmd/regulator%20age-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="class-of-regulators" class="section level2">
+<h2>class of regulators</h2>
+<p><img src="figure/cnvchange.Rmd/regulator%20class-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre><code>R version 3.5.1 (2018-07-02)
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+Running under: Windows 10 x64 (build 17134)
+
+Matrix products: default
+
+locale:
+[1] LC_COLLATE=Chinese (Simplified)_China.936 
+[2] LC_CTYPE=Chinese (Simplified)_China.936   
+[3] LC_MONETARY=Chinese (Simplified)_China.936
+[4] LC_NUMERIC=C                              
+[5] LC_TIME=Chinese (Simplified)_China.936    
+
+attached base packages:
+[1] stats4    parallel  stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] data.table_1.11.8    reshape2_1.4.3       GSEABase_1.42.0     
+ [4] graph_1.58.2         annotate_1.58.0      XML_3.98-1.16       
+ [7] AnnotationDbi_1.42.1 IRanges_2.14.12      S4Vectors_0.18.3    
+[10] Biobase_2.40.0       BiocGenerics_0.26.0 
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.19      compiler_3.5.1    git2r_0.23.0     
+ [4] plyr_1.8.4        workflowr_1.1.1   R.methodsS3_1.7.1
+ [7] R.utils_2.7.0     bitops_1.0-6      tools_3.5.1      
+[10] digest_0.6.18     bit_1.1-14        evaluate_0.12    
+[13] RSQLite_2.1.1     memoise_1.1.0     DBI_1.0.0        
+[16] yaml_2.2.0        stringr_1.3.1     knitr_1.20       
+[19] rprojroot_1.3-2   bit64_0.9-7       rmarkdown_1.10   
+[22] blob_1.1.1        magrittr_1.5      whisker_0.3-2    
+[25] backports_1.1.2   htmltools_0.3.6   xtable_1.8-3     
+[28] stringi_1.1.7     RCurl_1.95-4.11   R.oo_1.22.0      </code></pre>
+</div>
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+<hr>
+<p>
+  This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+  analysis was created with
+  <a href="https://github.com/jdblischak/workflowr">workflowr</a> 1.1.1
+</p>
+<hr>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
