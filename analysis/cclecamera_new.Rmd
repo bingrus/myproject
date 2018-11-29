@@ -112,6 +112,7 @@ names(result.camera) <- drugs
 
 ## CAMERA analysis between reponse cell lines and non-response cell lines of target gene set expression
 * response cell lines and non-response cell lines classified by threshold 8 micromolar IC50 value
+* compare response cell lines to non-response cell lines
 
 ```{r table 1, results='asis'}
 my.list2 <- lapply(X = result.camera, FUN = function(i) {
@@ -168,6 +169,7 @@ my.list2
 
 ## Camera gene set tests between reponse cell lines and non-response cell lines of GO slim biological processes
 *response cell lines and non-response cell lines classified by threshold 8 micromolar IC50 value
+*compare response cell lines to non-response cell lines
 
 ```{r camera go slim}
 slim_terms <- getOBOCollection("./data/Gene_regulators/goslim_generic.obo")
