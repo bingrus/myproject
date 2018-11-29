@@ -156,7 +156,7 @@ names(result.dge) <- drugs
 ```
 
 ## Differential gene expression between reponse cell lines and non-response cell lines
-*response cell lines and non-response cell lines classified by threshold 8&#181m IC50 value
+*response cell lines and non-response cell lines classified by threshold 8 &#181m IC50 value
 
 ```{r table 2, results='asis'}
 
@@ -167,7 +167,7 @@ my.list2
 ```
 
 ## Camera gene set tests between reponse cell lines and non-response cell lines of GO slim biological processes
-*response cell lines and non-response cell lines classified by threshold 8&#181m IC50 value
+*response cell lines and non-response cell lines classified by threshold 8 &#181 m IC50 value
 
 ```{r camera go slim}
 slim_terms <- getOBOCollection("./data/Gene_regulators/goslim_generic.obo")
