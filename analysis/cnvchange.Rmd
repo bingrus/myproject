@@ -1,0 +1,281 @@
+---
+title: "CNV change"
+author: "Bingru Sun"
+date: "2018/11/29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warnings = FALSE)
+library(GSEABase)
+```
+
+## Method
+
+compute cnv change by 1) extracting cell lines with mutated regulators, and the cell lines with non-mutated regulator. 2) count the cnv change by setting cutoff based on the data in all cell lines and all genes 3) compute the ratio of cnv change that is higher in not mutated cells lines of a regulator
+
+```{r regulator mutation input,include = FALSE}
+load('./data/selected_cl.Rdata')
+
+mutation_o<-read.delim('./data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
+mutation<-mutation_o
+mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
+mutation_s<-mutation_s[which(mutation_s$isDeleterious == 'TRUE'),]
+mutation_s_w<-mutation_s
+mutation_s_w<-data.frame(mutation_s$Hugo_Symbol,mutation_s$Tumor_Sample_Barcode)
+
+cl.mut <- unique(mutation$Tumor_Sample_Barcode)
+
+genelist<-as.character(unique(mutation_s_w[,1]))
+rs<-function(x){
+  c<-as.character(mutation_s_w[which(mutation_s_w$mutation_s.Hugo_Symbol==x),2])
+  return(c)
+  }
+a<-lapply(genelist,rs)
+names(a)<-genelist
+mutatedcelllines<-a
+b<-lapply(mutatedcelllines,length)
+
+regset <- getGmt('./data/Gene_regulators/targetset_nodup.gmt.txt')
+reg.list<-geneIds(regset)
+reg.count<-lapply(reg.list,length)
+reg.count<-unlist(reg.count)
+  
+regulator<-names(reg.count)
+target <- unique(unlist(reg.list))
+
+reg_m<-matrix(nrow=length(regulator),ncol=length(target))
+colnames(reg_m)<-target
+row.names(reg_m)<-regulator
+
+
+for (i in 1:nrow(reg_m)){
+  x <- regulator[i]
+  for (y in reg.list[[i]])
+  {reg_m[x,y] <- 1}
+}
+
+reg_m[is.na(reg_m)]<-0
+
+```
+
+## Distribution of CNA change ratio of all regulators
+
+```{r info}
+
+CNV_cell_lines_o <- read.table('./data/CCLE/CCLE_copynumber_byGene_2013-12-03.txt', header=TRUE, sep="\t")
+CNV_cell_lines <- CNV_cell_lines_o
+CNV_cell_lines$EGID <- NULL
+CNV_cell_lines$CHR <- NULL
+CNV_cell_lines$CHRLOC <- NULL
+CNV_cell_lines$CHRLOCEND <- NULL
+
+cl.cnv <- cl.tokeep
+
+library(reshape2)
+CNV_cell_lines.m <- melt(CNV_cell_lines)
+colnames(CNV_cell_lines.m) <- c("Regulator", "Cell_line", "CNV")
+CNV_cell_lines_m <- CNV_cell_lines.m[which(CNV_cell_lines.m$Cell_line %in% cl.cnv),]
+
+
+mean(CNV_cell_lines_m$CNV)
+summary(CNV_cell_lines_m$CNV)
+plot(density(CNV_cell_lines_m$CNV))
+#del_cul was 0.1 and amp_cut was 0.9
+del_cut <- quantile(CNV_cell_lines_m$CNV[CNV_cell_lines_m$CNV < 0], 0.1)
+amp_cut <- quantile(CNV_cell_lines_m$CNV[CNV_cell_lines_m$CNV > 0], 0.9)
+
+#in mutated cell line 1, not in mutated cell line 0
+choose<-function(x){return(ifelse(cl.cnv%in%mutatedcelllines[[x]],1,0))}
+m<-sapply(regulator,choose)
+m<-t(m)
+colnames(m)<-cl.cnv
+row.names(m)<-regulator
+
+#########################################################
+m_n<-m[,cl.cnv]
+row.names(CNV_cell_lines)<-CNV_cell_lines$SYMBOL
+extract_targetcl<-function(x){
+  cl_x<-cl.cnv[which(m_n[x,]==1)]
+  target_x<-target[which(reg_m[x,]==1)]
+  result <- as.data.frame(CNV_cell_lines[target_x,cl_x])
+  return(result)
+}
+findcnvchange<-function(x){sum(x > amp_cut | x < del_cut,na.rm =TRUE)}
+findcnvchange_per<-function(x){sum(x > amp_cut | x < del_cut,na.rm =TRUE)/length(x)}
+extract_target_notmutatedcl<-function(x){
+  cl_x<-cl.cnv[which(m_n[x,]==0)]
+  target_x<-target[which(reg_m[x,]==1)]
+  result <- as.data.frame(CNV_cell_lines[target_x,cl_x])
+  return(result)
+}
+############################################
+computemutatedcnv<-function(x){
+t<-extract_targetcl(x)
+t_cnv<-apply(t,1,findcnvchange_per)
+return(t_cnv)
+}
+computenotmutatedcnv<-function(x){
+t<-extract_target_notmutatedcl(x)
+t_cnv<-apply(t,1,findcnvchange_per)
+return(t_cnv)
+}
+computecnv_diff<-function(x){
+t<-extract_targetcl(x)
+t_cnv<-apply(t,1,findcnvchange_per)
+t_nm<-extract_target_notmutatedcl(x)
+t_nm_cnv<-apply(t_nm,1,findcnvchange_per)
+return(sum(t_nm_cnv>t_cnv)/nrow(t))
+}
+temp<-c()
+n<-1
+for (i in regulator){
+  temp[n]<-computecnv_diff(i)
+  n<-n+1
+}
+
+names(temp)<-regulator
+cnvchange<-temp
+
+a<-density(cnvchange,na.rm =TRUE)
+
+plot(a,main = 'Distribution of the CNV change ratio per regulator')
+```
+
+
+```{r analysis}
+reg_tar<-rowSums(reg_m)
+
+reg_tar.sel<-regulator[reg_tar>= 20]
+
+cnvchange<-cnvchange[!is.na(cnvchange)]
+
+###############################
+
+mutation_df <- sapply(regulator,function(x){return( cl.cnv %in% mutatedcelllines[[x]])})
+
+row.names(mutation_df) <- cl.cnv
+
+mutation_df <- t(mutation_df)
+
+mt.count <- rowSums(mutation_df)
+#############################
+
+regulator.5<- regulator[mt.count >= 5]
+
+selected.regulator <- intersect(regulator.5,reg_tar.sel)
+
+cnvchange.5.tar <- cnvchange[ selected.regulator]
+
+```
+
+## Distribution of CNA change ratio of selecter regulators
+* selected regulators (mutated in at least 5 cell lines and at least 20 target genes)
+
+```{r plot}
+plot(density(cnvchange.5.tar),main = 'distribution of CNA change ratio of selected regulators')
+
+plot(density(log(cnvchange.5.tar)))
+
+summary(cnvchange.5.tar)
+
+cnv.genes<-names(cnvchange.5.tar[cnvchange.5.tar>0.5])
+```
+
+## regulators of ratio >= 0.5
+```{r cna}
+cnv.genes
+```
+
+## histogram and density plot of mutated cell line distribution
+
+```{r hist}
+summary(mt.count)
+plot(mt.count)
+hist(mt.count,main = 'Number of mutated cell lines per regulators',xlab = 'number of cell lines')
+plot(density(mt.count))
+boxplot(mt.count)
+barplot(mt.count)
+```
+
+```{r wilcox}
+result<-c()
+
+CNV_cell_lines_m <- data.table::data.table(CNV_cell_lines_m,stringsAsFactors = FALSE)
+
+CNV_cell_lines_m[,Regulator := as.character(Regulator)]
+
+CNV_cell_lines_m[,Cell_line := as.character(Cell_line)]
+
+selected.regulator <- intersect(regulator.5,reg_tar.sel)
+
+wilcox.regulator <- function(x){
+
+target_x <- target[which(reg_m[x,]==1)]
+
+cl_not_mutated <- cl.cnv[m_n[x,]==0]
+
+cl_mutated <- cl.cnv[m_n[x,] == 1]
+
+target_x<-target[which(reg_m[x,]==1)]
+
+towilcox <- CNV_cell_lines_m[Regulator %in% target_x]
+
+not_mutated_cl_cnv <- towilcox[Cell_line %in% cl_not_mutated]$CNV
+
+mutated_cl_cnv <- towilcox[Cell_line %in% cl_mutated]$CNV
+
+a <- wilcox.test(abs(mutated_cl_cnv),abs(not_mutated_cl_cnv),alternative = 'less')
+
+return(a$p.value)
+
+}
+
+result.wilcox <- sapply(selected.regulator,wilcox.regulator)
+```
+
+```{r wilcox result}
+selected.regulator[result.wilcox <= 0.05]
+wilcox.result <- selected.regulator[result.wilcox <= 0.05]
+```
+
+## siginificant regulators in CNA analysis
+```{r regulators}
+cnv.regulator <- intersect(cnv.genes,wilcox.result)
+cnv.regulator
+```
+
+```{r regulator classification}
+library(data.table)
+
+regulator.selected <- cnv.regulator
+
+regulator.class <- fread('./data/Gene_regulators/Regulator classification.txt')
+
+regulator.class[Regulator %in% regulator.selected]
+
+gene.age <- fread('./data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt')
+
+gene.age[GeneID %in% regulator.selected]
+
+regulator.mutation <- fread('./data/Gene_regulators/Recurrent point mutations.txt')
+
+regulator.mutation[Hugo_Symbol %in% regulator.selected]
+
+
+```
+
+## age of regulators
+```{r regulator age}
+hist(gene.age[GeneID %in% regulator.selected]$Phylostrata, main = 'Regulator Phylostrata', xlab = 'phylostrata')
+```
+
+## class of regulators
+```{r regulator class}
+barplot(table(regulator.class[Regulator %in% regulator.selected]$Regulator_class), main = 'Regulator class', xlab = 'class',ylab = 'number')
+```
+```{r save result, eval = FALSE}
+save(regulator.selected,file = '../data/cnv_result.Rdata')
+save(selected.regulator, file = '../data/regulators_5_cl_20_tar.Rdata')
+```
+
