@@ -107,7 +107,7 @@ regulator.drug.exp.cor<-apply(tocorre.drug,2,function(x){
 ```
 
 
-# drug correlation analysis with regulator expression   
+## drug correlation analysis with regulator expression   
 * spearman correlation of the IC50 values of each drug to the expression of regulators   
 * negative correlation means sensitive, positive correlation means resistant   
 * only response cell lines(IC50<8)  are used in the analysis   
@@ -146,7 +146,7 @@ regulator.drug.ssgsea.num<-apply(tocorre.drug,2,function(x){
 barplot(regulator.drug.ssgsea.num,names.arg = colnames(tocorre.drug),las = 2,ylab = 'number of response cell lines')
 ```
 
-# drug correlation analysis with target gene set expression   
+## drug correlation analysis with target gene set expression   
 * spearman correlation of the IC50 values of each drug to the expression of target gene sets (single sample GSEA score)   
 * negative correlation means sensitive, positive correlation means resistant   
 * only response cell lines(IC50<8)  are used in the analysis   
