@@ -139,7 +139,7 @@ cnvchange<-temp
 
 a<-density(cnvchange,na.rm =TRUE)
 
-plot(a,main = 'Distribution of the CNV change ratio per regulator')
+plot(a,main = 'Distribution of the CNA change ratio per regulator')
 ```
 
 
