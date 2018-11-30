@@ -10,11 +10,9 @@ library(reshape)
 library(GEOquery)
 library(gplots)
 library(dplyr)
-#library(heatmaply)
 library(GSVA)
 library(GSEABase)
 library(knitr)
-#library(kableExtra)
 library(org.Hs.eg.db)
 library(annotate)
 library(data.table)
@@ -42,6 +40,7 @@ ccle.expression<-ccle.expression[-toremove,]
 #save(gene.exp.z,file = '../data/CCLE/geneexpression_zscore_new.Rdata' )
 #write.csv(gene.exp.z,file = '../data/CCLE/geneexpression_zscore_new.csv')
 ```
+
 ```{r sample}
 sample.info<-fread('./data/CCLE/CCLE_sample_info_file_2012-10-18.txt', sep = '\t')
 sample.info <- as.data.frame(sample.info)
@@ -50,7 +49,7 @@ cl.info <- sample.info[cl.pos,]
 cl.toremove <- which(cl.info$`Site Primary` == 'haematopoietic_and_lymphoid_tissue')
 ccle.exp <- ccle.expression[,cl.tokeep]
 ```
-# drug correlation analysis with target sets
+
 
 ```{r input}
 gene.expression.z<-read.csv('./data/CCLE/geneexpression_zscore_new.csv',row.names = 1)
@@ -107,6 +106,12 @@ regulator.drug.exp.cor<-apply(tocorre.drug,2,function(x){
   ) # how much is the number of cl per correlation experiment
 ```
 
+
+# drug correlation analysis with regulator expression   
+* spearman correlation of the IC50 values of each drug to the expression of regulators   
+* negative correlation means sensitive, positive correlation means resistant   
+* only response cell lines(IC50<8)  are used in the analysis   
+
 ```{r plot1,fig.height=10,fig.width=10}
 #pdf('cancer_drug_cor_exp.pdf',width = 12,height = 12)
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
@@ -127,6 +132,8 @@ heatmap.2(regulator.drug.exp.cor,main = 'Correlation coefficients analysis of \n
 
 ```
 
+## Number of response cell lines of each drug
+
 ```{r corr3}
 regulator.drug.ssgsea.num<-apply(tocorre.drug,2,function(x){
   names(x) <- cl.tocorre
@@ -138,6 +145,11 @@ regulator.drug.ssgsea.num<-apply(tocorre.drug,2,function(x){
   ) 
 barplot(regulator.drug.ssgsea.num,names.arg = colnames(tocorre.drug),las = 2,ylab = 'number of response cell lines')
 ```
+
+# drug correlation analysis with target gene set expression   
+* spearman correlation of the IC50 values of each drug to the expression of target gene sets (single sample GSEA score)   
+* negative correlation means sensitive, positive correlation means resistant   
+* only response cell lines(IC50<8)  are used in the analysis   
 
 ```{r heatmap2,fig.height=10,fig.width=10}
 
@@ -159,71 +171,18 @@ heatmap.2(regulator.drug.ssgsea.cor,main = 'Correlation coefficients analysis of
 
 ```
 
-```{r}
-#cor.test<-function(drug){
-library(stats)
-drug <- 'L-685458'
-cor.reg <- names(which(regulator.drug.ssgsea.cor[,drug] >= 0.5 | regulator.drug.ssgsea.cor[,drug] <= -0.5))
-x <- tocorre.drug[,drug]
-names(x) <- cl.tocorre
-cl.sen <- cl.tocorre[x < 8]
-cl.sen <- cl.sen[! is.na(cl.sen)]
-ss <- x[cl.sen]
-cor.test(ssgsea.tocorre[cor.reg,cl.sen],ss,method = 'spearman')
-#result<-apply(ssgsea.tocorre[cor.reg,cl.sen],1,function(x){return(cor.test(x,ss,method = 'spearman'))})
-corre.t <- function(drug){
-cor.reg <- names(which(regulator.drug.ssgsea.cor[,drug] >= 0.5 | regulator.drug.ssgsea.cor[,drug] <= -0.5))
-x <- tocorre.drug[,drug]
-names(x) <- cl.tocorre
-cl.sen <- cl.tocorre[x < 8]
-cl.sen <- cl.sen[! is.na(cl.sen)]
-ss <- x[cl.sen]
-#cor.test(ssgsea.tocorre[cor.reg,cl.sen],ss,method = 'spearman')
-result<-apply(ssgsea.tocorre[cor.reg,cl.sen],1,function(x){return(cor.test(x,ss,method = 'spearman'))})
-return(result)  
-}
-
-#drug <- 'PLX4720'
-#names(which(regulator.drug.ssgsea.cor[,drug] >= 0.5 | regulator.drug.ssgsea.cor[,drug] <= -0.5))
-#cor.test('L-685458')
-for(drug in c('PHA-665752','Nutlin-3','PLX4720','LBW242')){print(corre.t(drug))
-  print('-----------------------')}
-```
-
 
 ```{r reg class}
 regulator.class<- read.delim('./data/Gene_regulators/Regulator classification.txt',row.names = 1)
 druginfo<- read.csv('./data/CCLE/CCLE_NP24.2009_profiling_2012.02.20.csv',row.names = 1)
 geneage<-read.csv('./data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt',header = TRUE,row.names = 1)
 ```
-```{r gene}
-hp.gene<-row.names(regulator.drug.ssgsea.cor)
-toremove.gene <- hp.gene[which(regulator.class[hp.gene,1] %in% c('None',NA))]
-regulator.drug.ssgsea.cor.sub<-subset(regulator.drug.ssgsea.cor, !hp.gene %in% toremove.gene)
-```
-```{r info,fig.height=10,fig.width=10}
-my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-#pdf('drugheatmap_target_nodup.pdf',width = 12,height = 12) 
-hp<-heatmap.2(regulator.drug.ssgsea.cor.sub,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
-heatmap.2(regulator.drug.ssgsea.cor.sub,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
-#dev.off()
-new.row.name<-row.names(regulator.drug.ssgsea.cor.sub)[rev(hp$rowInd)]
-new.col.name<-colnames(regulator.drug.ssgsea.cor.sub)[hp$colInd]
-regulator.drug.ssgsea.cor.2<-regulator.drug.ssgsea.cor.sub[new.row.name,new.col.name]
-heatmap.2(regulator.drug.ssgsea.cor.2,Rowv = FALSE, Colv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
-```
 
-```{r class,fig.height=10,fig.width=10}
-hp.class<-regulator.class[new.row.name,]
-hp.class<-as.factor(hp.class)
-levels(hp.class) <- c('blue','yellow','orange','red','black')
-heatmap.2(regulator.drug.ssgsea.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette, Rowv = FALSE, Colv = FALSE,RowSideColors = as.character(hp.class))
-```
-```{r age,fig.height=10,fig.width=10}
-hp.age <- geneage[new.row.name,2]
-uc_group<-ifelse(hp.age<4,'blue','red')
-heatmap.2(regulator.drug.ssgsea.cor.2,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,RowSideColors = uc_group,Rowv = FALSE, Colv = FALSE)
-```
+## drug correlation analysis with GO slim biological processes gene set expression   
+* spearman correlation of the IC50 values of each drug to the expression of GO slim biological processes gene sets (single sample GSEA score)   
+* negative correlation means sensitive, positive correlation means resistant   
+* only response cell lines(IC50<8)  are used in the analysis   
+
 
 ```{r goslim2}
 load(file ='./data/gosva.Rdata')
@@ -261,23 +220,20 @@ heatmap.2(regulator.drug.goslim.cor[order.2,],
           cexCol = 1
           #Colv = FALSE,
           )
-
-
-dev.off()
 ```
 
+### same order as previous analysis
 
 ```{r heatmap4,fig.height=10,fig.width=10}
 load("./data/goslim_order.Rdata")
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-#pdf('~/git/myproject/output/drugheatmap_goslim.pdf',width = 12,height = 12) 
 hp.2<-heatmap.2(regulator.drug.goslim.cor[order.2,],trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
 regulator.key <- selected.regulator[regulator_tb$class == 'CNV,target set']
 heatmap.2(regulator.drug.goslim.cor[order.2,],Rowv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,density.info = 'none')
-#dev.off()
 
 ```
 
+## Cluster of drugs from GO slim correlation analysis (shown in column 'group')
 
 ```{r goslim7}
 hp.2.dendrogram.col<-hp.2$colDendrogram
@@ -291,15 +247,6 @@ druginfo.total.2<-druginfo.3
 kable(druginfo.total.2[,c(2,3,4,7)])
 ```
 
-
-```{r go age,fig.height=10,fig.width=10,eval = FALSE}
-load('./data/Gene_regulators/goslim_age.Rdata')
-goslim.col <- ifelse(goslim.age == 'UC','blue','red')
-goslim.col[is.na(goslim.col)]<-'white'
-#pdf('~/git/myproject/output/drugheatmap_goslim.pdf',width = 12,height = 12) 
-heatmap.2(regulator.drug.goslim.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,RowSideColors = goslim.col)
-#dev.off()
-```
 
 
 
