@@ -29,6 +29,8 @@ load('./data/regulator_regulation.Rdata')
 ```
 
 ```{r input, include=FALSE}
+# load mutations
+
 mutation_o<-read.delim('./data/CCLE/CCLE_DepMap_18Q1_maf_20180207 (1).txt')
 mutation<-mutation_o
 mutation_s<-mutation_o[which(is.na(mutation_o$ExAC_AF)),]
@@ -46,6 +48,8 @@ names(a)<-genelist
 mutatedcelllines<-a
 b<-lapply(mutatedcelllines,length)
 mutatedcelllines_num<-unlist(b)
+
+# load regulatory network
 
 regset <- getGmt('./data/Gene_regulators/targetset_nodup.gmt.txt')
 reg.list<-geneIds(regset)
@@ -71,6 +75,8 @@ reg_m[is.na(reg_m)]<-0
 ```
 
 ```{r cl}
+#load microarray expression data
+
 ccle.expression<-fread('./data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct',skip = 2, sep = '\t')
 ccle.expression_o <- ccle.expression
 ccle.expression <- as.data.frame(ccle.expression)
@@ -112,16 +118,22 @@ row.names(regulator.exp) <- regulator.tokeep
 
 ## correlation matrix of all regulator expression 
 
-```{r cor0, fig.height = 10, fig.width= 10,echo=FALSE,warning=FALSE,include=FALSE}
+*correlation matrix of regulator expression
+
+```{r cor0, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE,include=FALSE}
 #pdf('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf',width = 12,height = 12) 
 reg.exp.cor<-cor(t(regulator.exp))
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 heatmap.2(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.65,cexCol = 0.65,keysize = 0.6,main = 'regulator expression correlation')
 #dev.off()
 ```
-## spearman correlation of all regulator expression with ssgsea scores of target sets
 
-```{r cor2,fig.height = 7, fig.width= 7,echo = FALSE,warning=FALSE}
+
+## correlation of regulator expression with target sets expression (ssgsea scores)
+* spearman correlation of regulator expression with single sample gene set enrichment scores of target gene set expression 
+* order of the regulators(row) and the target gene sets(column) is the same
+
+```{r cor2,fig.height = 12, fig.width= 12,echo = FALSE,warning=FALSE}
 load('./data/ccle_regsva_regulator.Rdata')
 targetset.gsva <- regsva[regulator.tokeep,]
 
@@ -138,19 +150,29 @@ heatmap.2(regulator.exp.ssgsea.cor,Rowv = FALSE,Colv=FALSE,trace = 'none',breaks
 
 
 ```
+
 ```{r load classification}
 load('./data/regulator_regulation.Rdata')
 reg.class <- regulator_tb$class
 names(reg.class) <- regulator_tb$regulator
 reg.col <- as.factor(reg.class)
 reg.level <- levels(reg.col) 
-reg.level
 levels(reg.col) <- c('red','pink','orange','white','blue','green')
 reg.col <- as.character(reg.col[regulator.tokeep])
 names(reg.col) <- regulator.tokeep
 ```
 
-## Spearman correlation of all regulator expression with ssgsea scores of goslim
+## Correlation of regulator expression with GO slim biological processes expression
+
+* spearman correlation of regulator expression with single sample gene set enrichment scores of GO slim biological processes gene set expression 
+* the column is colored by regulator classifications 
+  + CNA, red
+  + CNA, regulator DE, pink
+  + CNA, target gene set, orange
+  + NA, white
+  + regulator DE, blue
+  + target gene set, green
+
 ```{r cor3,fig.height = 12, fig.width= 12,echo = FALSE,warning=FALSE}
 load('./data/gosva.Rdata')
 regulator.go.ssgsea.cor<-apply(regulator.exp,1,function(x){
@@ -173,6 +195,16 @@ heatmap.2(regulator.go.ssgsea.cor,trace = 'none',
 #dev.off()
 ```
 
+## Correlation of target gene set expression with GO slim biological processes expression
+
+* spearman correlation of target gene set expression (ssgsea scores) with single sample gene set enrichment scores of GO slim biological processes gene set expression 
+* the column is colored by regulator classifications 
+  + CNA, red
+  + CNA, regulator DE, pink
+  + CNA, target gene set, orange
+  + NA, white
+  + regulator DE, blue
+  + target gene set, green
 
 ```{r cor4,fig.height = 12, fig.width= 12,echo = FALSE,warning=FALSE}
 
