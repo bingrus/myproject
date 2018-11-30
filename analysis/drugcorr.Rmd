@@ -222,15 +222,13 @@ heatmap.2(regulator.drug.goslim.cor[order.2,],
           )
 ```
 
-### same order as previous analysis
+### reorder as previous analysis
 
 ```{r heatmap4,fig.height=10,fig.width=10}
 load("./data/goslim_order.Rdata")
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 hp.2<-heatmap.2(regulator.drug.goslim.cor[order.2,],trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette)
 regulator.key <- selected.regulator[regulator_tb$class == 'CNV,target set']
-heatmap.2(regulator.drug.goslim.cor[order.2,],Rowv = FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,density.info = 'none')
-
 ```
 
 ## Cluster of drugs from GO slim correlation analysis (shown in column 'group')
