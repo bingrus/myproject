@@ -355,11 +355,12 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/8f29ac08f3e478857c87fa85397ee8990fa43ccf" target="_blank">8f29ac0</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/8ae8c0f41e24a552fdee8bdd5b5f74e04288a0f4" target="_blank">8ae8c0f</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
     Ignored:    .Rhistory
+    Ignored:    analysis/figure/
     Ignored:    data/.DS_Store
 
 Untracked files:
@@ -442,6 +443,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/8ae8c0f41e24a552fdee8bdd5b5f74e04288a0f4/analysis/correlation_analysis.Rmd" target="_blank">8ae8c0f</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/correlation_analysis.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/f9d2d69fc7c2c89fa6c268566a8aa93133b1c99d/docs/correlation_analysis.html" target="_blank">f9d2d69</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -685,45 +720,6 @@ wflow_git_commit(“analysis/correlation_analysis.Rmd”)
 </ul>
 <p></details></p>
 <hr />
-<pre class="r"><code>load(&#39;./data/selected_cl.Rdata&#39;)
-load(&#39;./data/regulators_5_cl_20_tar.Rdata&#39;)
-load(&#39;./data/regulator_regulation.Rdata&#39;)</code></pre>
-<pre class="r"><code>#load microarray expression data
-
-ccle.expression&lt;-fread(&#39;./data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct&#39;,skip = 2, sep = &#39;\t&#39;)
-ccle.expression_o &lt;- ccle.expression
-ccle.expression &lt;- as.data.frame(ccle.expression)
-ccle.expression &lt;- ccle.expression[,-c(1,2)]
-ccle.anno &lt;- ccle.expression_o[,c(1,2)]
-toremove &lt;- which(ccle.anno$Description == &#39;&#39;)
-ccle.anno &lt;- ccle.anno[-toremove,]
-ccle.expression&lt;-ccle.expression[-toremove,]
-
-
-sample.info&lt;-fread(&#39;./data/CCLE/CCLE_sample_info_file_2012-10-18.txt&#39;, sep = &#39;\t&#39;)
-cl.pos&lt;-match(colnames(ccle.expression),sample.info$`CCLE name`)
-cl.info &lt;- sample.info[cl.pos,]
-cl.toremove &lt;- which(cl.info$`Site Primary` == &#39;haematopoietic_and_lymphoid_tissue&#39;)
-
-ccle.exp &lt;- ccle.expression[,cl.tokeep]
-
-cl.sample &lt;- colnames(ccle.exp)
-n &lt;- length(cl.sample)
-cl&lt;-rep(0,n)
-
-regulators.cl &lt;- intersect(regulator, names(mutatedcelllines))
-
-mutation_df &lt;- sapply(regulators.cl,function(x){return( cl.sample %in% mutatedcelllines[[x]])})
-
-row.names(mutation_df) &lt;- cl.sample
-
-mutation_df &lt;- t(mutation_df)
-
-mt.count &lt;- rowSums(mutation_df)</code></pre>
-<pre class="r"><code>regulator.tokeep &lt;- ccle.anno[ Description %in% selected.regulator]$Description
-reg.pos &lt;- match(regulator.tokeep,ccle.anno$Description)
-regulator.exp &lt;- ccle.exp[reg.pos,]
-row.names(regulator.exp) &lt;- regulator.tokeep</code></pre>
 <div id="correlation-matrix-of-all-regulator-expression" class="section level2">
 <h2>correlation matrix of all regulator expression</h2>
 <p>*correlation matrix of regulator expression</p>
@@ -753,6 +749,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/f9d2d69fc7c2c89fa6c268566a8aa93133b1c99d/docs/figure/correlation_analysis.Rmd/cor2-1.png" target="_blank">f9d2d69</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/bingrus/myproject/blob/ba866540ca186b54811d22be4defccc59b8ac778/docs/figure/correlation_analysis.Rmd/cor2-1.png" target="_blank">ba86654</a>
 </td>
 <td style="text-align:left;">
@@ -776,26 +783,26 @@ bingrus
 </tbody>
 </table>
 <p></details></p>
-<pre class="r"><code>load(&#39;./data/regulator_regulation.Rdata&#39;)
-reg.class &lt;- regulator_tb$class
-names(reg.class) &lt;- regulator_tb$regulator
-reg.col &lt;- as.factor(reg.class)
-reg.level &lt;- levels(reg.col) 
-levels(reg.col) &lt;- c(&#39;red&#39;,&#39;pink&#39;,&#39;orange&#39;,&#39;white&#39;,&#39;blue&#39;,&#39;green&#39;)
-reg.col &lt;- as.character(reg.col[regulator.tokeep])
-names(reg.col) &lt;- regulator.tokeep</code></pre>
 </div>
 <div id="correlation-of-regulator-expression-with-go-slim-biological-processes-expression" class="section level2">
 <h2>Correlation of regulator expression with GO slim biological processes expression</h2>
 <ul>
-<li>spearman correlation of regulator expression with single sample gene set enrichment scores of GO slim biological processes gene set expression</li>
-<li>the column is colored by regulator classifications</li>
-<li>CNA, red</li>
-<li>CNA, regulator DE, pink</li>
-<li>CNA, target gene set, orange</li>
-<li>NA, white</li>
-<li>regulator DE, blue</li>
+<li>spearman correlation of regulator expression with single sample gene set enrichment scores of GO slim biological processes gene set expression<br />
+</li>
+<li>the column is colored by regulator classifications
+<ul>
+<li>CNA, red<br />
+</li>
+<li>CNA, regulator DE, pink<br />
+</li>
+<li>CNA, target gene set, orange<br />
+</li>
+<li>NA, white<br />
+</li>
+<li>regulator DE, blue<br />
+</li>
 <li>target gene set, green</li>
+</ul></li>
 </ul>
 <p><img src="figure/correlation_analysis.Rmd/cor3-1.png" width="1152" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of cor3-1.png:</em></summary>
@@ -832,14 +839,22 @@ bingrus
 <div id="correlation-of-target-gene-set-expression-with-go-slim-biological-processes-expression" class="section level2">
 <h2>Correlation of target gene set expression with GO slim biological processes expression</h2>
 <ul>
-<li>spearman correlation of target gene set expression (ssgsea scores) with single sample gene set enrichment scores of GO slim biological processes gene set expression</li>
-<li>the column is colored by regulator classifications</li>
-<li>CNA, red</li>
-<li>CNA, regulator DE, pink</li>
-<li>CNA, target gene set, orange</li>
-<li>NA, white</li>
-<li>regulator DE, blue</li>
+<li>spearman correlation of target gene set expression (ssgsea scores) with single sample gene set enrichment scores of GO slim biological processes gene set expression<br />
+</li>
+<li>the column is colored by regulator classifications
+<ul>
+<li>CNA, red<br />
+</li>
+<li>CNA, regulator DE, pink<br />
+</li>
+<li>CNA, target gene set, orange<br />
+</li>
+<li>NA, white<br />
+</li>
+<li>regulator DE, blue<br />
+</li>
 <li>target gene set, green</li>
+</ul></li>
 </ul>
 <p><img src="figure/correlation_analysis.Rmd/cor4-1.png" width="1152" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of cor4-1.png:</em></summary>
@@ -875,7 +890,6 @@ bingrus
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
-<pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.5.1 (2018-07-02)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 Running under: Windows 10 x64 (build 17134)
