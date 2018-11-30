@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
 library(htmlwidgets)
 library(limma)
 library(org.Hs.eg.db)
@@ -124,7 +124,7 @@ row.names(regulator.exp) <- regulator.tokeep
 #pdf('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf',width = 12,height = 12) 
 reg.exp.cor<-cor(t(regulator.exp))
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
-heatmap.2(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.65,cexCol = 0.65,keysize = 0.6,main = 'regulator expression correlation')
+heatmap.2(reg.exp.cor,trace = 'none',breaks = c(-1,-0.5,0,0.5,1), col = my_palette,cexRow = 0.6,cexCol = 0.6,main = 'regulator expression correlation',keysize = 0.6)
 #dev.off()
 ```
 
@@ -146,7 +146,7 @@ regulator.exp.ssgsea.cor<-apply(targetset.gsva,1,function(x){
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 #pdf('/Users/ll/Desktop/git/myproject/docs/secondheatmap.pdf',width = 12,height = 12) 
 
-heatmap.2(regulator.exp.ssgsea.cor,Rowv = FALSE,Colv=FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,main = 'regulator expression \n correlation with target set ssgsea',cexRow = 0.35,cexCol = 0.35)
+heatmap.2(regulator.exp.ssgsea.cor,Rowv = FALSE,Colv=FALSE,trace = 'none',breaks = c(-1,-0.5,0,0.5,1),col = my_palette,main = 'regulator expression \n correlation with target set ssgsea',cexRow = 0.5,cexCol = 0.5,keysize = 0.6)
 
 
 ```
@@ -164,14 +164,14 @@ names(reg.col) <- regulator.tokeep
 
 ## Correlation of regulator expression with GO slim biological processes expression
 
-* spearman correlation of regulator expression with single sample gene set enrichment scores of GO slim biological processes gene set expression 
-* the column is colored by regulator classifications 
-  + CNA, red
-  + CNA, regulator DE, pink
-  + CNA, target gene set, orange
-  + NA, white
-  + regulator DE, blue
-  + target gene set, green
+* spearman correlation of regulator expression with single sample gene set enrichment scores of GO slim biological processes gene set expression      
+* the column is colored by regulator classifications    
+    + CNA, red    
+    + CNA, regulator DE, pink    
+    + CNA, target gene set, orange    
+    + NA, white    
+    + regulator DE, blue    
+    + target gene set, green    
 
 ```{r cor3,fig.height = 12, fig.width= 12,echo = FALSE,warning=FALSE}
 load('./data/gosva.Rdata')
@@ -186,9 +186,10 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 heatmap.2(regulator.go.ssgsea.cor,trace = 'none',
           breaks = c(-1,-0.5,0,0.5,1), 
           col = my_palette,
+          keysize = 0.6,
           margins = c(10,19),
-          cexRow = 0.8,
-          cexCol = 0.6,
+          cexRow = 0.9,
+          cexCol = 0.7,
           ColSideColors=reg.col
 
           )
@@ -197,14 +198,14 @@ heatmap.2(regulator.go.ssgsea.cor,trace = 'none',
 
 ## Correlation of target gene set expression with GO slim biological processes expression
 
-* spearman correlation of target gene set expression (ssgsea scores) with single sample gene set enrichment scores of GO slim biological processes gene set expression 
-* the column is colored by regulator classifications 
-  + CNA, red
-  + CNA, regulator DE, pink
-  + CNA, target gene set, orange
-  + NA, white
-  + regulator DE, blue
-  + target gene set, green
+* spearman correlation of target gene set expression (ssgsea scores) with single sample gene set enrichment scores of GO slim biological processes gene set expression    
+* the column is colored by regulator classifications    
+    + CNA, red   
+    + CNA, regulator DE, pink   
+    + CNA, target gene set, orange   
+    + NA, white    
+    + regulator DE, blue   
+    + target gene set, green   
 
 ```{r cor4,fig.height = 12, fig.width= 12,echo = FALSE,warning=FALSE}
 
@@ -218,10 +219,11 @@ my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
 #pdf('/Users/ll/Desktop/git/myproject/docs/thirdheatmap.pdf',width = 12,height = 12) 
 heatmap.2(regulator.go.target.cor,trace = 'none',
           breaks = c(-1,-0.5,0,0.5,1), 
+          keysize = 0.6,
           col = my_palette,
           margins = c(10,19),
-          cexRow = 0.8,
-          cexCol = 0.6,
+          cexRow = 0.9,
+          cexCol = 0.7,
           ColSideColors= reg.col
           )
 #dev.off()
