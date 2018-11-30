@@ -17,8 +17,6 @@ navbar:
       href: cclecamera_new.html
     - text: 'Drug correlation'
       href: drugcorr.html
-    - text: "License"
-      href: license.html
   
   right:
     - icon: fa-github
