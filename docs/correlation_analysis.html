@@ -302,9 +302,6 @@ div.tocify {
 <li>
   <a href="drugcorr.html">Drug correlation</a>
 </li>
-<li>
-  <a href="license.html">License</a>
-</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -358,7 +355,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/3108ddc532de048aebb71f74c102cc9650e33d03" target="_blank">3108ddc</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/8f29ac08f3e478857c87fa85397ee8990fa43ccf" target="_blank">8f29ac0</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -406,6 +403,7 @@ Unstaged changes:
     Modified:   analysis/cnvchange.Rmd
     Deleted:    analysis/drugresponse.Rmd
     Deleted:    analysis/gdsccorr.Rmd
+    Deleted:    analysis/license.Rmd
     Deleted:    docs/drugheatmap_goslim.pdf
     Deleted:    docs/drugheatmap_target.pdf
     Deleted:    docs/drugheatmap_target_nodup.pdf
@@ -444,6 +442,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/8f29ac08f3e478857c87fa85397ee8990fa43ccf/analysis/correlation_analysis.Rmd" target="_blank">8f29ac0</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/correlation_analysis.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/ba866540ca186b54811d22be4defccc59b8ac778/docs/correlation_analysis.html" target="_blank">ba86654</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -656,7 +688,9 @@ wflow_git_commit(“analysis/correlation_analysis.Rmd”)
 <pre class="r"><code>load(&#39;./data/selected_cl.Rdata&#39;)
 load(&#39;./data/regulators_5_cl_20_tar.Rdata&#39;)
 load(&#39;./data/regulator_regulation.Rdata&#39;)</code></pre>
-<pre class="r"><code>ccle.expression&lt;-fread(&#39;./data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct&#39;,skip = 2, sep = &#39;\t&#39;)
+<pre class="r"><code>#load microarray expression data
+
+ccle.expression&lt;-fread(&#39;./data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct&#39;,skip = 2, sep = &#39;\t&#39;)
 ccle.expression_o &lt;- ccle.expression
 ccle.expression &lt;- as.data.frame(ccle.expression)
 ccle.expression &lt;- ccle.expression[,-c(1,2)]
@@ -692,10 +726,15 @@ regulator.exp &lt;- ccle.exp[reg.pos,]
 row.names(regulator.exp) &lt;- regulator.tokeep</code></pre>
 <div id="correlation-matrix-of-all-regulator-expression" class="section level2">
 <h2>correlation matrix of all regulator expression</h2>
+<p>*correlation matrix of regulator expression</p>
 </div>
-<div id="spearman-correlation-of-all-regulator-expression-with-ssgsea-scores-of-target-sets" class="section level2">
-<h2>spearman correlation of all regulator expression with ssgsea scores of target sets</h2>
-<p><img src="figure/correlation_analysis.Rmd/cor2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="correlation-of-regulator-expression-with-target-sets-expression-ssgsea-scores" class="section level2">
+<h2>correlation of regulator expression with target sets expression (ssgsea scores)</h2>
+<ul>
+<li>spearman correlation of regulator expression with single sample gene set enrichment scores of target gene set expression</li>
+<li>order of the regulators(row) and the target gene sets(column) is the same</li>
+</ul>
+<p><img src="figure/correlation_analysis.Rmd/cor2-1.png" width="1152" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of cor2-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
 <thead>
@@ -712,6 +751,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/ba866540ca186b54811d22be4defccc59b8ac778/docs/figure/correlation_analysis.Rmd/cor2-1.png" target="_blank">ba86654</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/bingrus/myproject/blob/06b224002a65e9ea4a1bc3c88c273f98a993f04e/docs/figure/correlation_analysis.Rmd/cor2-1.png" target="_blank">06b2240</a>
@@ -731,17 +781,97 @@ reg.class &lt;- regulator_tb$class
 names(reg.class) &lt;- regulator_tb$regulator
 reg.col &lt;- as.factor(reg.class)
 reg.level &lt;- levels(reg.col) 
-reg.level</code></pre>
-<pre><code>[1] &quot;CNV&quot;              &quot;CNV,regulator DE&quot; &quot;CNV,target set&quot;  
-[4] &quot;NA&quot;               &quot;regulator DE&quot;     &quot;target set&quot;      </code></pre>
-<pre class="r"><code>levels(reg.col) &lt;- c(&#39;red&#39;,&#39;pink&#39;,&#39;orange&#39;,&#39;white&#39;,&#39;blue&#39;,&#39;green&#39;)
+levels(reg.col) &lt;- c(&#39;red&#39;,&#39;pink&#39;,&#39;orange&#39;,&#39;white&#39;,&#39;blue&#39;,&#39;green&#39;)
 reg.col &lt;- as.character(reg.col[regulator.tokeep])
 names(reg.col) &lt;- regulator.tokeep</code></pre>
 </div>
-<div id="spearman-correlation-of-all-regulator-expression-with-ssgsea-scores-of-goslim" class="section level2">
-<h2>Spearman correlation of all regulator expression with ssgsea scores of goslim</h2>
+<div id="correlation-of-regulator-expression-with-go-slim-biological-processes-expression" class="section level2">
+<h2>Correlation of regulator expression with GO slim biological processes expression</h2>
+<ul>
+<li>spearman correlation of regulator expression with single sample gene set enrichment scores of GO slim biological processes gene set expression</li>
+<li>the column is colored by regulator classifications</li>
+<li>CNA, red</li>
+<li>CNA, regulator DE, pink</li>
+<li>CNA, target gene set, orange</li>
+<li>NA, white</li>
+<li>regulator DE, blue</li>
+<li>target gene set, green</li>
+</ul>
 <p><img src="figure/correlation_analysis.Rmd/cor3-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of cor3-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/ba866540ca186b54811d22be4defccc59b8ac778/docs/figure/correlation_analysis.Rmd/cor3-1.png" target="_blank">ba86654</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+</div>
+<div id="correlation-of-target-gene-set-expression-with-go-slim-biological-processes-expression" class="section level2">
+<h2>Correlation of target gene set expression with GO slim biological processes expression</h2>
+<ul>
+<li>spearman correlation of target gene set expression (ssgsea scores) with single sample gene set enrichment scores of GO slim biological processes gene set expression</li>
+<li>the column is colored by regulator classifications</li>
+<li>CNA, red</li>
+<li>CNA, regulator DE, pink</li>
+<li>CNA, target gene set, orange</li>
+<li>NA, white</li>
+<li>regulator DE, blue</li>
+<li>target gene set, green</li>
+</ul>
 <p><img src="figure/correlation_analysis.Rmd/cor4-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of cor4-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/ba866540ca186b54811d22be4defccc59b8ac778/docs/figure/correlation_analysis.Rmd/cor4-1.png" target="_blank">ba86654</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
