@@ -120,7 +120,7 @@ row.names(regulator.exp) <- regulator.tokeep
 
 *correlation matrix of regulator expression
 
-```{r cor0, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE,include=FALSE}
+```{r cor0, fig.height = 12, fig.width= 12,echo=FALSE,warning=FALSE}
 #pdf('/Users/ll/Desktop/git/myproject/docs/firstheatmap.pdf',width = 12,height = 12) 
 reg.exp.cor<-cor(t(regulator.exp))
 my_palette <- colorRampPalette(c("dodgerblue3", "white", "deeppink3"))(n = 4)
