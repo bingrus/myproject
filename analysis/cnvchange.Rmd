@@ -80,7 +80,7 @@ CNV_cell_lines_m <- CNV_cell_lines.m[which(CNV_cell_lines.m$Cell_line %in% cl.cn
 
 mean(CNV_cell_lines_m$CNV)
 summary(CNV_cell_lines_m$CNV)
-plot(density(CNV_cell_lines_m$CNV))
+plot(density(CNV_cell_lines_m$CNV),main = 'Distribution of CNA values in all cell lines')
 #del_cul was 0.1 and amp_cut was 0.9
 del_cut <- quantile(CNV_cell_lines_m$CNV[CNV_cell_lines_m$CNV < 0], 0.1)
 amp_cut <- quantile(CNV_cell_lines_m$CNV[CNV_cell_lines_m$CNV > 0], 0.9)
