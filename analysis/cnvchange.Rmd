@@ -1,5 +1,5 @@
 ---
-title: "CNV change"
+title: "Copy number alteration analysis"
 author: "Bingru Sun"
 date: "2018/11/29"
 output: html_document
@@ -12,7 +12,7 @@ library(GSEABase)
 
 ## Method
 
-compute cnv change by 1) extracting cell lines with mutated regulators, and the cell lines with non-mutated regulator. 2) count the cnv change by setting cutoff based on the data in all cell lines and all genes 3) compute the ratio of cnv change that is higher in not mutated cells lines of a regulator
+compute copy number alteration change ratio by 1) extracting cell lines with mutated regulators, and the cell lines with non-mutated regulator. 2) count the cnv change by setting cutoff based on the data in all cell lines and all genes 3) compute the ratio of cnv change that is higher in not mutated cells lines of a regulator
 
 ```{r regulator mutation input,include = FALSE}
 load('./data/selected_cl.Rdata')
@@ -175,8 +175,6 @@ cnvchange.5.tar <- cnvchange[ selected.regulator]
 ```{r plot}
 plot(density(cnvchange.5.tar),main = 'distribution of CNA change ratio of selected regulators')
 
-plot(density(log(cnvchange.5.tar)))
-
 summary(cnvchange.5.tar)
 
 cnv.genes<-names(cnvchange.5.tar[cnvchange.5.tar>0.5])
@@ -191,11 +189,7 @@ cnv.genes
 
 ```{r hist}
 summary(mt.count)
-plot(mt.count)
 hist(mt.count,main = 'Number of mutated cell lines per regulators',xlab = 'number of cell lines')
-plot(density(mt.count))
-boxplot(mt.count)
-barplot(mt.count)
 ```
 
 ```{r wilcox}
@@ -234,48 +228,19 @@ return(a$p.value)
 result.wilcox <- sapply(selected.regulator,wilcox.regulator)
 ```
 
+## selected regulators in wilcoxon tests (p-value <0.05)
 ```{r wilcox result}
 selected.regulator[result.wilcox <= 0.05]
 wilcox.result <- selected.regulator[result.wilcox <= 0.05]
 ```
 
-## siginificant regulators in CNA analysis
+## selected regulators in both analysis (wilcoxon tests p-value <0.05, change ratio >= 0.5)
 ```{r regulators}
 cnv.regulator <- intersect(cnv.genes,wilcox.result)
 cnv.regulator
 ```
 
-```{r regulator classification}
-library(data.table)
-
-regulator.selected <- cnv.regulator
-
-regulator.class <- fread('./data/Gene_regulators/Regulator classification.txt')
-
-regulator.class[Regulator %in% regulator.selected]
-
-gene.age <- fread('./data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt')
-
-gene.age[GeneID %in% regulator.selected]
-
-regulator.mutation <- fread('./data/Gene_regulators/Recurrent point mutations.txt')
-
-regulator.mutation[Hugo_Symbol %in% regulator.selected]
-
-
-```
-
-## age of regulators
-```{r regulator age}
-hist(gene.age[GeneID %in% regulator.selected]$Phylostrata, main = 'Regulator Phylostrata', xlab = 'phylostrata')
-```
-
-## class of regulators
-```{r regulator class}
-barplot(table(regulator.class[Regulator %in% regulator.selected]$Regulator_class), main = 'Regulator class', xlab = 'class',ylab = 'number')
-```
 ```{r save result, eval = FALSE}
-save(regulator.selected,file = '../data/cnv_result.Rdata')
 save(selected.regulator, file = '../data/regulators_5_cl_20_tar.Rdata')
 ```
 
