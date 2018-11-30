@@ -355,7 +355,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/c1dd529631df7745d90438b7ea3a93fdfc9b7325" target="_blank">c1dd529</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/4828af9593043a48d900a08f2c057fb6e615d585" target="_blank">4828af9</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -441,6 +441,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/4828af9593043a48d900a08f2c057fb6e615d585/analysis/drugcorr.Rmd" target="_blank">4828af9</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/drugcorr.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/57d1cc06126170e56d6cfc968129c4e0328faa7f/docs/drugcorr.html" target="_blank">57d1cc0</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -701,8 +735,8 @@ wflow_git_commit(“analysis/drugcorr.Rmd”)
 </ul>
 <p></details></p>
 <hr />
-<div id="drug-correlation-analysis-with-regulator-expression" class="section level1">
-<h1>drug correlation analysis with regulator expression</h1>
+<div id="drug-correlation-analysis-with-regulator-expression" class="section level2">
+<h2>drug correlation analysis with regulator expression</h2>
 <ul>
 <li>spearman correlation of the IC50 values of each drug to the expression of regulators<br />
 </li>
@@ -741,6 +775,7 @@ bingrus
 </tbody>
 </table>
 <p></details></p>
+</div>
 <div id="number-of-response-cell-lines-of-each-drug" class="section level2">
 <h2>Number of response cell lines of each drug</h2>
 <p><img src="figure/drugcorr.Rmd/corr3-1.png" width="672" style="display: block; margin: auto;" /></p>
@@ -775,9 +810,8 @@ bingrus
 </table>
 <p></details></p>
 </div>
-</div>
-<div id="drug-correlation-analysis-with-target-gene-set-expression" class="section level1">
-<h1>drug correlation analysis with target gene set expression</h1>
+<div id="drug-correlation-analysis-with-target-gene-set-expression" class="section level2">
+<h2>drug correlation analysis with target gene set expression</h2>
 <ul>
 <li>spearman correlation of the IC50 values of each drug to the expression of target gene sets (single sample GSEA score)<br />
 </li>
@@ -816,6 +850,7 @@ bingrus
 </tbody>
 </table>
 <p></details></p>
+</div>
 <div id="drug-correlation-analysis-with-go-slim-biological-processes-gene-set-expression" class="section level2">
 <h2>drug correlation analysis with GO slim biological processes gene set expression</h2>
 <ul>
@@ -1155,7 +1190,6 @@ loaded via a namespace (and not attached):
 [55] workflowr_1.1.1    shinythemes_1.1.1  rprojroot_1.3-2   
 [58] KernSmooth_2.23-15 readr_1.1.1        stringi_1.1.7     
 [61] Rcpp_0.12.19       geneplotter_1.58.0 tidyselect_0.2.5  </code></pre>
-</div>
 </div>
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
