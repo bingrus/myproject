@@ -302,9 +302,6 @@ div.tocify {
 <li>
   <a href="drugcorr.html">Drug correlation</a>
 </li>
-<li>
-  <a href="license.html">License</a>
-</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -358,7 +355,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/a9e595e1994d3e66c0edd4e726b7a61bee506038" target="_blank">a9e595e</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/c1dd529631df7745d90438b7ea3a93fdfc9b7325" target="_blank">c1dd529</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -402,8 +399,10 @@ Untracked files:
     Untracked:  data/selected_cl.Rdata
 
 Unstaged changes:
-    Modified:   analysis/cnvchange.Rmd
-    Deleted:    docs/.nojekyll
+    Deleted:    analysis/about.Rmd
+    Deleted:    analysis/drugresponse.Rmd
+    Deleted:    analysis/gdsccorr.Rmd
+    Deleted:    analysis/license.Rmd
     Deleted:    docs/drugheatmap_goslim.pdf
     Deleted:    docs/drugheatmap_target.pdf
     Deleted:    docs/drugheatmap_target_nodup.pdf
@@ -442,6 +441,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/c1dd529631df7745d90438b7ea3a93fdfc9b7325/analysis/drugcorr.Rmd" target="_blank">c1dd529</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/drugcorr.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/drugcorr.html" target="_blank">7fcd88e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 html
@@ -668,170 +701,17 @@ wflow_git_commit(“analysis/drugcorr.Rmd”)
 </ul>
 <p></details></p>
 <hr />
-<div id="drug-correlation-analysis-with-target-sets" class="section level1">
-<h1>drug correlation analysis with target sets</h1>
+<div id="drug-correlation-analysis-with-regulator-expression" class="section level1">
+<h1>drug correlation analysis with regulator expression</h1>
+<ul>
+<li>spearman correlation of the IC50 values of each drug to the expression of regulators<br />
+</li>
+<li>negative correlation means sensitive, positive correlation means resistant<br />
+</li>
+<li>only response cell lines(IC50&lt;8) are used in the analysis</li>
+</ul>
 <p><img src="figure/drugcorr.Rmd/plot1-1.png" width="960" style="display: block; margin: auto;" /></p>
-<p><img src="figure/drugcorr.Rmd/corr3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p><img src="figure/drugcorr.Rmd/heatmap2-1.png" width="960" style="display: block; margin: auto;" /></p>
-<pre><code>
-    Spearman&#39;s rank correlation rho
-
-data:  ssgsea.tocorre[cor.reg, cl.sen] and ss
-S = 9126, p-value = 0.0003064
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-      rho 
-0.5046678 </code></pre>
-<pre><code>$CDX2
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 3060, p-value = 0.0136
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-       rho 
--0.5118577 
-
-
-$TP53
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 3166, p-value = 0.005785
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-       rho 
--0.5642292 
-
-
-[1] &quot;-----------------------&quot;
-$EGF
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 1044, p-value = 0.03494
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-       rho 
--0.5352941 
-
-
-$MYCN
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 306, p-value = 0.02958
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
- rho 
-0.55 
-
-
-$NFE2L2
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 1132, p-value = 0.006241
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-       rho 
--0.6647059 
-
-
-$PAX2
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 1118, p-value = 0.00859
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-       rho 
--0.6441176 
-
-
-[1] &quot;-----------------------&quot;
-$BRCA1
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 38966, p-value = 1.175e-05
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-       rho 
--0.5709563 
-
-
-$CDX2
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 11918, p-value = 8.528e-05
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-     rho 
-0.519513 
-
-
-$GATA2
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 11308, p-value = 3.426e-05
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-      rho 
-0.5441058 
-
-
-$TCF4
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 11610, p-value = 5.424e-05
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-      rho 
-0.5319303 
-
-
-[1] &quot;-----------------------&quot;
-$FOXA2
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 2332, p-value = 0.002502
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-      rho 
-0.5298387 
-
-
-$SOX9
-
-    Spearman&#39;s rank correlation rho
-
-data:  x and ss
-S = 1972, p-value = 0.0004365
-alternative hypothesis: true rho is not equal to 0
-sample estimates:
-      rho 
-0.6024194 
-
-
-[1] &quot;-----------------------&quot;</code></pre>
-<p><img src="figure/drugcorr.Rmd/info-1.png" width="960" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of info-1.png:</em></summary>
+<details> <summary><em>Expand here to see past versions of plot1-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
 <thead>
 <tr>
@@ -849,34 +729,200 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/43550df8c2a3dc18647a487e753b6be9f9a1a1af/docs/figure/drugcorr.Rmd/info-1.png" target="_blank">43550df</a>
+<a href="https://github.com/bingrus/myproject/blob/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/figure/drugcorr.Rmd/plot1-1.png" target="_blank">7fcd88e</a>
 </td>
 <td style="text-align:left;">
 bingrus
 </td>
 <td style="text-align:left;">
-2018-09-17
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/bingrus/myproject/blob/5327d89283e91ed297b4ec20dddeee947583b6e2/docs/figure/drugcorr.Rmd/info-1.png" target="_blank">5327d89</a>
-</td>
-<td style="text-align:left;">
-bingrus
-</td>
-<td style="text-align:left;">
-2018-09-10
+2018-11-30
 </td>
 </tr>
 </tbody>
 </table>
-<p></details> <img src="figure/drugcorr.Rmd/info-2.png" width="960" style="display: block; margin: auto;" /></p>
-<p><img src="figure/drugcorr.Rmd/class-1.png" width="960" style="display: block; margin: auto;" /> <img src="figure/drugcorr.Rmd/age-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p></details></p>
+<div id="number-of-response-cell-lines-of-each-drug" class="section level2">
+<h2>Number of response cell lines of each drug</h2>
+<p><img src="figure/drugcorr.Rmd/corr3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of corr3-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/figure/drugcorr.Rmd/corr3-1.png" target="_blank">7fcd88e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+</div>
+</div>
+<div id="drug-correlation-analysis-with-target-gene-set-expression" class="section level1">
+<h1>drug correlation analysis with target gene set expression</h1>
+<ul>
+<li>spearman correlation of the IC50 values of each drug to the expression of target gene sets (single sample GSEA score)<br />
+</li>
+<li>negative correlation means sensitive, positive correlation means resistant<br />
+</li>
+<li>only response cell lines(IC50&lt;8) are used in the analysis</li>
+</ul>
+<p><img src="figure/drugcorr.Rmd/heatmap2-1.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of heatmap2-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/figure/drugcorr.Rmd/heatmap2-1.png" target="_blank">7fcd88e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<div id="drug-correlation-analysis-with-go-slim-biological-processes-gene-set-expression" class="section level2">
+<h2>drug correlation analysis with GO slim biological processes gene set expression</h2>
+<ul>
+<li>spearman correlation of the IC50 values of each drug to the expression of GO slim biological processes gene sets (single sample GSEA score)<br />
+</li>
+<li>negative correlation means sensitive, positive correlation means resistant<br />
+</li>
+<li>only response cell lines(IC50&lt;8) are used in the analysis</li>
+</ul>
 <p><img src="figure/drugcorr.Rmd/heatmap3-1.png" width="960" style="display: block; margin: auto;" /></p>
-<pre><code>null device 
-          1 </code></pre>
-<p><img src="figure/drugcorr.Rmd/heatmap4-1.png" width="960" style="display: block; margin: auto;" /><img src="figure/drugcorr.Rmd/heatmap4-2.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of heatmap3-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/figure/drugcorr.Rmd/heatmap3-1.png" target="_blank">7fcd88e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+<div id="same-order-as-previous-analysis" class="section level3">
+<h3>same order as previous analysis</h3>
+<p><img src="figure/drugcorr.Rmd/heatmap4-1.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of heatmap4-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/figure/drugcorr.Rmd/heatmap4-1.png" target="_blank">7fcd88e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/drugcorr.Rmd/heatmap4-2.png" width="960" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of heatmap4-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/7fcd88e2470de5b06435ca849e40ebf4071cf5b1/docs/figure/drugcorr.Rmd/heatmap4-2.png" target="_blank">7fcd88e</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-30
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
+</div>
+</div>
+<div id="cluster-of-drugs-from-go-slim-correlation-analysis-shown-in-column-group" class="section level2">
+<h2>Cluster of drugs from GO slim correlation analysis (shown in column ‘group’)</h2>
 <table>
 <thead>
 <tr class="header">
@@ -1058,6 +1104,7 @@ bingrus
 </tr>
 </tbody>
 </table>
+</div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
 <pre><code>R version 3.5.1 (2018-07-02)
