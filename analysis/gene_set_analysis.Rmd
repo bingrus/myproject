@@ -181,7 +181,9 @@ load('./data/dry_regulator_gene_set.Rdata')
 load('./data/regulators_5_cl_20_tar.Rdata')
 ```
 
-## Results of ROAST gene set tests of regulators which mutated in at least 5 cell lines with at least 20 targets
+## Results of ROAST gene set tests of selected regulators 
+* ROAST is conducted for target gene sets of each selected regulator
+* selected regulators are mutated in at least 5 cell lines with at least 20 target
 
 
 ```{r fry result 1, echo=FALSE}
