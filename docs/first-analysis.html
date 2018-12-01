@@ -303,9 +303,6 @@ div.tocify {
 <li>
   <a href="drugcorr.html">Drug correlation</a>
 </li>
-<li>
-  <a href="license.html">License</a>
-</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -337,7 +334,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-11-29</p>
+<p><strong>Last updated:</strong> 2018-12-01</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -361,10 +358,11 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/c5084f9bb6ff112b4628b45f51ac5f717f26b406" target="_blank">c5084f9</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/bccb5a8e99bb69a47f39f80a7a98ca4013dc4bd5" target="_blank">bccb5a8</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    data/.DS_Store
 
 Untracked files:
@@ -387,6 +385,7 @@ Untracked files:
     Untracked:  data/fry_regulator_gene_set_skin.Rdata
     Untracked:  data/fry_result.Rdata
     Untracked:  data/gogsva_z_col.Rdata
+    Untracked:  data/goslim_order.Rdata
     Untracked:  data/gosva.Rdata
     Untracked:  data/hggsva_z_col.Rdata
     Untracked:  data/keggsva_z_col.Rdata
@@ -403,6 +402,11 @@ Untracked files:
     Untracked:  data/selected_cl.Rdata
 
 Unstaged changes:
+    Deleted:    analysis/about.Rmd
+    Deleted:    analysis/drugresponse.Rmd
+    Deleted:    analysis/gdsccorr.Rmd
+    Deleted:    analysis/license.Rmd
+    Deleted:    docs/drugheatmap_goslim.pdf
     Deleted:    docs/drugheatmap_target.pdf
     Deleted:    docs/drugheatmap_target_nodup.pdf
     Deleted:    docs/firstheatmap.pdf
@@ -440,6 +444,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/bccb5a8e99bb69a47f39f80a7a98ca4013dc4bd5/analysis/first-analysis.Rmd" target="_blank">bccb5a8</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-12-01
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/first-analysis.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/4045d96941f151394760b5c0a1a14c0a6fa9acf6/docs/first-analysis.html" target="_blank">4045d96</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-29
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 html
@@ -904,6 +942,10 @@ Add my first analysis
 </ul>
 <p></details></p>
 <hr />
+<div id="method" class="section level2">
+<h2>Method</h2>
+<p>Differential gene expression analysis is conducted using limma. The regulator expression in the mutated cell lines is compared versus the regulator expression in the non-mutated cell lines. The results of the significant differential expressed genes are listed below.</p>
+</div>
 <div id="results-of-significant-differential-expressed-regulators" class="section level2">
 <h2>Results of significant differential expressed regulators</h2>
 <p>*(logFC &gt;= 1 or &lt;= -1, adjusted p-value &lt;= 0.05)</p>
