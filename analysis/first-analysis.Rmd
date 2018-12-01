@@ -129,6 +129,9 @@ regulator_dge_df <- sapply(regulators.mut,dge.mutation)
 #save(regulator_dge_df,file = '../data/regulator_dge.Rdata')
 ```
 
+##Method
+Differential gene expression analysis is conducted using limma. The regulator expression in the mutated cell lines is compared versus the regulator expression in the non-mutated cell lines. The results of the significant differential expressed genes are listed below.     
+
 ##Results of significant differential expressed regulators 
 *(logFC >= 1 or <= -1, adjusted p-value <= 0.05)
 ```{r data}
