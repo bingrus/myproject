@@ -303,9 +303,6 @@ div.tocify {
 <li>
   <a href="drugcorr.html">Drug correlation</a>
 </li>
-<li>
-  <a href="license.html">License</a>
-</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -337,7 +334,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-11-29</p>
+<p><strong>Last updated:</strong> 2018-12-01</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -361,10 +358,11 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/4045d96941f151394760b5c0a1a14c0a6fa9acf6" target="_blank">4045d96</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/02fd1d002dd82544388743de36e0e115facccbc1" target="_blank">02fd1d0</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    data/.DS_Store
 
 Untracked files:
@@ -387,6 +385,7 @@ Untracked files:
     Untracked:  data/fry_regulator_gene_set_skin.Rdata
     Untracked:  data/fry_result.Rdata
     Untracked:  data/gogsva_z_col.Rdata
+    Untracked:  data/goslim_order.Rdata
     Untracked:  data/gosva.Rdata
     Untracked:  data/hggsva_z_col.Rdata
     Untracked:  data/keggsva_z_col.Rdata
@@ -403,6 +402,11 @@ Untracked files:
     Untracked:  data/selected_cl.Rdata
 
 Unstaged changes:
+    Deleted:    analysis/about.Rmd
+    Deleted:    analysis/drugresponse.Rmd
+    Deleted:    analysis/gdsccorr.Rmd
+    Deleted:    analysis/license.Rmd
+    Deleted:    docs/drugheatmap_goslim.pdf
     Deleted:    docs/drugheatmap_target.pdf
     Deleted:    docs/drugheatmap_target_nodup.pdf
     Deleted:    docs/firstheatmap.pdf
@@ -440,6 +444,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/02fd1d002dd82544388743de36e0e115facccbc1/analysis/gene_set_analysis.Rmd" target="_blank">02fd1d0</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-12-01
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/gene_set_analysis.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/493b0f307244fcffeef7b1fa47d6e83cb158464c/docs/gene_set_analysis.html" target="_blank">493b0f3</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-29
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 html
@@ -666,8 +704,12 @@ add gene set analysis
 </ul>
 <p></details></p>
 <hr />
-<div id="results-of-roast-gene-set-tests-of-regulators-which-mutated-in-at-least-5-cell-lines-with-at-least-20-targets" class="section level2">
-<h2>Results of ROAST gene set tests of regulators which mutated in at least 5 cell lines with at least 20 targets</h2>
+<div id="results-of-roast-gene-set-tests-of-selected-regulators" class="section level2">
+<h2>Results of ROAST gene set tests of selected regulators</h2>
+<ul>
+<li>ROAST is conducted for target gene sets of each selected regulator</li>
+<li>selected regulators are mutated in at least 5 cell lines with at least 20 target</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
@@ -891,7 +933,7 @@ bingrus
 <td align="right">384</td>
 <td align="left">Up</td>
 <td align="right">0.0061482</td>
-<td align="left">0.189240297938265</td>
+<td align="left">0.189240297938264</td>
 <td align="left">PIK3CA</td>
 </tr>
 <tr class="odd">
@@ -905,21 +947,21 @@ bingrus
 <td align="right">314</td>
 <td align="left">Up</td>
 <td align="right">0.0299826</td>
-<td align="left">0.00143377162287313</td>
+<td align="left">0.00143377162287315</td>
 <td align="left">STAT5B</td>
 </tr>
 <tr class="odd">
 <td align="right">350</td>
 <td align="left">Up</td>
 <td align="right">0.0237852</td>
-<td align="left">0.0552541300678581</td>
+<td align="left">0.055254130067858</td>
 <td align="left">ZBTB14</td>
 </tr>
 <tr class="even">
 <td align="right">1182</td>
 <td align="left">Up</td>
 <td align="right">0.0358780</td>
-<td align="left">0.50187745560421</td>
+<td align="left">0.501877455604211</td>
 <td align="left">ZEB1</td>
 </tr>
 </tbody>
@@ -987,15 +1029,15 @@ bingrus
 <td align="right">636</td>
 <td align="left">Up</td>
 <td align="right">0.0378782</td>
-<td align="left">0.55459861953406</td>
+<td align="left">0.554598619534061</td>
 <td align="left">TP53</td>
 </tr>
 <tr class="even">
 <td align="right">## barcod</td>
 <td align="left">e plots of r</td>
 <td align="right">esults in sk</td>
-<td align="left">in cancer cell line</td>
-<td align="left">s</td>
+<td align="left">in cancer cell lines</td>
+<td align="left"></td>
 </tr>
 </tbody>
 </table>
