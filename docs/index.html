@@ -204,9 +204,6 @@ $(document).ready(function () {
 <li>
   <a href="drugcorr.html">Drug correlation</a>
 </li>
-<li>
-  <a href="license.html">License</a>
-</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
@@ -236,7 +233,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-11-29</p>
+<p><strong>Last updated:</strong> 2018-12-01</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -245,10 +242,11 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/315fdb227332507a73f460798979fcaf8f2542c3" target="_blank">315fdb2</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/bingrus/myproject/tree/0cf206df6ab26ea7d0e193a3625d0aab2f2f0234" target="_blank">0cf206d</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
+    Ignored:    .Rhistory
     Ignored:    data/.DS_Store
 
 Untracked files:
@@ -271,6 +269,7 @@ Untracked files:
     Untracked:  data/fry_regulator_gene_set_skin.Rdata
     Untracked:  data/fry_result.Rdata
     Untracked:  data/gogsva_z_col.Rdata
+    Untracked:  data/goslim_order.Rdata
     Untracked:  data/gosva.Rdata
     Untracked:  data/hggsva_z_col.Rdata
     Untracked:  data/keggsva_z_col.Rdata
@@ -287,6 +286,11 @@ Untracked files:
     Untracked:  data/selected_cl.Rdata
 
 Unstaged changes:
+    Deleted:    analysis/about.Rmd
+    Deleted:    analysis/drugresponse.Rmd
+    Deleted:    analysis/gdsccorr.Rmd
+    Deleted:    analysis/license.Rmd
+    Deleted:    docs/drugheatmap_goslim.pdf
     Deleted:    docs/drugheatmap_target.pdf
     Deleted:    docs/drugheatmap_target_nodup.pdf
     Deleted:    docs/firstheatmap.pdf
@@ -324,6 +328,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/bingrus/myproject/blob/0cf206df6ab26ea7d0e193a3625d0aab2f2f0234/analysis/index.Rmd" target="_blank">0cf206d</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-12-01
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/index.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/bingrus/myproject/c5084f9bb6ff112b4628b45f51ac5f717f26b406/docs/index.html" target="_blank">c5084f9</a>
+</td>
+<td style="text-align:left;">
+bingrus
+</td>
+<td style="text-align:left;">
+2018-11-29
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 html
@@ -756,20 +794,14 @@ Start workflowr project.
 <hr />
 <p>Welcome to Bingru’s research journal.</p>
 <p>I conducted analysis on the Cancer cell line encyclopedia data to investigate how interuppted gene regulatory network can be used for targeting in cancer treatment</p>
-<p>*differential gene expression analysis under regulator mutations <strong><a href="first-analysis.html">Link</a></strong></p>
-<p>*Gene set tests under regulator mutations <strong><a href="gene_set_analysis.html">Link</a></strong></p>
-<div id="drug-response" class="section level1">
-<h1>Drug response</h1>
-<p><strong><a href="drugresponse.html">Link</a></strong></p>
-</div>
-<div id="correlation-of-expression-with-ssgsea" class="section level1">
-<h1>correlation of expression with ssgsea</h1>
-<p><strong><a href="correlation_analysis.html">Link</a></strong></p>
-</div>
-<div id="correlation-of-drug-response-with-ssgsea-of-target-sets" class="section level1">
-<h1>correlation of drug response with ssgsea of target sets</h1>
-<p><strong><a href="drugcorr.html">Link</a></strong></p>
-</div>
+<ul>
+<li><p>Differential gene expression analysis studying the effects of regulator mutations <strong><a href="first-analysis.html">Link</a></strong></p></li>
+<li><p>Gene set tests studying the effects of regulator mutations <strong><a href="gene_set_analysis.html">Link</a></strong></p></li>
+<li><p>Copy number alteration analysis <strong><a href="cnvchange.html">Link</a></strong></p></li>
+<li><p>Correlation analysis of regulatory network expression <strong><a href="correlation_analysis.html">Link</a></strong></p></li>
+<li><p>Drug response data analysis/ Comparison of regulatory network expression between response cell lines versus non-response cell lines <strong><a href="drugresponse.html">Link</a></strong></p></li>
+<li><p>Correlation analysis of drug response data with regulatory network expression <strong><a href="drugcorr.html">Link</a></strong></p></li>
+</ul>
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
 TeX fonts only; see
