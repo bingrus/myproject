@@ -10,18 +10,21 @@ Welcome to Bingru's research journal.
 
 I conducted analysis on the Cancer cell line encyclopedia data to investigate how interuppted gene regulatory network can be used for targeting in cancer treatment
 
-*differential gene expression analysis under regulator mutations
+* Differential gene expression analysis studying the effects of regulator mutations
 **[Link](first-analysis.html)** 
 
 
-*Gene set tests under regulator mutations
+* Gene set tests studying the effects of regulator mutations
 **[Link](gene_set_analysis.html)** 
 
-# Drug response
-**[Link](drugresponse.html)**
+* Copy number alteration analysis
+**[Link](cnvchange.html)**
 
-# correlation of expression with ssgsea
+* Correlation analysis of regulatory network expression
 **[Link](correlation_analysis.html)**
 
-# correlation of drug response with ssgsea of target sets
+* Drug response data analysis/ Comparison of regulatory network expression between response cell lines versus non-response cell lines
+**[Link](drugresponse.html)**
+
+* Correlation analysis of drug response data with regulatory network expression
 **[Link](drugcorr.html)**
