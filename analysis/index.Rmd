@@ -24,7 +24,7 @@ I conducted analysis on the Cancer cell line encyclopedia data to investigate ho
 **[Link](correlation_analysis.html)**
 
 * Drug response data analysis/ Comparison of regulatory network expression between response cell lines versus non-response cell lines
-**[Link](drugresponse.html)**
+**[Link](cclecamera_new.html)**
 
 * Correlation analysis of drug response data with regulatory network expression
 **[Link](drugcorr.html)**
