@@ -1,0 +1,115 @@
+---
+title: "figures"
+author: "Bingru Sun"
+date: "2018å¹?11æœ?9æ—?"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warnings = FALSE)
+library(VennDiagram)
+```
+
+```{r load data}
+load('../data/cnv_result.Rdata')
+load('../data/regulators_5_cl_20_tar.Rdata')
+load("../data/dge.RData")
+load('../data/fry_result.Rdata')
+load( '../data/cnv_result.Rdata')
+```
+
+```{r prep}
+tovenn <- data.frame(matrix(ncol = 3, nrow = length(selected.regulator)))
+tovenn[,1] <- selected.regulator %in% regulator.selected 
+tovenn[,2] <- selected.regulator %in% regulator.dge
+tovenn[,3] <- selected.regulator %in% regulator.fry
+colnames(tovenn) <- c('CNA','regulator DEs','target set roast')
+row.names(tovenn) <- selected.regulator
+```
+
+```{r venn}
+a <- vennCounts(tovenn)
+a
+```
+```{r plot}
+vennDiagram(a)
+```
+
+```{r regulator class}
+library(data.table)
+tovenn$regulator <- selected.regulator
+regulator_tb <- data.table(tovenn)
+colnames(regulator_tb) <- c('CNA','dge','fry','regulator')
+regulator_tb_0 <- regulator_tb[cnv == 0 & dge == 0 & fry == 0]
+```
+
+```{r regulator 0}
+regulator.0 <- regulator_tb_0$regulator
+
+
+regulator.class <- fread('../data/Gene_regulators/Regulator classification.txt')
+
+regulator.class[Regulator %in% regulator.0]
+
+gene.age <- fread('../data/Gene_regulators/geneIDs_entrez_final_phylostrata_phy1_phy2_phy3_no_TCGA.txt')
+
+gene.age[GeneID %in% regulator.0]
+
+regulator.mutation <- fread('../data/Gene_regulators/Recurrent point mutations.txt')
+
+regulator.mutation[Hugo_Symbol %in% regulator.0]
+
+barplot(table(regulator.class[Regulator %in% regulator.0]$Regulator_class), main = 'Regulator class', xlab = 'class',ylab = 'number')
+
+hist(gene.age[GeneID %in% regulator.0]$Phylostrata, main = 'Regulator Phylostrata', xlab = 'phylostrata')
+```
+```{r original}
+
+regulator.class[Regulator %in% selected.regulator]
+
+gene.age[GeneID %in% selected.regulator]
+
+regulator.mutation[Hugo_Symbol %in% selected.regulator]
+
+barplot(table(regulator.class[Regulator %in% selected.regulator]$Regulator_class), main = 'Regulator class', xlab = 'class',ylab = 'number')
+
+hist(gene.age[GeneID %in% selected.regulator]$Phylostrata, main = 'Regulator Phylostrata', xlab = 'phylostrata')
+```
+```{r regulators extract}
+cnv <- selected.regulator[selected.regulator %in% regulator.selected]
+dge <- selected.regulator[selected.regulator%in% regulator.dge]
+fry <- selected.regulator[selected.regulator %in% regulator.fry]
+cnv.dge <- intersect(cnv,dge)
+fry.cnv <- intersect(cnv,fry)
+regulator.0
+dge.only <- dge[! dge %in% cnv.dge]   
+fry.only <- fry[! fry %in% fry.cnv]
+cnv.only <- cnv[! (cnv %in% fry.cnv | cnv %in% cnv.dge) ]
+```
+
+```{r}
+cnv.dge
+fry.cnv
+dge.only
+fry.only
+cnv.only
+regulator.0
+```
+```{r regulator class}
+regulator_tb$class = rep('t',length(selected.regulator))
+regulator_tb[regulator %in% cnv.dge]$class <- c('CNA,regulator DE')
+regulator_tb[regulator %in% cnv.only]$class <- c('CNA')
+regulator_tb[regulator %in% dge.only]$class <- c('regulator DE')
+regulator_tb[regulator %in% fry.only]$class <- c('target set')
+regulator_tb[regulator %in% fry.cnv]$class <-c('CNA,target set')
+regulator_tb[regulator %in% regulator.0]$class <- c('NA')
+setkey(regulator.class, Regulator)
+regulator_tb$`target class` <- regulator.class[regulator_tb$regulator]$Regulator_class
+setkey(gene.age, GeneID)
+regulator_tb$phylostrata <- gene.age[regulator_tb$regulator]$Phylostrata
+regulator_tb[order(class)]
+```
+```{r save table}
+save(regulator_tb,file = 'regulator_regulation.Rdata')
+```
+

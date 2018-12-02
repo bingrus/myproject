@@ -1,0 +1,867 @@
+---
+title: "GDSC CCLE common cell lines camera analysis"
+output:
+  html_document:
+    df_print: paged
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
+library(reshape)
+library(GEOquery)
+library(gplots)
+library(dplyr)
+library(GSVA)
+library(GSEABase)
+library(org.Hs.eg.db)
+library(annotate)
+library(GO.db)
+library(limma)
+library(reshape2)
+library(biomaRt)
+library(data.table)
+
+```
+
+```{r drugdata input 1}
+ccle.expression<-fread('../data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct',skip = 2, sep = '\t')
+ccle.expression_o <- ccle.expression
+ccle.expression <- as.data.frame(ccle.expression)
+ccle.expression <- ccle.expression[,-c(1,2)]
+ccle.anno <- ccle.expression_o[,c(1,2)]
+toremove <- which(ccle.anno$Description == '')
+ccle.anno <- ccle.anno[-toremove,]
+ccle.expression<-ccle.expression[-toremove,] ## remove genes
+
+load('../data/GDSC_CCLE_experiment_cl.Rdata')
+load('../data/regulators_5_cl_20_tar.Rdata')
+tokeep <- gdsc_ccle_exp$CCLE_NAME
+reg.9 <- selected.regulator
+
+drugdata<-read.csv('../data/CCLE/CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+drugdata.cast<-cast(drugdata,formula = CCLE.Cell.Line.Name ~ Compound, value = 'IC50..uM.')
+row.names(drugdata.cast)<-drugdata.cast$CCLE.Cell.Line.Name
+drugdata.cast$CCLE.Cell.Line.Name<-NULL
+drugdata.cast<-as.data.frame(drugdata.cast)
+
+regset <- getGmt('../data/Gene_regulators/targetset_nodup.gmt.txt')
+drug.camera<-drugdata.cast[tokeep,]
+ccle.camera<-ccle.expression[,tokeep]
+
+ccle.drug.o <- drug.camera
+ccle.tokeep <- ccle.camera
+
+
+```
+
+```{r drug}
+drug.camera[drug.camera == 8] <- 'nr'
+drug.camera[(! is.na(drug.camera)) & (drug.camera != 'nr')] <- 'r'
+ccle.drug <- drug.camera
+```
+
+
+```{r camera 0 , echo = FALSE}
+gene.ORF <- unlist(strsplit(ccle.anno$Name, "_"))
+gene.ORF <- gene.ORF[gene.ORF != 'at']
+gene.name <- ccle.anno$Description
+ids <- ids2indices(geneIds(regset),gene.name) 
+camera.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05 & r1$NGenes > 9),])}
+
+drugs <- colnames(drug.camera)
+drugs <- drugs[! drugs == 'Panobinostat']
+result.camera <- lapply(drugs,camera.drug)
+names(result.camera) <- drugs
+
+```
+
+```{r common drug a}
+drugs <- ccle.com.drug
+```
+
+
+```{r dge 0}
+dge.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+fit <- lmFit(ccle.camera[which(gene.name %in% reg.9),cl.name], cl.design)
+contrasts <- makeContrasts(response - non_response, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- ccle.anno[which(ccle.anno$Description %in% reg.9),]
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(testResults)
+}
+
+result.dge <- lapply(drugs,dge.drug)
+names(result.dge) <- drugs
+```
+
+
+```{r camera go slim 0}
+slim_terms <- getOBOCollection("../data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+ids<-ids2indices(pathways,gene.ORF)
+camera.drug.go<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+
+result.camera.goslim <- lapply(drugs,camera.drug.go)
+names(result.camera.goslim) <- drugs
+```
+
+```{r camera go h 0}
+hgset <- getGmt('../data/Gene_regulators/h.all.v6.2.symbols.gmt')
+ids <- ids2indices(geneIds(hgset),gene.name) 
+camera.drug.h<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.h <- lapply(drugs,camera.drug.h)
+names(result.camera.h) <- drugs
+```
+
+```{r camera go kegg 0}
+keggset <- getGmt('../data/Gene_regulators/c2.cp.kegg.v6.2.symbols.gmt.txt')
+ids <- ids2indices(geneIds(keggset),gene.name) 
+camera.drug.kegg<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+cl.name <- row.names(drug.camera)
+cl.name <- cl.name[!is.na(cl.drug)]
+cl.drug <- cl.drug[!is.na(cl.drug)]
+
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(ccle.camera[,cl.name]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.kegg <- lapply(drugs,camera.drug.kegg)
+names(result.camera.kegg) <- drugs
+```
+## Example mek inhibitor AZD06244
+
+### regulator target sets of differential expression by camera
+```{r azd, }
+result.camera$AZD6244
+azd.name <- row.names(result.camera$AZD6244)
+```
+
+### differential expression of significant regulators by logFC
+
+```{r azd2, }
+azd <- result.dge$AZD6244
+azd[which(azd$logFC > 1 | azd$logFC < -1),]
+```
+
+### differential expression of regulators
+
+```{r dge2, }
+azd[which(azd$genename %in% azd.name),]
+```
+
+### go slim
+```{r goslim0, }
+result.camera.goslim$AZD0530
+```
+
+### kegg slim
+```{r keggslim0, }
+result.camera.kegg$AZD0530
+```
+
+### hallmark 
+```{r h0, }
+result.camera.h$AZD0530
+```
+
+## Example mek inhibitor PD-0325901
+
+### regulator target sets of differential expression by camera
+```{r pd, }
+result.camera$`PD-0325901`
+pd.name <- row.names(result.camera$`PD-0325901`)
+```
+
+### differential expression of significant regulators by logFC
+
+```{r pd2,  }
+pd <- result.dge$`PD-0325901`
+pd[which(pd$logFC > 1 | pd$logFC < -1),]
+```
+
+### differential expression of regulators
+```{r dge3,  }
+pd[which(pd$genename %in% pd.name),]
+```
+
+### go slim
+```{r goslim, }
+pd.go <- result.camera.goslim$`PD-0325901`
+```
+
+### kegg slim
+```{r keggslim1, }
+result.camera.kegg$`PD-0325901`
+```
+
+### hallmark 
+```{r h1, }
+result.camera.h$`PD-0325901`
+```
+
+
+```{r exp input}
+gdsc.expression<-fread('../data/GDSC/sanger1018_brainarray_ensemblgene_rma.txt',sep = 'auto',check.names = FALSE,header = TRUE,blank.lines.skip=TRUE)
+gdsc.expression<-as.data.frame(gdsc.expression)
+row.names(gdsc.expression)<-gdsc.expression$ensembl_gene
+gdsc.expression$ensembl_gene<-NULL
+gdsc.exp <- gdsc.expression
+tokeep <- gdsc_ccle_exp$COSMIC_ID
+```
+
+```{r drug input}
+gdsc.drug<-read.csv("../data/GDSC/v17.3_fitted_dose_response.csv")
+gdsc.tocast<-data.frame(gdsc.drug$COSMIC_ID,gdsc.drug$DRUG_NAME,gdsc.drug$LN_IC50)
+colnames(gdsc.tocast)<-c('COSMIC_ID','drug','LN_IC50')
+gdsc.cast<-dcast(gdsc.tocast,formula = COSMIC_ID ~ drug,fun.aggregate = mean)
+row.names(gdsc.cast)<-gdsc.cast$COSMIC_ID
+gdsc.cast$COSMIC_ID<-NULL
+gdsc.cast <- exp(gdsc.cast)
+gdsc.cast_o<-gdsc.cast
+```
+
+```{r drug convert}
+gdsc.tomax<-data.frame(gdsc.drug$COSMIC_ID,gdsc.drug$DRUG_NAME,gdsc.drug$MAX_CONC_MICROMOLAR)
+colnames(gdsc.tomax)<-c('COSMIC_ID','drug','MAX_CONC_MICROMOLAR')
+gdsc.cast.max<-dcast(gdsc.tomax,formula = COSMIC_ID ~ drug,fun.aggregate = mean)
+row.names(gdsc.cast.max)<-gdsc.cast.max$COSMIC_ID
+gdsc.cast.max$COSMIC_ID <- NULL
+cl.toresponse <- matrix( nrow = nrow(gdsc.cast), ncol = 251)
+#regulator.drug.ssgsea.cor<-sapply(c(1:251),function(x){
+  for (i in c(1:251)){
+  dr <- gdsc.cast[,i]
+  names(dr) <- row.names(gdsc.cast)
+  cl.thres <- gdsc.cast.max[names(dr),i]
+  dr[dr < cl.thres] <- 'r'
+  dr[!(dr == 'NaN' | dr == 'r')] <- 'nr'
+  #dr[dr >= cl.thres] <- 'nr'
+  cl.toresponse[,i] <- dr
+  }
+cl.toresponse <- as.data.frame(cl.toresponse)
+row.names(cl.toresponse) <- row.names(gdsc.cast)
+colnames(cl.toresponse) <- colnames(gdsc.cast)
+```
+
+
+
+```{r load}
+#load('../data/GDSC/gdsc_exp_nohemo_z.Rdata')
+```
+
+
+```{r info}
+genes <- row.names(gdsc.exp)
+ensembl <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+gene_list <- getBM(filters= "ensembl_gene_id", attributes= c("ensembl_gene_id",
+"entrezgene", 'hgnc_symbol',"description"),values=genes,mart= ensembl)
+gene.name <- gene_list$hgnc_symbol
+gene.ORF <- gene_list$entrezgene
+gene.list <- gene_list$ensembl_gene_id
+```
+
+```{r pre}
+gdsc.camera<-gdsc.exp[match(gene.list,genes),tokeep]
+
+drug.camera<-cl.toresponse[tokeep,]
+
+gdsc.drug <- drug.camera
+
+drug.tokeep <- gdsc.cast_o[tokeep,]
+```
+
+
+
+```{r camera ,  }
+ids <- ids2indices(geneIds(regset),gene.name) 
+camera.drug<-function(x){
+#x <- 'Erlotinib'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(drug.camera)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05 & r1$NGenes > 9),])}
+#r1[which(r1$PValue<0.05 & r1$NGenes > 9),]
+drugs <- colnames(drug.camera)
+#drugs <- drugs[! drugs == 'Panobinostat']
+mek_in <- c('Refametinib','CI-1040','PD0325901','Selumetinib','Trametinib')
+result.camera <- lapply(mek_in,camera.drug)
+names(result.camera) <- mek_in
+#camera.drug('Erlotinib')
+```
+
+```{r, eval = FALSE}
+common.drug[common.drug %in% ccle.drug]
+common.drug[! common.drug%in% ccle.drug]
+ccle.com.drug <- common.drug
+```
+
+```{r, eval = FALSE}
+common.drug
+```
+
+```{r, eval = FALSE}
+ccle.com.drug[7] <- '17-AAG'
+ccle.com.drug[8] <- 'AZD0530'
+ccle.com.drug[9] <-  "AZD6244"
+ccle.com.drug[10] <- 'TAE684'
+ccle.com.drug[11] <- "PLX4720"
+ccle.com.drug[12] <- "Nutlin-3"  
+ccle.com.drug[13] <- "PD-0325901"
+ccle.com.drug[14] <- "PD-0332991"
+```
+
+```{r}
+ccle.com.drug
+```
+
+```{r dge}
+gdsc.expression<-fread('../data/GDSC/sanger1018_brainarray_ensemblgene_rma.txt',sep = 'auto',check.names = FALSE,header = TRUE,blank.lines.skip=TRUE)
+gdsc.expression<-as.data.frame(gdsc.expression)
+row.names(gdsc.expression)<-gdsc.expression$ensembl_gene
+gdsc.expression$ensembl_gene<-NULL
+dge.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(drug.camera)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+fit <- lmFit(gdsc.expression[which(gene.name %in% reg.9),names(cl.drug)], cl.design)
+contrasts <- makeContrasts(response - non_response, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- gene_list[which(gene.name %in% reg.9),]
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(testResults)
+}
+
+result.dge.gd <- lapply(common.drug,dge.drug)
+names(result.dge.gd) <- common.drug
+```
+
+```{r camera go slim, }
+slim_terms <- getOBOCollection("../data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+ids<-ids2indices(pathways,gene.ORF)
+camera.drug.go<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(drug.camera)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.go.gd <- lapply(common.drug,camera.drug.go)
+names(result.go.gd) <- common.drug
+
+```
+
+```{r camera go h, }
+hgset <- getGmt('../data/Gene_regulators/h.all.v6.2.symbols.gmt')
+ids <- ids2indices(geneIds(hgset),gene.name) 
+camera.drug.h<-function(x){
+#x <- 'Panobinostat'
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(drug.camera)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.h.gd <- lapply(common.drug,camera.drug.h)
+names(result.camera.h.gd) <- common.drug
+```
+
+```{r camera go kegg,  }
+keggset <- getGmt('../data/Gene_regulators/c2.cp.kegg.v6.2.symbols.gmt.txt')
+ids <- ids2indices(geneIds(keggset),gene.name) 
+camera.drug.kegg<-function(x){
+#x <- 'Panobinostat'
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(drug.camera)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.kegg.gd <- lapply(common.drug,camera.drug.kegg)
+names(result.camera.kegg.gd) <- common.drug
+```
+
+## Selumetinib (AZD6244) 
+```{r AZD,eval = false}
+result.camera$Selumetinib
+se<-result.dge.gd$Selumetinib
+se[which(se$logFC > 1 | se$logFC < -1),]
+result.camera.h.gd$Selumetinib
+result.camera.kegg.gd$Selumetinib
+result.go.gd$Selumetinib
+```
+
+## PD0325901
+```{r pf,eval=false}
+result.camera$PD0325901
+pd<-result.dge.gd$PD0325901
+pd[which(pd$logFC > 1 | pd$logFC < -1),]
+result.camera.h.gd$PD0325901
+result.camera.kegg.gd$PD0325901
+pd.go.g <- result.go.gd$PD0325901
+```
+```{r gene correlation}
+cl<-colnames(ccle.camera)
+setkey(gdsc_ccle_exp,'CCLE_NAME')
+cosmic<-gdsc_ccle_exp[cl]$COSMIC_ID
+gdsc.cosmic<-gdsc.camera[,cosmic]
+gene.name.ccle <- ccle.anno$Description
+gene.name.gdsc <- gene.name
+ccle.camera.gene <- ccle.camera[match(gene.name.gdsc,gene.name.ccle),]
+gene.corr <- c()
+row.gene <- row.names(ccle.camera.gene)
+for (i in c(1:17555)){
+if (!grepl('NA', row.gene[i]))
+{gene.corr[i]<- cor.test(as.numeric(ccle.camera.gene[i,]),as.numeric(gdsc.cosmic[i,]),method = 'pearson')$estimate}
+else(gene.corr[i]<-NA)
+}
+```
+
+
+```{r common response cell line}
+result.cor.drug <- list()
+for(i in c(1:length(common.drug))){
+
+drug.gdsc <- common.drug[i]
+drug.ccle <- ccle.com.drug[i]
+
+gdsc.r <- which(as.character(gdsc.drug[,drug.gdsc]) == 'r')
+ccle.r <- which(as.character(ccle.drug[,drug.ccle]) == 'r')
+
+ccle.com.name <- gdsc_ccle_exp$CCLE_NAME
+
+tokeep.r.g <- row.names(gdsc.drug)[gdsc.r]
+
+tokeep.r.c <- row.names(ccle.drug)[ccle.r]
+
+setkey(gdsc_ccle_exp,'COSMIC_ID')
+
+tocor.g.c <- gdsc_ccle_exp[tokeep.r.g]$CCLE_NAME
+
+comm.r.c <- intersect(tocor.g.c,tokeep.r.c)
+
+if (length(comm.r.c) >= 3){
+setkey(gdsc_ccle_exp,'CCLE_NAME')
+
+comm.r.g <-  gdsc_ccle_exp[comm.r.c]$COSMIC_ID
+
+result.cor.drug[[i]] <- cor.test(drug.tokeep[comm.r.g,drug.gdsc],ccle.drug.o[comm.r.c,drug.ccle])
+}else{result.cor.drug[[i]] <- NA}
+}
+
+names(result.cor.drug) <- common.drug
+result.cor.drug
+#}
+```
+```{r}
+i <- 13
+drug.gdsc <- common.drug[i]
+drug.ccle <- ccle.com.drug[i]
+
+gdsc.r <- which(as.character(gdsc.drug[,drug.gdsc]) == 'r')
+ccle.r <- which(as.character(ccle.drug[,drug.ccle]) == 'r')
+
+ccle.com.name <- gdsc_ccle_exp$CCLE_NAME
+
+tokeep.r.g <- row.names(gdsc.drug)[gdsc.r]
+
+tokeep.r.c <- row.names(ccle.drug)[ccle.r]
+
+setkey(gdsc_ccle_exp,'COSMIC_ID')
+
+tocor.g.c <- gdsc_ccle_exp[tokeep.r.g]$CCLE_NAME
+
+comm.r.c <- intersect(tocor.g.c,tokeep.r.c)
+
+setkey(gdsc_ccle_exp,'CCLE_NAME')
+
+comm.r.g <-  gdsc_ccle_exp[comm.r.c]$COSMIC_ID
+
+pd.skin <- comm.r.c[grep('SKIN',comm.r.c)]
+```
+
+```{r}
+
+i <- 9
+drug.gdsc <- common.drug[i]
+drug.ccle <- ccle.com.drug[i]
+
+gdsc.r <- which(as.character(gdsc.drug[,drug.gdsc]) == 'r')
+ccle.r <- which(as.character(ccle.drug[,drug.ccle]) == 'r')
+
+ccle.com.name <- gdsc_ccle_exp$CCLE_NAME
+
+tokeep.r.g <- row.names(gdsc.drug)[gdsc.r]
+
+tokeep.r.c <- row.names(ccle.drug)[ccle.r]
+
+setkey(gdsc_ccle_exp,'COSMIC_ID')
+
+tocor.g.c <- gdsc_ccle_exp[tokeep.r.g]$CCLE_NAME
+
+comm.r.c <- intersect(tocor.g.c,tokeep.r.c)
+
+setkey(gdsc_ccle_exp,'CCLE_NAME')
+
+comm.r.g <-  gdsc_ccle_exp[comm.r.c]$COSMIC_ID
+
+azd.skin <- comm.r.c[grep('SKIN',comm.r.c)]
+
+```
+
+
+
+
+
+```{r azd lung cell line}
+cl.name<-row.names(ccle.drug)
+gdsc.azd <- gdsc.drug$Selumetinib
+gdsc.cos <- row.names(gdsc.drug) 
+
+names(gdsc.azd) <- cl.name
+
+gdsc.response <- cl.name[gdsc.azd == 'r']
+ccle.azd <- ccle.drug$AZD6244
+ccle.response <- cl.name[ccle.azd == 'r']
+common.azd.r <- intersect(gdsc.response,ccle.response)
+gdsc.nr <- cl.name[gdsc.azd == 'nr'] 
+ccle.nr <- cl.name[ccle.azd == 'nr']
+common.azd.nr <- intersect(gdsc.nr,ccle.nr)
+common.azd.nr.lung <- common.azd.nr[grep('LUNG',common.azd.nr)]
+common.azd.r.lung <- common.azd.r[grep('LUNG',common.azd.r)]
+lung.common.cl <- c(common.azd.r.lung,common.azd.nr.lung)
+save(lung.common.cl,file = '../data/lung_common_cl.Rdata')
+```
+```{r pd lung cell line}
+gdsc.pd <- gdsc.drug$PD0325901
+gdsc.response <- cl.name[gdsc.pd == 'r']
+ccle.pd <- ccle.drug$`PD-0325901`
+ccle.response <- cl.name[ccle.pd == 'r']
+common.pd.r <- intersect(gdsc.response,ccle.response)
+gdsc.nr <- cl.name[gdsc.pd == 'nr'] 
+ccle.nr <- cl.name[ccle.pd == 'nr']
+common.pd.nr <- intersect(gdsc.nr,ccle.nr)
+common.pd.nr.lung <- common.pd.nr[grep('LUNG',common.pd.nr)]
+common.pd.r.lung <- common.pd.r[grep('LUNG',common.pd.r)]
+lung.common.cl <- c(common.pd.r.lung,common.pd.nr.lung)
+save(lung.common.cl,file = '../data/lung_common_cl_pd.Rdata')
+```
+
+```{r skin cell line}
+common.azd.nr.skin <- common.azd.nr[grep('SKIN',common.azd.nr)]
+common.azd.r.skin <- common.azd.r[grep('SKIN',common.azd.r)]
+skin.common.cl <- c(common.azd.r.skin,common.azd.nr.skin)
+skin.cl <- cl.name[grep('SKIN',cl.name)]
+gdsc.skin.azd <- gdsc.azd[skin.cl]
+gdsc.skin.azd[ !  skin.cl  %in% skin.common.cl]
+```
+
+### common respnse drug correlation (needs revision)
+```{r common un response cell line}
+cl.com.ccle<-temp.ccle[gdsc.drug$Selumetinib[which(gdsc.drug$Selumetinib == ccle.drug$AZD6244)] == 'nr']
+ccle.azd <- ccle.drug.o[cl.com.ccle,'AZD6244']
+names(ccle.azd) <- cl.com.ccle
+ccle.azd.ordered <- ccle.azd[order(ccle.azd)]
+
+setkey(gdsc_ccle_exp,'CCLE_NAME')
+ccle.azd.tb<-gdsc_ccle_exp[names(ccle.azd.ordered)]
+ccle.azd.tb$dr <- ccle.azd.ordered
+ccle.azd.tb
+
+temp.gdsc <-row.names(gdsc.drug)[which(gdsc.drug$Selumetinib == ccle.drug$AZD6244)] 
+cl.com.gdsc <- temp.gdsc[gdsc.drug$Selumetinib[which(gdsc.drug$Selumetinib == ccle.drug$AZD6244)] == 'nr']
+gdsc.azd <- drug.tokeep[cl.com.gdsc,'Selumetinib']
+names(gdsc.azd) <- cl.com.gdsc
+
+gdsc.azd.ordered <- gdsc.azd[order(gdsc.azd)]
+
+setkey(gdsc_ccle_exp,'COSMIC_ID')
+gdsc.azd.tb<-gdsc_ccle_exp[names(gdsc.azd.ordered)]
+gdsc.azd.tb$dr <- gdsc.azd.ordered
+gdsc.azd.tb
+```
+
+
+
+```{r azd cor}
+cor.test(ccle.azd,gdsc.azd,method = 'spearman')
+```
+```{r pd com}
+temp.ccle <-row.names(ccle.drug)[which(gdsc.drug$PD0325901 == ccle.drug$`PD-0325901`)]
+pd <- temp.ccle[gdsc.drug$PD0325901[which(gdsc.drug$PD0325901 == ccle.drug$`PD-0325901`)] == 'nr']
+cl.com.ccle<-temp.ccle[gdsc.drug$PD0325901[which(gdsc.drug$PD0325901 == ccle.drug$`PD-0325901`)] == 'r']
+ccle.pd <- ccle.drug.o[cl.com.ccle,'PD-0325901']
+
+names(ccle.pd) <- cl.com.ccle
+ccle.pd.ordered <- ccle.pd[order(ccle.pd)]
+
+setkey(gdsc_ccle_exp,'CCLE_NAME')
+ccle.pd.tb<-gdsc_ccle_exp[names(ccle.pd.ordered)]
+ccle.pd.tb$dr <- ccle.pd.ordered
+ccle.pd.tb
+
+
+temp.gdsc <-row.names(gdsc.drug)[which(gdsc.drug$PD0325901 == ccle.drug$`PD-0325901`)]
+cl.com.gdsc <- temp.gdsc[gdsc.drug$PD0325901[which(gdsc.drug$PD0325901 == ccle.drug$`PD-0325901`)] == 'r']
+gdsc.pd <- drug.tokeep[cl.com.gdsc,'PD0325901']
+
+names(gdsc.pd) <- cl.com.gdsc
+
+gdsc.pd.ordered <- gdsc.pd[order(gdsc.pd)]
+
+setkey(gdsc_ccle_exp,'COSMIC_ID')
+gdsc.pd.tb<-gdsc_ccle_exp[names(gdsc.pd.ordered)]
+gdsc.pd.tb$dr <- gdsc.pd.ordered
+gdsc.pd.tb
+
+
+
+```
+```{r pd cor}
+cor.test(ccle.pd,gdsc.pd,method = 'spearman')
+```
+
+### common non-response drug
+```{r coss}
+pd
+```
+
+
+### SLCO1B3 expression correlation
+
+```{r response cl}
+
+slco.cl <- gdsc_ccle_exp$CCLE_NAME
+slco.cos <- gdsc_ccle_exp$COSMIC_ID
+slco.doc <- gdsc.drug[slco.cos,'Docetaxel']
+names(slco.doc) <- slco.cl
+
+dc.r.name<-slco.cos[which(slco.doc == 'r')]
+
+dc.drug<-drug.tokeep[dc.r.name,'Docetaxel']
+
+
+gc.ccle.exp <- ccle.expression[which(ccle.anno$Description == 'SLCO1B3'),slco.cl[which(slco.doc == 'r')]]
+
+cor.test(dc.drug,as.numeric(gc.ccle.exp[1,]),method = 'spearman')
+dc.drug
+as.numeric(gc.ccle.exp[1,])
+```
+
+```{r response cl prostate}
+pro <- gdsc_ccle_exp[Site == 'prostate']
+pro.cl <- pro$CCLE_NAME
+pro.cos <- pro$COSMIC_ID
+pro.doc <- gdsc.drug[pro.cos,'Docetaxel']
+names(pro.doc) <- pro.cl
+
+dc.r.name<-pro.cos[which(pro.doc == 'r')]
+
+dc.drug<-drug.tokeep[dc.r.name,'Docetaxel']
+
+
+gc.ccle.exp <- ccle.expression[which(ccle.anno$Description == 'SLCO1B3'),pro.cl[which(pro.doc == 'r')]]
+
+cor.test(dc.drug,as.numeric(gc.ccle.exp[1,]),method = 'spearman')
+dc.drug
+as.numeric(gc.ccle.exp[1,])
+```
+
+
+
+```{r slco}
+slco.exp<-ccle.tokeep[which(ccle.anno$Description == 'SLCO1B3'),]
+doc.exp <- drug.tokeep[,'Docetaxel']
+cor.test(as.numeric(doc.exp),as.numeric(slco.exp),method = 'spearman')
+as.numeric(doc.exp)
+as.numeric(slco.exp)
+```
+
+
+

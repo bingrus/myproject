@@ -1,0 +1,183 @@
+---
+title: "ssgsea"
+author: "Bingru Sun"
+date: "13/07/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
+library(data.table)
+library(GSVA)
+library(GSEABase)
+```
+
+##  ssgsea for regulatory network
+
+```{r data input}
+load('../data/selected_cl.Rdata')
+load('../data/regulators_5_cl_20_tar.Rdata')
+ccle.expression<-fread('../data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct',skip = 2, sep = '\t')
+ccle.expression_o <- ccle.expression
+ccle.expression <- as.data.frame(ccle.expression)
+ccle.expression <- ccle.expression[,-c(1,2)]
+ccle.anno <- ccle.expression_o[,c(1,2)]
+toremove <- which(ccle.anno$Description == '')
+ccle.anno <- ccle.anno[-toremove,]
+ccle.expression<-ccle.expression[-toremove,]
+#gene.exp.nohemo.z <- apply(ccle.expression,2,scale)
+#colnames(gene.exp.nohemo.z) <- colnames(ccle.expression)
+#save(gene.exp.nohemo.z,file = '../data/CCLE/geneexpression_zscore_new.Rdata' )
+#write.csv(gene.exp.nohemo.z,file = '../data/CCLE/geneexpression_zscore_new.csv')
+```
+
+```{r sample info}
+sample.info<-fread('../data/CCLE/CCLE_sample_info_file_2012-10-18.txt', sep = '\t')
+sample.info <- as.data.frame(sample.info)
+cl.pos<-match(colnames(ccle.expression),sample.info$`CCLE name`)
+cl.info <- sample.info[cl.pos,]
+```
+
+```{r sample}
+cl.toremove <- which(cl.info$`Site Primary` == 'haematopoietic_and_lymphoid_tissue')
+gene.exp.z<-read.csv('../data/CCLE/geneexpression_zscore_new.csv',row.names = 1)
+```
+
+```{r ssgsea,eval = FALSE}
+# create gmt for ssgsea
+#target.list<-list()
+#targets<-colnames(reg_m_n)
+#for (i in (1:nrow(reg_m_n))){
+#  target.list[[i]]<-targets[which(as.logical(reg_m_n[i,]))]
+#}
+#names(target.list)<-rownames(reg_m_n)
+#lapply(target.list, function(x) write.table(t(as.data.frame(x)), 'test.tsv'  , append= T, sep='\t' ))
+#library(stringi)
+#res <- as.data.frame(t(stri_list2matrix(target.list)))
+#colnames(res) <- unique(unlist(sapply(target.list, names)))
+#row.names(res)<-regulator
+
+#gene.exp.z<-read.csv('./data/CCLE/geneexpression_zscore_new.csv',row.names = 1)
+#load('../data/CCLE/geneexpression_zscore_new.Rdata' )
+regset <- getGmt('../data/Gene_regulators/targetset_nodup_entrez.gmt.txt')
+anno <- ccle.anno
+anno.ORF <- anno$Name
+anno.ORF <- sapply(anno.ORF,function(x){return(unlist(strsplit(x,split = '_',fixed = TRUE))[1])})
+rownames(gene.exp.z)<-anno.ORF
+regsva<-gsva(data.matrix(gene.exp.z[,cl.tokeep]),regset,method=c('ssgsea'))
+save(regsva,file ='../data/ccle_regsva_regulator.Rdata')
+```
+
+```{r goslim}
+library(org.Hs.eg.db)
+library(GO.db)
+slim_terms <- getOBOCollection("./data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+gogsva<-gsva(data.matrix(gene.exp.z),pathways,method=c('ssgsea'))
+#write.csv(gogsva,file = '/Users/ll/Desktop/work/data/CCLE/goslim_ssgsea.csv')
+```
+
+## ssgease for goslim for 1037 cell lines
+
+```{r plot}
+g<-as.data.frame(gogsva)
+d<-t(g)
+d_means<-colMeans(d)
+pdf('../output/goslim_ssgsea.pdf')
+par(mar=c(12,4,1,1),las=3)
+boxplot(d[, order(d_means)], horizontal = FALSE, outline = FALSE,cex.axis=0.5,title='goslim ssgsea boxplot 1037 cell lines') 
+title(main='CCLE goslim ssgsea boxplot 1037 cell lines')
+dev.off()
+```
+
+## ssgsea for goslim for 857 cell lines without hematopoetic 
+
+```{r plot2}
+#gogsva<-gsva(data.matrix(gene.exp.z[,-cl.toremove]),pathways,method=c('ssgsea'))
+
+g<-as.data.frame(gogsva)
+d<-t(g)
+d_means<-colMeans(d)
+#pdf('../output/goslim_ssgsea_nohemo.pdf')
+par(mar=c(12,4,1,1),las=3)
+boxplot(d[, order(d_means)], horizontal = FALSE, outline = FALSE,cex.axis=0.5,title='goslim ssgsea boxplot') 
+title(main='CCLE goslim ssgsea boxplot for cancer cell lines ')
+#dev.off()
+```
+
+```{r new plot}
+
+```
+
+
+
+
+```{r lrrk2,eval=FALSE}
+lrrk2.cl<-cl['LRRK2',]
+lrrk2.score<-regsva['LRRK2',]
+lrrk2.cl[which(lrrk2.cl == 'TRUE')]<-'mutate'
+lrrk2.cl[which(lrrk2.cl == 'FALSE')]<-'notmutate'
+lrrk2<-data.frame(lrrk2.score,lrrk2.cl)
+colnames(lrrk2)<-c('score','mutate')
+library(ggplot2)
+Scatterplot<-ggplot(lrrk2,aes(mutate,score,color = mutate))+geom_point(position = 'jitter')+scale_colour_manual(values = c('darkorange','darkorchid4'))
+Scatterplot+geom_boxplot(alpha = 0,colour = 'black')
+```
+```{r function,eval = FALSE}
+plotgene<-function(x){
+gene.cl<-cl[x,]
+gene.score<-regsva[x,]
+gene.cl[which(gene.cl == 'TRUE')]<-'mutate'
+gene.cl[which(gene.cl == 'FALSE')]<-'notmutate'
+gene.df<-data.frame(gene.score,gene.cl)
+colnames(gene.df)<-c('score','condition')
+library(ggplot2)
+Scatterplot<-ggplot(gene.df,aes(condition,score,color = condition))+geom_point(position = 'jitter')+scale_colour_manual(values = c('darkorange','darkorchid4'))
+return(Scatterplot+geom_boxplot(alpha = 0,colour = 'black'))}
+```
+
+
+```{r plots,eval = FALSE}
+plotgene('MTOR')
+```
+```{r violin,eval = FALSE}
+plotgene.violin<-function(x){
+gene.cl<-cl[x,]
+gene.score<-regsva[x,]
+gene.cl[which(gene.cl == 'TRUE')]<-'mutate'
+gene.cl[which(gene.cl == 'FALSE')]<-'notmutate'
+gene.df<-data.frame(gene.score,gene.cl)
+colnames(gene.df)<-c('score','condition')
+library(ggplot2)
+Violinplot<-ggplot(gene.df,aes(condition,score,fill = condition))+geom_violin()+geom_errorbar(stat= "hline", yintercept="median", width=0.9, aes(ymax=..y.., ymin=..y..), size=1,colour="black")
+return(Violinplot+scale_fill_manual(values=c("sienna1", "aquamarine3")))}
+```
+```{r violinplot,eval = FALSE}
+plotgene.violin('MTOR')
+```
+
+```{r goslim}
+library(org.Hs.eg.db)
+library(GO.db)
+slim_terms <- getOBOCollection("../data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+gogsva<-gsva(data.matrix(gene.exp.z[,cl.tokeep]),pathways,method=c('ssgsea'))
+save(gogsva,file = '../data/gosva.Rdata')
+#write.csv(gogsva,file = '/Users/ll/Desktop/work/data/CCLE/goslim_ssgsea.csv')
+```

@@ -1,0 +1,292 @@
+---
+title: "convert gdsc to ccle name"
+output: html_notebook
+---
+```{r}
+library(reshape2)
+library(dplyr)
+setwd('~/git/myproject')
+```
+
+```{r gdsc1}
+gdsc.drug<-read.csv("../data/GDSC/v17.3_fitted_dose_response.csv")
+gdsc.tocast<-data.frame(gdsc.drug$CELL_LINE_NAME,gdsc.drug$DRUG_NAME,gdsc.drug$LN_IC50)
+colnames(gdsc.tocast)<-c('cell_line','drug','LN_IC50')
+gdsc.cast<-dcast(gdsc.tocast,formula = cell_line ~ drug,fun.aggregate = mean)
+row.names(gdsc.cast)<-gdsc.cast$cell_line
+gdsc.cast$cell_line<-NULL
+gdsc.cast<-as.data.frame(gdsc.cast)
+gdsc.cast.t<-t(gdsc.cast)
+```
+
+```{r gdsc2}
+gdsc.cast.t_o <- gdsc.cast.t
+gdsc.cl<-colnames(gdsc.cast.t)
+sample.info<-fread('../data/CCLE/CCLE_sample_info_file_2012-10-18.txt', sep = '\t')
+sample.title<-sample.info$`Cell line primary name`
+```
+
+```{r gdsc3}
+gdsc.ccle.common.cl<-gdsc.cl[gdsc.cl %in% sample.title]
+gdsc.cl[which(gdsc.cl == '22RV1')]<-'22Rv1'
+gdsc.cl[which(gdsc.cl == '23132-87')]<-'23132/87'
+gdsc.cl[which(gdsc.cl == '786-o')]<-'786-O'
+gdsc.cl[which(gdsc.cl == 'A204')]<-'A-204'
+gdsc.cl[which(gdsc.cl == 'A253')]<-'A-253'
+gdsc.cl[which(gdsc.cl == 'A3-KAW')]<-'A3/KAW'
+gdsc.cl[which(gdsc.cl == 'A375')]<-'A-375'
+gdsc.cl[which(gdsc.cl == 'A498')]<-'A-498'
+gdsc.cl[which(gdsc.cl == 'A4-Fuk')]<-'A4/Fuk'
+gdsc.cl[which(gdsc.cl == 'A673')]<-'A-673'
+gdsc.cl[which(gdsc.cl == 'A704')]<-'A-704'
+gdsc.cl[which(gdsc.cl == 'AN3-CA')]<-'AN3 CA'
+gdsc.cl[which(gdsc.cl == 'BCPAP')]<-'B-CPAP'
+gdsc.cl[which(gdsc.cl == 'BICR22')]<-'BICR 22'
+gdsc.cl[which(gdsc.cl == 'BICR31')]<-'BICR 31'
+gdsc.cl[which(gdsc.cl == 'CAKI-1')]<-'Caki-1'
+gdsc.cl[which(gdsc.cl == 'CAL-27')]<-'CAL 27'
+gdsc.cl[which(gdsc.cl == 'CAPAN-1')]<-'Capan-1'
+gdsc.cl[which(gdsc.cl == 'COLO-205')]<-'COLO 205'
+gdsc.cl[which(gdsc.cl == 'COLO-668')]<-'COLO 668'
+gdsc.cl[which(gdsc.cl == 'COLO-741')]<-'COLO 741'
+gdsc.cl[which(gdsc.cl == 'COLO-792')]<-'COLO 792'
+gdsc.cl[which(gdsc.cl == 'COLO-829')]<-'COLO 829'
+gdsc.cl[which(gdsc.cl == 'D-283MED')]<-'D283 Med'
+gdsc.cl[which(gdsc.cl == 'Detroit562')]<-'Detroit 562'
+gdsc.cl[which(gdsc.cl == 'DMS-114')]<-'DMS 114'
+gdsc.cl[which(gdsc.cl == 'DMS-153')]<-'DMS 153'
+gdsc.cl[which(gdsc.cl == 'DMS-273')]<-'DMS 273'
+gdsc.cl[which(gdsc.cl == 'DMS-53')]<-'DMS 53'
+gdsc.cl[which(gdsc.cl == 'DMS-79')]<-'DMS 79'
+gdsc.cl[which(gdsc.cl == 'DU-145')]<-'DU 145'
+gdsc.cl[which(gdsc.cl == 'DU-4475')]<-'DU4475'
+gdsc.cl[which(gdsc.cl == "FADU")]<-'FaDu'
+gdsc.cl[which(gdsc.cl == "G-292-Clone-A141B1")]<-"G-292, clone A141B1"
+gdsc.cl[which(gdsc.cl == "HCC-827")]<-"HCC827"
+gdsc.cl[which(gdsc.cl == "HCT-116")]<-"HCT 116"
+gdsc.cl[which(gdsc.cl == "Hep3B2-1-7")]<-"Hep 3B2.1-7"
+gdsc.cl[which(gdsc.cl == "Hs-578-T")]<-"Hs 578T"
+gdsc.cl[which(gdsc.cl == "Hs-683")]<-"Hs 683"
+gdsc.cl[which(gdsc.cl == "Hs-766T")]<-"Hs 766T"
+gdsc.cl[which(gdsc.cl == "Hs-939-T")]<-"Hs 939.T"
+gdsc.cl[which(gdsc.cl == "Hs-940-T")]<-"Hs 940.T"
+gdsc.cl[which(gdsc.cl == "Hs746T")]<-"Hs 746T"
+gdsc.cl[which(gdsc.cl == "HT-115")]<-"HT115"
+gdsc.cl[which(gdsc.cl == "HuP-T3")]<-"HUP-T3"
+gdsc.cl[which(gdsc.cl == "HuP-T4")]<-"HUP-T4"
+gdsc.cl[which(gdsc.cl == "HuTu-80")]<-"HuTu 80"
+gdsc.cl[which(gdsc.cl == "IM-95")]<-"IM95"
+gdsc.cl[which(gdsc.cl == "Ishikawa(Heraklio)02ER-")]<-"Ishikawa (Heraklio) 02 ER-"
+gdsc.cl[which(gdsc.cl == "JEKO-1")]<-"JeKo-1"
+gdsc.cl[which(gdsc.cl == "Jurkat")]<-"JURKAT"
+gdsc.cl[which(gdsc.cl == "KATOIII")]<-"KATO III"
+gdsc.cl[which(gdsc.cl == "KP-4")]<-"KP4"
+gdsc.cl[which(gdsc.cl == "LNCaP-Clone-FGC")]<-"LNCaP clone FGC"
+gdsc.cl[which(gdsc.cl == "LOUCY")]<-"Loucy"
+gdsc.cl[which(gdsc.cl == "LOXIMVI")]<-"LOX IMVI"
+gdsc.cl[which(gdsc.cl == "LS-1034")]<-"LS1034"
+gdsc.cl[which(gdsc.cl == "LS-123")]<-"LS123"
+gdsc.cl[which(gdsc.cl == "LS-180")]<-"LS 180"
+gdsc.cl[which(gdsc.cl == "LS-411N")]<-"LS411N"
+gdsc.cl[which(gdsc.cl == "LS-513")]<-"LS513"
+gdsc.cl[which(gdsc.cl == "LU-65")]<-"LU65"
+gdsc.cl[which(gdsc.cl == "Mewo")]<-"MeWo"
+gdsc.cl[which(gdsc.cl == "MIA-PaCa-2")]<-"MIA PaCa-2"
+gdsc.cl[which(gdsc.cl == "MKN45")]<-"MKN-45"
+gdsc.cl[which(gdsc.cl == "MM1S")]<-"MM1-S"
+gdsc.cl[which(gdsc.cl == "MPP-89")]<-"MPP 89"
+gdsc.cl[which(gdsc.cl == "NB1")]<-"NB-1"
+gdsc.cl[which(gdsc.cl == "NB4")]<-"NB-4"
+gdsc.cl[which(gdsc.cl == "OAW-28")]<-"OAW28"
+gdsc.cl[which(gdsc.cl == "OAW-42")]<-"OAW42"
+gdsc.cl[which(gdsc.cl == "OC-314")]<-"OC 314"
+gdsc.cl[which(gdsc.cl == "OV-7")]<-"OV7"
+gdsc.cl[which(gdsc.cl == "OVK-18")]<-"OVK18"
+gdsc.cl[which(gdsc.cl == "P31-FUJ")]<-"P31/FUJ"
+gdsc.cl[which(gdsc.cl == "PANC-02-03")]<-"Panc 02.03"
+gdsc.cl[which(gdsc.cl == "PANC-03-27")]<-"Panc 03.27"
+gdsc.cl[which(gdsc.cl == "PANC-04-03")]<-"Panc 04.03"
+gdsc.cl[which(gdsc.cl == "PANC-08-13")]<-"Panc 08.13"
+gdsc.cl[which(gdsc.cl == "PANC-10-05")]<-"Panc 10.05"
+gdsc.cl[which(gdsc.cl == "PE-CA-PJ15")]<-"PE/CA-PJ15"
+gdsc.cl[which(gdsc.cl == "PLC-PRF-5")]<-"PLC/PRF/5"
+gdsc.cl[which(gdsc.cl == "REH")]<-"Reh"
+gdsc.cl[which(gdsc.cl == "RPMI-6666")]<-"RPMI 6666"
+gdsc.cl[which(gdsc.cl == "RPMI-8226")]<-"RPMI 8226"
+gdsc.cl[which(gdsc.cl == "RS4-11")]<-"RS4;11"
+gdsc.cl[which(gdsc.cl == "Set2")]<-"Set-2"
+gdsc.cl[which(gdsc.cl == "SF295")]<-"SF-295"
+gdsc.cl[which(gdsc.cl == "SU8686")]<-"SU.86.86"
+gdsc.cl[which(gdsc.cl == "SW1088")]<-"SW 1088"
+gdsc.cl[which(gdsc.cl == "SW1710")]<-"SW-1710"
+gdsc.cl[which(gdsc.cl == "SW1783")]<-"SW 1783"
+gdsc.cl[which(gdsc.cl == "SW1990")]<-"SW 1990"
+gdsc.cl[which(gdsc.cl == "SW780")]<-"SW 780"
+gdsc.cl[which(gdsc.cl == "SW900")]<-"SW 900"
+gdsc.cl[which(gdsc.cl == "T-24")]<-"T24"
+gdsc.cl[which(gdsc.cl == "T47D")]<-"T-47D"
+gdsc.cl[which(gdsc.cl == "TE-441-T")]<-"TE 441.T"
+gdsc.cl[which(gdsc.cl == "U-2-OS")]<-"U-2 OS"
+gdsc.cl[which(gdsc.cl == "U-87-MG")]<-"U-87 MG"
+gdsc.cl[which(gdsc.cl == "VM-CUB-1")]<-"VM-CUB1"
+gdsc.cl[which(gdsc.cl == "YKG-1")]<-"YKG1"
+gdsc.cl[which(gdsc.cl == "786-0")]<-"786-O"
+gdsc.cl[which(gdsc.cl == "COLO-320-HSR")]<-"COLO-320"
+gdsc.cl[which(gdsc.cl == "COLO-684")]<-"COLO 684"
+gdsc.cl[which(gdsc.cl == "IGROV-1")]<-"IGROV1"
+gdsc.cl[which(gdsc.cl == "OV-56")]<-"OV56"
+gdsc.cl[which(gdsc.cl == "KMH-2")]<-"KM-H2"
+gdsc.cl[which(gdsc.cl == "SR")]<-"SR-786"
+gdsc.cl[which(gdsc.cl == "SW1271")]<-"SW 1271"
+gdsc.cl[which(gdsc.cl == "SW1573")]<-"SW 1573"
+gdsc.cl[which(gdsc.cl == "U-118-MG")]<-"U-118 MG"
+gdsc.cl[which(gdsc.cl == "U-266")]<-"U266B1"
+gdsc.ccle.uncommon.cl<-gdsc.cl[!gdsc.cl %in% sample.title]
+gdsc.ccle.common.cl<-gdsc.cl[gdsc.cl %in% sample.title]
+```
+
+```{r convert}
+gene.convert <- read.csv('../data/GDSC/gdsc_convert.csv')
+gene.convert.2<-cbind(as.character(gene.convert$GDSC1000.convert),as.character(gene.convert$CCLE.name))
+colnames(gene.convert.2)<-c('GDCS','CCLE')
+gene.convert.2 <- as.data.frame(gene.convert.2)
+gene.convert.sub<-subset(gene.convert.2,CCLE != 'N/A')
+cl.names<-read.csv('../data/CCLE/CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+cl.convert<-as.data.frame(cbind(as.character(cl.names[,1]),as.character(cl.names[,2])))
+cl.convert.2<-distinct(cl.convert)
+colnames(cl.convert.2)<-c('CCLE','CCLE.short')
+cl.convert.ccle<-cl.convert.2[match(gene.convert.sub$CCLE,cl.convert.2$CCLE),2]
+gene.convert.sub.c<-cbind(gene.convert.sub,cl.convert.ccle)
+colnames(gene.convert.sub.c)<-c('GDSC','CCLE','CCLE_short')
+gene.convert.sub.1<-gene.convert.sub.c[complete.cases(gene.convert.sub.c),]
+gdsc.match<-match(gene.convert.sub.1[,1],gdsc.cl)
+gdsc.match<-gdsc.match[!is.na(gdsc.match)]
+gdsc.toconvert<-gdsc.cl[gdsc.match]
+gene.tochange<-as.character(gene.convert.sub.1[match(gdsc.toconvert,gene.convert.sub.1[,1]),3])
+gdsc.cl[gdsc.match]<-gene.tochange
+gdsc.ccle.uncommon.cl<-gdsc.cl[!gdsc.cl %in% sample.title]
+gdsc.ccle.common.cl<-gdsc.cl[gdsc.cl %in% sample.title]
+colnames(gdsc.cast.t)<-gdsc.cl
+
+
+gdsc.info <- fread('~/git/myproject/data/GDSC/COSMIC tissue classification-Table 1.csv')
+gdsc.info <- gdsc.info[, COSMIC_ID :=as.character(COSMIC_ID)]
+setkey(gdsc.info,'Line')
+gdsc.cl_o <- colnames(gdsc.cast.t_o) ## gdsc cell line names
+gdsc.ccle.common.cl.1<-gdsc.cl_o[gdsc.cl %in% sample.title]
+gdsc.common<-gdsc.info[gdsc.ccle.common.cl.1] ## extract only the cell lines with line keys
+# gdsc.ccle.common.cl is the common ccle cell line names
+
+
+gdsc.common[is.na(gdsc.common$COSMIC_ID),]
+gdsc.common.name<-gdsc.common$Line
+gdsc.common.name[is.na(gdsc.common$COSMIC_ID)]
+gdsc.common[which(gdsc.common$Line == 'G-292-Clone-A141B1'),'Line'] <- "G-292_Clone_A141B1"
+gdsc.common[which(gdsc.common$Line == 'Hs-683'),'Line'] <- "Hs683"
+gdsc.common[which(gdsc.common$Line == 'Hs-766T'),'Line'] <- "Hs766T"
+gdsc.common[which(gdsc.common$Line == 'Hs-939-T'),'Line'] <- "Hs939-T"
+gdsc.common[which(gdsc.common$Line == 'Hs-940-T'),'Line'] <- "Hs940-T"
+gdsc.common[which(gdsc.common$Line == 'PE-CA-PJ15'),'Line'] <- "PE/CA-PJ15"
+gdsc.ccle.common.cl.2 <- gdsc.common$Line # converted cell lines to find cosmic id this is gdsc cell line names
+gdsc.common.2 <- gdsc.info[gdsc.ccle.common.cl.2]
+gdsc.common.cosmic<-gdsc.common.2$COSMIC_ID
+
+gdsc.common.2$CCLE_ID <- gdsc.ccle.common.cl
+setkey(sample.info,'Cell line primary name')
+gdsc.common.2$CCLE_NAME <- sample.info[gdsc.ccle.common.cl]$`CCLE name`
+#save(gdsc.common.2,file = '../data/GDSC_CCLE_mutual.Rdata')
+#load('../data/GDSC_CCLE_mutual.Rdata')
+gdsc_ccle_common <- gdsc.common.2[!is.na(gdsc.common.2$COSMIC_ID)]
+save(gdsc_ccle_common ,file = '../data/GDSC_CCLE_mutual.Rdata')
+```
+
+```{r}
+ccle.expression<-fread('../data/CCLE/CCLE_Expression_Entrez_2012-09-29.gct',skip = 2, sep = '\t')
+ccle.expression_o <- ccle.expression
+ccle.expression <- as.data.frame(ccle.expression)
+ccle.expression <- ccle.expression[,-c(1,2)]
+ccle.anno <- ccle.expression_o[,c(1,2)]
+toremove <- which(ccle.anno$Description == '')
+ccle.anno <- ccle.anno[-toremove,]
+ccle.expression<-ccle.expression[-toremove,] ## remove genes
+
+load('../data/GDSC_CCLE_mutual.Rdata')
+tokeep <- gdsc_ccle_common$CCLE_NAME
+
+sample.info<-fread('../data/CCLE/CCLE_sample_info_file_2012-10-18.txt', sep = '\t')
+cl.pos<-match(colnames(ccle.expression),sample.info$`CCLE name`)
+cl.info <- sample.info[cl.pos,]
+
+cl.toremove <- which(cl.info$`Site Primary` == 'haematopoietic_and_lymphoid_tissue')
+cl.info <- cl.info[-cl.toremove,]
+ccle.exp <- ccle.expression[,-cl.toremove]
+ccle.exp<-ccle.exp[,intersect(tokeep,colnames(ccle.exp))]
+
+drugdata<-read.csv('../data/CCLE/CCLE_NP24.2009_Drug_data_2015.02.24.csv')
+drugdata.cast<-cast(drugdata,formula = CCLE.Cell.Line.Name ~ Compound, value = 'IC50..uM.')
+row.names(drugdata.cast)<-drugdata.cast$CCLE.Cell.Line.Name
+drugdata.cast$CCLE.Cell.Line.Name<-NULL
+drugdata.cast<-as.data.frame(drugdata.cast)
+
+drug.cl<-row.names(drugdata.cast)
+drug.pos<-match(drug.cl,colnames(ccle.exp))
+drug.toremove <- which(is.na(drug.pos))
+drug.camera<-drugdata.cast[-drug.toremove,]
+ccle.camera<-ccle.exp[,row.names(drug.camera)]
+
+cl.new <- colnames(ccle.camera)
+
+
+gdsc.expression<-fread('../data/GDSC/sanger1018_brainarray_ensemblgene_rma.txt',sep = 'auto',check.names = FALSE,header = TRUE,blank.lines.skip=TRUE)
+gdsc.expression<-as.data.frame(gdsc.expression)
+row.names(gdsc.expression)<-gdsc.expression$ensembl_gene
+gdsc.expression$ensembl_gene<-NULL
+
+
+cl.name <- colnames(ccle.camera)
+setkey(gdsc_ccle_common,CCLE_NAME)
+
+cl.cosmic <- gdsc_ccle_common[cl.name]$COSMIC_ID 
+
+cl <- intersect(cl.cosmic,colnames(gdsc.expression))
+
+gdsc.expression<-gdsc.expression[,cl]
+
+gdsc_cl <- read.csv('../data/GDSC/Cell line details.csv')
+gdsc.cl.dr <- gdsc_cl[which(gdsc_cl$Drug.Response == 'Y'),]
+gdsc.cl <- as.character(gdsc.cl.dr$COSMIC.identifier)
+
+gdsc_tissue <- read.csv('../data/GDSC/COSMIC tissue classification-Table 1.csv')
+gdsc_tissue.dr <- gdsc_tissue[which(gdsc_tissue$COSMIC_ID %in% gdsc.cl),]
+gdsc_tissue.dr.nohem <- gdsc_tissue.dr[which(gdsc_tissue.dr$Site != 'haematopoietic_and_lymphoid_tissue'),]
+
+sample <- as.character(gdsc_tissue.dr.nohem$COSMIC_ID)
+sample.toanalyze <- intersect(sample,colnames(gdsc.expression))
+
+gdsc.exp <- gdsc.expression[,sample.toanalyze]
+
+gdsc.drug<-read.csv("../data/GDSC/v17.3_fitted_dose_response.csv")
+gdsc.tocast<-data.frame(gdsc.drug$COSMIC_ID,gdsc.drug$DRUG_NAME,gdsc.drug$LN_IC50)
+colnames(gdsc.tocast)<-c('COSMIC_ID','drug','LN_IC50')
+gdsc.cast<-dcast(gdsc.tocast,formula = COSMIC_ID ~ drug,fun.aggregate = mean)
+row.names(gdsc.cast)<-gdsc.cast$COSMIC_ID
+gdsc.cast$COSMIC_ID<-NULL
+gdsc.cast <- exp(gdsc.cast)
+gdsc.cast_o<-gdsc.cast
+
+
+gdsc.tocamera<-gdsc.exp
+drug.tocamera<-gdsc.cast[match(colnames(gdsc.tocamera), row.names(gdsc.cast)),] 
+drug.camera<-drug.tocamera[which(colnames(gdsc.tocamera) == row.names(drug.tocamera)),]
+gdsc.camera<-gdsc.tocamera[,which(colnames(gdsc.tocamera) == row.names(drug.tocamera))]
+
+common.cl <- row.names(drug.camera)
+
+setkey(gdsc_ccle_common,COSMIC_ID)
+gdsc_ccle_exp <- gdsc_ccle_common[common.cl]
+save(gdsc_ccle_exp,file = 'GDSC_CCLE_experiment_cl.Rdata')
+```
+
+
+
+

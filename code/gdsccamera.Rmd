@@ -1,0 +1,311 @@
+---
+title: "GDSC camera"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,warning = FALSE)
+library(reshape)
+library(GEOquery)
+library(gplots)
+library(dplyr)
+library(GSVA)
+library(GSEABase)
+library(org.Hs.eg.db)
+library(annotate)
+library(GO.db)
+library(limma)
+library(reshape2)
+library(biomaRt)
+library(data.table)
+
+```
+
+
+```{r exp input}
+gdsc.expression<-fread('../data/GDSC/sanger1018_brainarray_ensemblgene_rma.txt',sep = 'auto',check.names = FALSE,header = TRUE,blank.lines.skip=TRUE)
+gdsc.expression<-as.data.frame(gdsc.expression)
+row.names(gdsc.expression)<-gdsc.expression$ensembl_gene
+gdsc.expression$ensembl_gene<-NULL
+
+gdsc_cl <- read.csv('../data/GDSC/Cell line details.csv')
+gdsc.cl.dr <- gdsc_cl[which(gdsc_cl$Drug.Response == 'Y'),]
+gdsc.cl <- as.character(gdsc.cl.dr$COSMIC.identifier)
+
+gdsc_tissue <- read.csv('../data/GDSC/COSMIC tissue classification-Table 1.csv')
+gdsc_tissue.dr <- gdsc_tissue[which(gdsc_tissue$COSMIC_ID %in% gdsc.cl),]
+gdsc_tissue.dr.nohem <- gdsc_tissue.dr[which(gdsc_tissue.dr$Site != 'haematopoietic_and_lymphoid_tissue'),]
+
+sample <- as.character(gdsc_tissue.dr.nohem$COSMIC_ID)
+sample.toanalyze <- intersect(sample,colnames(gdsc.expression))
+
+gdsc.exp <- gdsc.expression[,sample.toanalyze]
+#gdsc.exp.nohemo.z <- apply(as.matrix(gdsc.exp),2,scale)
+#row.names(gdsc.exp.nohemo.z)<-rownames(gdsc.exp)
+#save(gdsc.exp.nohemo.z,file = '../data/GDSC/gdsc_exp_nohemo_z.Rdata')
+```
+
+```{r drug input}
+gdsc.drug<-read.csv("../data/GDSC/v17.3_fitted_dose_response.csv")
+gdsc.tocast<-data.frame(gdsc.drug$COSMIC_ID,gdsc.drug$DRUG_NAME,gdsc.drug$LN_IC50)
+colnames(gdsc.tocast)<-c('COSMIC_ID','drug','LN_IC50')
+gdsc.cast<-dcast(gdsc.tocast,formula = COSMIC_ID ~ drug,fun.aggregate = mean)
+row.names(gdsc.cast)<-gdsc.cast$COSMIC_ID
+gdsc.cast$COSMIC_ID<-NULL
+gdsc.cast <- exp(gdsc.cast)
+gdsc.cast_o<-gdsc.cast
+```
+
+```{r threshold}
+gdsc.tomax<-data.frame(gdsc.drug$COSMIC_ID,gdsc.drug$DRUG_NAME,gdsc.drug$MAX_CONC_MICROMOLAR)
+colnames(gdsc.tomax)<-c('COSMIC_ID','drug','MAX_CONC_MICROMOLAR')
+gdsc.cast.max<-dcast(gdsc.tomax,formula = COSMIC_ID ~ drug,fun.aggregate = mean)
+row.names(gdsc.cast.max)<-gdsc.cast.max$COSMIC_ID
+gdsc.cast.max$COSMIC_ID <- NULL
+```
+
+
+```{r corr0}
+cl.toresponse <- matrix( nrow = nrow(gdsc.cast), ncol = 251)
+#regulator.drug.ssgsea.cor<-sapply(c(1:251),function(x){
+  for (i in c(1:251)){
+  dr <- gdsc.cast[,i]
+  names(dr) <- row.names(gdsc.cast)
+  cl.thres <- gdsc.cast.max[names(dr),i]
+  dr[dr < cl.thres] <- 'r'
+  dr[!(dr == 'NaN' | dr == 'r')] <- 'nr'
+  #dr[dr >= cl.thres] <- 'nr'
+  cl.toresponse[,i] <- dr
+  }
+cl.toresponse <- as.data.frame(cl.toresponse)
+row.names(cl.toresponse) <- row.names(gdsc.cast)
+colnames(cl.toresponse) <- colnames(gdsc.cast)
+```
+
+
+
+```{r load}
+#load('../data/GDSC/gdsc_exp_nohemo_z.Rdata')
+```
+
+
+```{r info}
+genes <- row.names(gdsc.exp)
+ensembl <- useDataset("hsapiens_gene_ensembl", useMart("ensembl"))
+gene_list <- getBM(filters= "ensembl_gene_id", attributes= c("ensembl_gene_id",
+"entrezgene", 'hgnc_symbol',"description"),values=genes,mart= ensembl)
+gene.name <- gene_list$hgnc_symbol
+gene.ORF <- gene_list$entrezgene
+gene.list <- gene_list$ensembl_gene_id
+```
+
+```{r pre}
+gdsc.tocamera<-gdsc.exp[match(gene.list,genes),]
+drug.tocamera<-cl.toresponse[match(colnames(gdsc.tocamera), row.names(cl.toresponse)),] 
+drug.camera<-drug.tocamera[-which(colnames(gdsc.tocamera) != row.names(drug.tocamera)),]
+gdsc.camera<-gdsc.tocamera[,-which(colnames(gdsc.tocamera) != row.names(drug.tocamera))]
+```
+
+
+```{r pre2}
+load('../data/regulators_5_cl_20_tar.Rdata')
+```
+
+
+```{r camera , include = FALSE}
+ids <- ids2indices(geneIds(regset),gene.name) 
+camera.drug<-function(x){
+#x <- 'Erlotinib'
+drug<-x
+cl.drug<-as.character(drug.camera[,drug])
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(drug.camera)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+result <- r1[which(r1$PValue<0.05),]
+return(result[which(row.names(result) %in% selected.regulator),])}
+#r1[which(r1$PValue<0.05 & r1$NGenes > 9),]
+#drugs <- colnames(drug.camera)
+#drugs <- drugs[! drugs == 'Panobinostat']
+mek_in <- c('Sorafenib','Nutlin-3a (-)')
+result.camera <- lapply(mek_in,camera.drug)
+names(result.camera) <- mek_in
+#camera.drug('Erlotinib')
+result.camera
+```
+
+
+
+
+```{r dge}
+gdsc.expression<-fread('../data/GDSC/sanger1018_brainarray_ensemblgene_rma.txt',sep = 'auto',check.names = FALSE,header = TRUE,blank.lines.skip=TRUE)
+gdsc.expression<-as.data.frame(gdsc.expression)
+row.names(gdsc.expression)<-gdsc.expression$ensembl_gene
+gdsc.expression$ensembl_gene<-NULL
+dge.drug<-function(x){
+#x <- '17-AAG'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(gdsc.cast)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+fit <- lmFit(gdsc.expression[which(gene.name %in% selected.regulator),names(cl.drug)], cl.design)
+contrasts <- makeContrasts(response - non_response, levels=cl.design)
+fit2 <- contrasts.fit(fit, contrasts)
+fit2 <- eBayes(fit2)
+fit2$genes <- gene_list[which(gene.name %in% selected.regulator),]
+topTable(fit2)
+testResults <- topTable(fit2, number=nrow(fit2))
+testResults <- testResults[complete.cases(testResults),]
+return(testResults[which(testResults$logFC <= -1 | testResults$logFC >= 1),])
+}
+
+result.dge <- lapply(mek_in,dge.drug)
+names(result.dge) <- mek_in
+result.dge
+```
+
+
+```{r camera go slim}
+slim_terms <- getOBOCollection("../data/Gene_regulators/goslim_generic.obo")
+xx <- as.list(org.Hs.egGO2ALLEGS)
+goids <- xx[2:3]
+gonames<-Term(GOTERM)
+go_bp_children <- GOBPOFFSPRING$"GO:0008150"
+slim_terms <- ids(slim_terms)[which(ids(slim_terms) %in% go_bp_children)]
+slim_terms <- cbind(slim_terms, unname(gonames[match(slim_terms, names(gonames))]))
+pathways <- xx[slim_terms[,1]]
+pathways <- pathways[!is.na(names(pathways))]
+names(pathways) <- unname(gonames[match(names(pathways), names(gonames))])
+ids<-ids2indices(pathways,gene.ORF)
+camera.drug.go<-function(x){
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(gdsc.cast)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.go <- lapply(mek_in,camera.drug.go)
+names(result.go) <- mek_in
+
+```
+
+```{r camera go h}
+hgset <- getGmt('../data/Gene_regulators/h.all.v6.2.symbols.gmt')
+ids <- ids2indices(geneIds(hgset),gene.name) 
+camera.drug.h<-function(x){
+#x <- 'Panobinostat'
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(gdsc.cast)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.h <- lapply(mek_in,camera.drug.h)
+names(result.camera.h) <- mek_in
+```
+
+```{r camera go kegg}
+keggset <- getGmt('../data/Gene_regulators/c2.cp.kegg.v6.2.symbols.gmt.txt')
+ids <- ids2indices(geneIds(keggset),gene.name) 
+camera.drug.kegg<-function(x){
+#x <- 'Panobinostat'
+#x <- 'Panobinostat'
+drug<-x
+cl.drug<-drug.camera[,drug]
+names(cl.drug)<-row.names(drug.camera)
+cl.name<-row.names(gdsc.cast)
+cl.drug <- cl.drug[!(cl.drug == 'NaN')]
+n<-length(cl.drug)
+cl.design <- matrix(nrow=n,ncol=2)
+cl.design[,1] <- as.numeric(cl.drug == 'r')
+cl.design.2<-cl.design[,1]
+cl.design.2[which(cl.design[,1] == 1)]<- 0
+cl.design.2[which(cl.design[,1] == 0)]<- 1
+cl.design[,2]<-cl.design.2
+colnames(cl.design)<-c('response','non_response')
+r1 <- camera(data.matrix(gdsc.camera[,names(cl.drug)]), ids, cl.design,contrast=makeContrasts(response - non_response, levels=cl.design))
+#Pvalue<-r1$Pvalue
+#Direction<-r1$Direction 
+#Pvalue<-1-Pvalue
+#Pvalue[which(Direction == 'Down')]<- -Pvalue[which(Direction == 'Down')]
+return(r1[which(r1$PValue<0.05),])}
+
+result.camera.kegg <- lapply(mek_in,camera.drug.kegg)
+names(result.camera.kegg) <- mek_in
+```
+
+## Selumetinib (AZD6244) 
+```{r AZD}
+result.camera$Selumetinib
+se<-result.dge$Selumetinib
+se[which(se$logFC > 1 | se$logFC < -1),]
+result.camera.h$Selumetinib
+result.camera.kegg$Selumetinib
+result.go$Selumetinib
+```
+
+## PD0325901
+```{r pf}
+result.camera$PD0325901
+pd<-result.dge$PD0325901
+pd[which(pd$logFC > 1 | pd$logFC < -1),]
+result.camera.h$PD0325901
+result.camera.kegg$PD0325901
+result.go$PD0325901
+```
+
+
